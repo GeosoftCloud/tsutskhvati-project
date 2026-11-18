@@ -30,7 +30,7 @@ Resilient bilingual (Georgian / English) AI school lesson portal and QR studio b
 | [`app.js`](./app.js) | `?doc=` QR reader, direct Google Docs CORS reader, Two-Tier Cache (`localStorage` + shared Geosoft cache), and JumpIn polling |
 | [`qrcode.js`](./qrcode.js) | Zero-dependency ISO/IEC 18004 QR Code encoder (crisp SVG + downloadable PNG) |
 | [`chatbot-config.js`](./chatbot-config.js) | Geosoft Headless Agent URL (`agentBaseUrl`) & caching settings |
-| [`auth-config.js`](./auth-config.js) | Google Cloud / Firebase (`tsutskhvati-teacher-auth`) config & main Super Admin email (`luka@geosoft.dev`) |
+| [`auth-config.js`](./auth-config.js) | Google Cloud / Firebase (`geosoft-agents-customer-whc5sa`) config & main Super Admin email (`luka@geosoft.dev`) |
 | [`teacher-auth.js`](./teacher-auth.js) | Teacher Google OAuth authentication gate & Super Admin authorized teachers group manager |
 | [`firestore.rules`](./firestore.rules) | Cloud Firestore Security Rules enforcing verified Google OAuth, Super Admin RBAC, and non-enumerable teacher checks |
 | [`firebase.json`](./firebase.json) | Firebase Auth (Google Sign-In) & Firestore configuration |

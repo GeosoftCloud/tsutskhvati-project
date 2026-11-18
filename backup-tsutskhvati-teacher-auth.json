@@ -1,0 +1,132 @@
+{
+  "teachers": {
+    "documents": [
+      {
+        "name": "projects/tsutskhvati-teacher-auth/databases/(default)/documents/teachers/andro@geosoft.ge",
+        "fields": {
+          "addedAt": {
+            "timestampValue": "2026-11-18T09:00:01.126Z"
+          },
+          "email": {
+            "stringValue": "andro@geosoft.ge"
+          },
+          "addedBy": {
+            "stringValue": "luka@geosoft.dev"
+          },
+          "note": {
+            "stringValue": "Andro Meskhoradze"
+          },
+          "role": {
+            "stringValue": "teacher"
+          }
+        },
+        "createTime": "2026-11-18T09:00:01.160586Z",
+        "updateTime": "2026-11-18T09:00:01.160586Z"
+      },
+      {
+        "name": "projects/tsutskhvati-teacher-auth/databases/(default)/documents/teachers/luka@geosoft.dev",
+        "fields": {
+          "email": {
+            "stringValue": "luka@geosoft.dev"
+          },
+          "lastLoginAt": {
+            "timestampValue": "2026-11-18T10:12:27.415Z"
+          },
+          "addedAt": {
+            "timestampValue": "2026-11-18T08:30:55Z"
+          },
+          "photoURL": {
+            "stringValue": "https://lh3.googleusercontent.com/a/ACg8ocIYGF2hOs-cKz1c-0jQQdLnTTLkkFyKvOwsbYhZ-0m7IkVpeLk=s96-c"
+          },
+          "addedBy": {
+            "stringValue": "luka@geosoft.dev"
+          },
+          "note": {
+            "stringValue": "Main Super Admin"
+          },
+          "role": {
+            "stringValue": "super_admin"
+          },
+          "googleName": {
+            "stringValue": "Luka Butskhrikidze"
+          }
+        },
+        "createTime": "2026-11-18T08:30:55.755895Z",
+        "updateTime": "2026-11-18T10:12:27.436254Z"
+      }
+    ]
+  },
+  "subcollections": {
+    "andro@geosoft.ge": {},
+    "luka@geosoft.dev": {
+      "documents": [
+        {
+          "name": "projects/tsutskhvati-teacher-auth/databases/(default)/documents/teachers/luka@geosoft.dev/docs/1rInD7u2kw1k6LKj6HlUfDQle1fblTz3L-enoQCz1_aw",
+          "fields": {
+            "createdAt": {
+              "timestampValue": "2026-11-18T10:13:06.279Z"
+            },
+            "docKey": {
+              "stringValue": "1rInD7u2kw1k6LKj6HlUfDQle1fblTz3L-enoQCz1_aw"
+            },
+            "shareCount": {
+              "integerValue": "1"
+            },
+            "status": {
+              "stringValue": "ai_generated"
+            },
+            "docUrl": {
+              "stringValue": "https://docs.google.com/document/d/1rInD7u2kw1k6LKj6HlUfDQle1fblTz3L-enoQCz1_aw/edit"
+            },
+            "studentQrUrl": {
+              "stringValue": "http://localhost:8080/?doc=https%3A%2F%2Fdocs.google.com%2Fdocument%2Fd%2F1rInD7u2kw1k6LKj6HlUfDQle1fblTz3L-enoQCz1_aw%2Fedit"
+            },
+            "title": {
+              "stringValue": "\u10e1\u10d0\u10e5\u10d0\u10e0\u10d7\u10d5\u10d4\u10da\u10dd\u10e1 \u10e0\u10d4\u10da\u10d8\u10d4\u10e4\u10d8, \u10d9\u10da\u10d8\u10db\u10d0\u10e2\u10d8 \u10d3\u10d0 \u10e8\u10d8\u10d3\u10d0 \u10ec\u10e7\u10da\u10d4\u10d1\u10d8"
+            },
+            "updatedAt": {
+              "timestampValue": "2026-11-18T10:13:26.111Z"
+            },
+            "subject": {
+              "stringValue": "\u10d2\u10d4\u10dd\u10d2\u10e0\u10d0\u10e4\u10d8\u10d0 \u00b7 \u10e1\u10d0\u10e5\u10d0\u10e0\u10d7\u10d5\u10d4\u10da\u10dd\u10e1 \u10d1\u10e3\u10dc\u10d4\u10d1\u10d0"
+            },
+            "personalNote": {
+              "stringValue": ""
+            },
+            "classLabel": {
+              "stringValue": ""
+            }
+          },
+          "createTime": "2026-11-18T10:13:06.326505Z",
+          "updateTime": "2026-11-18T10:13:26.135154Z"
+        }
+      ]
+    }
+  },
+  "auth_users": {
+    "kind": "identitytoolkit#DownloadAccountResponse",
+    "users": [
+      {
+        "localId": "nBJ1Ca7MnAYefWuEknRJX2Y1Jv93",
+        "email": "luka@geosoft.dev",
+        "displayName": "Luka Butskhrikidze",
+        "photoUrl": "https://lh3.googleusercontent.com/a/ACg8ocIYGF2hOs-cKz1c-0jQQdLnTTLkkFyKvOwsbYhZ-0m7IkVpeLk=s96-c",
+        "emailVerified": true,
+        "providerUserInfo": [
+          {
+            "providerId": "google.com",
+            "displayName": "Luka Butskhrikidze",
+            "photoUrl": "https://lh3.googleusercontent.com/a/ACg8ocIYGF2hOs-cKz1c-0jQQdLnTTLkkFyKvOwsbYhZ-0m7IkVpeLk=s96-c",
+            "federatedId": "102446206018101981469",
+            "email": "luka@geosoft.dev",
+            "rawId": "102446206018101981469"
+          }
+        ],
+        "validSince": "1794992368",
+        "lastLoginAt": "1794992368210",
+        "createdAt": "1794992368208",
+        "lastRefreshAt": "2026-11-18T09:54:29.013Z"
+      }
+    ]
+  }
+}

@@ -1,18 +1,18 @@
 /**
  * SnowDay Class (answer.ge) — Teacher Google OAuth & Super Admin Configuration
- * Google Cloud / Firebase Project: Tsutskhvati Teacher Auth (tsutskhvati-teacher-auth)
+ * Consolidated Google Cloud / Firebase Project: Tsutskhvati (geosoft-agents-customer-whc5sa)
  */
 window.SNOWDAY_AUTH_CONFIG = {
   // Bootstrapped Main Super Admin email (also enforced server-side in firestore.rules):
   superAdminEmail: "luka@geosoft.dev",
 
-  // Firebase Web SDK Configuration (tsutskhvati-teacher-auth):
+  // Firebase Web SDK Configuration (geosoft-agents-customer-whc5sa):
   firebaseConfig: {
-    apiKey: "AIzaSyB9HpoZMzm2RxGSfrmR6ejI7Gr81OynLCI",
-    authDomain: "tsutskhvati-teacher-auth.firebaseapp.com",
-    projectId: "tsutskhvati-teacher-auth",
-    storageBucket: "tsutskhvati-teacher-auth.firebasestorage.app",
-    messagingSenderId: "923601093053",
-    appId: "1:923601093053:web:5c23b9ba7aac57fca692d4"
+    apiKey: "AIzaSyBn1C2_j4WOkIQGtciIk6haHHxKh7i-b-8",
+    authDomain: "geosoft-agents-customer-whc5sa.firebaseapp.com",
+    projectId: "geosoft-agents-customer-whc5sa",
+    storageBucket: "geosoft-agents-customer-whc5sa.firebasestorage.app",
+    messagingSenderId: "617054738609",
+    appId: "1:617054738609:web:8a54df627232f9b9396a90"
   }
 };

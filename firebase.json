@@ -9,8 +9,10 @@
         "oAuthBrandDisplayName": "SnowDay Class - answer.ge",
         "supportEmail": "luka@geosoft.dev",
         "authorizedRedirectUris": [
-          "https://tsutskhvati-teacher-auth.firebaseapp.com/__/auth/handler",
-          "https://tsutskhvati-teacher-auth.web.app/__/auth/handler",
+          "https://geosoft-agents-customer-whc5sa.firebaseapp.com/__/auth/handler",
+          "https://geosoft-agents-customer-whc5sa.web.app/__/auth/handler",
+          "https://tsutskhvati-web-617054738609.europe-west1.run.app",
+          "https://answer.ge",
           "http://localhost:8080"
         ]
       }

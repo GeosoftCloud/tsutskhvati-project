@@ -4,7 +4,7 @@ rules_version = '2';
 // Assumed Data Model
 // ===============================================================
 //
-// Project: tsutskhvati-teacher-auth (Standard edition, (default) database)
+// Project: geosoft-agents-customer-whc5sa (Standard edition, (default) database)
 //
 // 1. Collection: /teachers/{teacherEmail}
 //    Document ID: {teacherEmail} - Canonical lowercase email address of an
