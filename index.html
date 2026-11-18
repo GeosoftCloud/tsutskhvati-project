@@ -1,0 +1,1094 @@
+<!DOCTYPE html>
+<html lang="ka">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>თოვლის დღის კლასი | answer.ge — სკოლის AI გაკვეთილი და რეპეტიტორი</title>
+  <meta name="description" content="answer.ge — მთის და რეგიონის სკოლების უწყვეტი სასწავლო პლატფორმა: მასწავლებელი აზიარებს გაკვეთილის Google Doc-ს, ქმნის QR კოდს, ხოლო AI აგენტი ავტომატურად აგენერირებს სასწავლო ბარათებს, რთულ სიტყვებს, კითხვარს და ეხმარება მოსწავლეებს ჩათში.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Georgian:wght@400;500;600;700&family=Noto+Serif+Georgian:wght@600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="./styles.css">
+</head>
+<body>
+  <a class="skip-link" href="#main-content" data-i18n="skipToMain">მთავარ შინაარსზე გადასვლა</a>
+
+  <header class="site-header is-wide" id="site-header">
+    <div class="header-container header-inner" id="header-inner">
+      <a class="brand" href="./" id="home-brand-link">
+        <span class="brand-emblem" aria-hidden="true">
+          <svg viewBox="0 0 44 44" width="34" height="34" fill="none">
+            <rect width="44" height="44" rx="12" fill="currentColor" fill-opacity="0.11" />
+            <path d="M8 29L17.5 14L24 23.5L28.5 17.5L36 29H8Z" fill="currentColor" fill-opacity="0.24" />
+            <path d="M10 31.5C14 29.2 18.5 29.2 22 31.5C25.5 29.2 30 29.2 34 31.5V22.5C30 20.2 25.5 20.2 22 22.5C18.5 20.2 14 20.2 10 22.5V31.5Z" stroke="currentColor" stroke-width="2.2" stroke-linejoin="round" fill="#ffffff" />
+            <path d="M22 22.5V31.5" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
+            <circle cx="32.5" cy="12" r="2.3" fill="currentColor" />
+          </svg>
+        </span>
+        <span class="brand-text">
+          <strong class="brand-title" data-i18n="brandTitle">თოვლის დღის კლასი</strong>
+          <span class="brand-subtitle" data-i18n="brandSubtitle">answer.ge · სკოლის AI გაკვეთილი QR კოდით</span>
+        </span>
+      </a>
+
+      <nav class="main-nav" id="main-nav" aria-label="ძირითადი ნავიგაცია" hidden>
+        <button
+          class="menu-button"
+          id="mobile-menu-btn"
+          type="button"
+          popovertarget="site-menu"
+          popovertargetaction="toggle"
+          aria-controls="site-menu"
+        >
+          <svg viewBox="0 0 20 20" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true">
+            <path d="M3 5.5h14M3 10h14M3 14.5h14" />
+          </svg>
+          <span class="menu-button-label" data-i18n="menuBtn">მენიუ</span>
+        </button>
+
+        <ul id="site-menu" class="site-menu" popover="auto">
+          <li><a href="#tutor-section" data-i18n="navTutor">AI რეპეტიტორი</a></li>
+          <li><a href="#cards-section" data-i18n="navCards">სასწავლო ბარათები</a></li>
+          <li><a href="#glossary-section" data-i18n="navGlossary">რთული სიტყვები</a></li>
+          <li><a href="#quiz-section" data-i18n="navQuiz">კითხვარი</a></li>
+        </ul>
+      </nav>
+
+      <div class="header-actions">
+        <button type="button" class="auth-header-pill" id="header-teacher-auth-btn">
+          <span class="auth-status-dot" id="header-auth-dot" aria-hidden="true" hidden></span>
+          <svg viewBox="0 0 20 20" width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.9" aria-hidden="true">
+            <circle cx="10" cy="6.6" r="3.1" />
+            <path d="M4.2 16.8c0-2.9 2.6-4.8 5.8-4.8s5.8 1.9 5.8 4.8" stroke-linecap="round" />
+          </svg>
+          <span class="studio-label-full" id="header-auth-label-full">შესვლა (მასწავლებელი)</span>
+          <span class="studio-label-short" id="header-auth-label-short" aria-hidden="true">შესვლა</span>
+        </button>
+
+        <button type="button" class="studio-pill" id="open-studio-btn">
+          <svg viewBox="0 0 20 20" width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.9" aria-hidden="true">
+            <rect x="2.5" y="2.5" width="6" height="6" rx="1" />
+            <rect x="11.5" y="2.5" width="6" height="6" rx="1" />
+            <rect x="2.5" y="11.5" width="6" height="6" rx="1" />
+            <path d="M12 12h2.5v2.5H12zM15.5 15.5H18V18h-2.5zM15.5 11.5H18V14h-2.5zM11.5 15.5H14V18h-2.5z" fill="currentColor" stroke="none" />
+          </svg>
+          <span class="studio-label-full" data-i18n="teacherStudioBtn">მასწავლებლის QR სტუდია</span>
+          <span class="studio-label-short" aria-hidden="true">QR</span>
+        </button>
+
+        <div class="lang-switch" role="group" aria-label="ენის არჩევა / Language">
+          <button type="button" class="lang-btn is-active" data-lang-btn="ka" aria-pressed="true">ქარ</button>
+          <button type="button" class="lang-btn" data-lang-btn="en" aria-pressed="false">ENG</button>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- Active Document Status Ribbon (visible when a lesson Google Doc is open) -->
+  <div class="demo-ribbon" id="active-doc-ribbon" role="region" aria-label="აქტიური გაკვეთილის დოკუმენტი" hidden>
+    <div class="header-container demo-ribbon-inner">
+      <div class="demo-source-status">
+        <span class="source-dot is-qr" id="source-dot" aria-hidden="true"></span>
+        <span class="demo-source-label" id="active-source-label" data-i18n="qrActiveLabel">გენერირებულია მასწავლებლის დოკუმენტიდან</span>
+        <span class="doc-format-badge" id="active-doc-format-badge" hidden></span>
+        <span class="cache-hit-badge" id="cache-hit-badge" hidden data-i18n="cachedBadge">⚡ მყისიერი ქეშიდან</span>
+      </div>
+
+      <div class="ribbon-doc-actions">
+        <a class="ribbon-link" id="external-doc-link" href="#" target="_blank" rel="noopener noreferrer" data-i18n="openOriginalDoc">
+          Google Doc-ის გახსნა ↗
+        </a>
+        <button type="button" class="ribbon-btn" id="save-to-workspace-btn" hidden>
+          📌 ისტორიაში შენახვა
+        </button>
+        <button type="button" class="ribbon-btn" id="regenerate-doc-btn" data-i18n="regenerateBtn" hidden>
+          თავიდან გენერაცია
+        </button>
+        <button type="button" class="ribbon-btn" id="ribbon-workspace-btn" hidden>
+          ჩემი სივრცე
+        </button>
+        <button type="button" class="ribbon-btn ribbon-btn-accent" id="switch-doc-btn" data-i18n="switchDocBtn">
+          სხვა დოკუმენტი / QR
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <main id="main-content">
+    <!-- Live AI Lesson Generation Loading / Error States -->
+    <div class="container status-banner-wrap">
+      <section class="generation-card" id="generation-loading" role="status" aria-live="polite" hidden>
+        <div class="spinner" aria-hidden="true"></div>
+        <div class="generation-copy">
+          <strong id="generation-title" data-i18n="generatingTitle">AI აგენტი კითხულობს მასწავლებლის Google Doc-ს...</strong>
+          <p id="generation-sub" data-i18n="generatingBody">
+            იქმნება სასწავლო ბარათები, რთული სიტყვების ლექსიკონი და 3-ვარიანტიანი კითხვარი დოკუმენტისა და საგნის მიხედვით.
+          </p>
+        </div>
+      </section>
+
+      <section class="generation-error-card" id="generation-error" role="alert" hidden>
+        <div class="generation-error-copy">
+          <strong id="generation-error-title" data-i18n="genErrorTitle">დოკუმენტის ავტომატური გენერაცია ვერ შესრულდა</strong>
+          <p id="generation-error-body"></p>
+        </div>
+        <div class="generation-error-actions">
+          <button type="button" class="btn btn-secondary btn-small" id="error-open-studio-btn" data-i18n="configureApiBtn">
+            QR და API პარამეტრები
+          </button>
+          <button type="button" class="btn btn-ghost btn-small" id="error-retry-btn" data-i18n="retryGenBtn">
+            ხელახლა ცდა
+          </button>
+        </div>
+      </section>
+    </div>
+
+    <!-- =====================================================================
+         ENTRY LANDING HUB (shown when visiting answer.ge without ?doc=...)
+         ===================================================================== -->
+    <section class="landing-hub" id="landing-hub" aria-labelledby="landing-heading">
+      <div class="container">
+        <div class="landing-intro">
+          <span class="subject-pill" data-i18n="landingEyebrow">answer.ge · უწყვეტი სასკოლო განათლება</span>
+          <h1 id="landing-heading" data-i18n="landingHeading">
+            გადააქციე მასწავლებლის Google Doc ინტერაქტიულ AI გაკვეთილად
+          </h1>
+          <p class="landing-lead" data-i18n="landingLead">
+            როდესაც დიდთოვლობის ან რთული მეტეოროლოგიური პირობების გამო მასწავლებელი სკოლაში ვერ მიდის, საკმარისია გაკვეთილის Google Doc-ის ბმული: AI აგენტი ერთხელ აანალიზებს დოკუმენტს, ქმნის სრულ სასწავლო ვებგვერდს და ინახავს მას მყისიერი გამოყენებისთვის.
+          </p>
+        </div>
+
+        <div class="landing-cards-grid">
+          <!-- Card 1: Student — Open Lesson via Google Doc Link -->
+          <article class="hub-card hub-card-student" aria-labelledby="student-hub-title">
+            <header class="hub-card-header">
+              <span class="hub-role-badge is-student" data-i18n="studentRoleBadge">🎓 მოსწავლისთვის</span>
+              <h2 id="student-hub-title" data-i18n="studentHubTitle">გახსენი დღევანდელი გაკვეთილი</h2>
+              <p data-i18n="studentHubDesc">
+                დაასკანერე მასწავლებლის მიერ გამოგზავნილი QR კოდი, ან ჩასვი Google Docs-ის ბმული პირდაპირ ქვემოთ სასწავლო გვერდის გასახსნელად:
+              </p>
+            </header>
+
+            <form id="landing-student-form" action="./" method="GET" aria-labelledby="student-hub-title">
+              <div class="field-group">
+                <label for="landing-student-doc-input">
+                  <span data-i18n="studentDocLabel">მასწავლებლის გაკვეთილის ბმული (Doc, Drive PDF, DOCX, TXT)</span>
+                  <span class="req-star" aria-hidden="true">*</span>
+                </label>
+                <input
+                  type="url"
+                  id="landing-student-doc-input"
+                  name="doc"
+                  placeholder="https://docs.google.com/document/d/... ან https://drive.google.com/file/d/..."
+                  autocorrect="off"
+                  autocapitalize="none"
+                  spellcheck="false"
+                  enterkeyhint="go"
+                  aria-describedby="landing-student-hint landing-student-error"
+                  required
+                >
+                <span class="field-hint" id="landing-student-hint" data-i18n="studentDocHint">
+                  მხარდაჭერილია Google Docs, Drive ფაილები (PDF, DOCX, TXT) და ვებ ბმულები.
+                </span>
+                <span class="field-error" id="landing-student-error" role="alert" hidden></span>
+              </div>
+
+              <button type="submit" class="btn btn-primary btn-full" data-i18n="openLessonBtn">
+                გაკვეთილის გახსნა
+              </button>
+            </form>
+
+            <!-- Recently opened / cached lessons on this device -->
+            <div class="recent-lessons-box" id="recent-lessons-box" hidden>
+              <p class="recent-lessons-title" data-i18n="recentLessonsTitle">⚡ ბოლოს გახსნილი გაკვეთილები (მყისიერი):</p>
+              <ul class="recent-lessons-list" id="recent-lessons-list"></ul>
+            </div>
+          </article>
+
+          <!-- Card 2: Teacher — Generate Student QR Code -->
+          <article class="hub-card hub-card-teacher" aria-labelledby="teacher-hub-title">
+            <header class="hub-card-header">
+              <span class="hub-role-badge is-teacher" data-i18n="teacherRoleBadge">👩‍🏫 მასწავლებლისთვის</span>
+              <h2 id="teacher-hub-title" data-i18n="teacherHubTitle">შექმენი მოსწავლის QR კოდი</h2>
+              <p data-i18n="teacherHubDesc">
+                ატვირთეთ ან დაწერეთ გაკვეთილის მასალა Google Docs-ში და დააგენერირეთ QR კოდი მოსწავლეებისთვის:
+              </p>
+            </header>
+
+            <div id="landing-teacher-auth-gate">
+              <p class="auth-gate-loading">მოწმდება მასწავლებლის ავტორიზაცია...</p>
+            </div>
+
+            <div id="landing-teacher-unlocked" hidden>
+              <div class="teacher-account-bar" id="landing-teacher-account-bar" hidden></div>
+
+              <ol class="hub-steps">
+                <li data-i18n="howStep1">მოამზადეთ გაკვეთილი Google Docs-ში, Google Drive-ზე (PDF, DOCX, TXT) ან ატვირთეთ ფაილი.</li>
+                <li data-i18n="howStep2">დააწკაპუნეთ <strong>Share (გაზიარება)</strong> → აირჩიეთ <strong>Anyone with the link (ნებისმიერი ბმულით — მნახველი)</strong>.</li>
+                <li data-i18n="howStep3">ჩასვით ბმული ან ატვირთეთ ფაილი ქვემოთ, შექმენით QR კოდი და გაუზიარეთ კლასს!</li>
+              </ol>
+
+              <form id="landing-teacher-form" action="./" method="GET" aria-labelledby="teacher-hub-title">
+                <div class="field-group">
+                  <label for="landing-teacher-doc-input">
+                    <span data-i18n="docLinkLabel">Google Docs / Drive (PDF, DOCX, TXT) გაზიარების ბმული</span>
+                    <span class="req-star" aria-hidden="true">*</span>
+                  </label>
+                  <input
+                    type="url"
+                    id="landing-teacher-doc-input"
+                    name="doc"
+                    placeholder="https://docs.google.com/document/d/... ან https://drive.google.com/file/d/..."
+                    autocorrect="off"
+                    autocapitalize="none"
+                    spellcheck="false"
+                    enterkeyhint="done"
+                    aria-describedby="landing-teacher-error"
+                    required
+                  >
+                  <div class="file-upload-row">
+                    <span class="file-upload-hint" data-i18n="orUploadDirectly">ან ატვირთეთ ფაილი:</span>
+                    <input type="file" id="landing-teacher-file-input" accept=".pdf,.docx,.txt,application/pdf,application/vnd.openxmlformats-officedocument.wordprocessingml.document,text/plain" hidden>
+                    <button type="button" class="btn btn-secondary btn-small" id="landing-teacher-file-btn">
+                      📁 <span data-i18n="uploadFileBtn">ფაილის ატვირთვა (PDF, DOCX, TXT)</span>
+                    </button>
+                    <span class="file-selected-name" id="landing-teacher-file-name" hidden></span>
+                  </div>
+                  <span class="field-error" id="landing-teacher-error" role="alert" hidden></span>
+                </div>
+
+                <div class="studio-btn-row">
+                  <button type="submit" class="btn btn-primary" data-i18n="createQrBtn">QR კოდის შექმნა</button>
+                  <button type="button" class="btn btn-secondary" id="landing-teacher-preview-btn" data-i18n="previewAndWarmBtn">
+                    გაკვეთილის შექმნა და გადახედვა
+                  </button>
+                </div>
+              </form>
+
+              <!-- Inline Generated QR Preview for Teacher -->
+              <div class="landing-qr-result" id="landing-qr-result" hidden>
+                <div class="qr-svg-box" id="landing-qr-svg" aria-live="polite"></div>
+                <p class="qr-encoded-url" id="landing-qr-url"></p>
+                <div class="qr-actions-grid">
+                  <button type="button" class="btn btn-small btn-primary" id="landing-qr-download-btn" data-i18n="downloadPngBtn">
+                    PNG ჩამოტვირთვა
+                  </button>
+                  <button type="button" class="btn btn-small btn-secondary" id="landing-qr-copy-btn" data-i18n="copyLinkBtn">
+                    ბმულის კოპირება
+                  </button>
+                  <button type="button" class="btn btn-small btn-ghost" id="landing-qr-studio-btn" data-i18n="printAndOptionsBtn">
+                    ამობეჭდვა / პარამეტრები
+                  </button>
+                </div>
+                <p class="copy-toast" id="landing-copy-toast" role="status" aria-live="polite"></p>
+              </div>
+            </div>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <!-- =====================================================================
+         TEACHER PERSONAL WORKSPACE & SUPER ADMIN PANEL (full-page view)
+         ===================================================================== -->
+    <section class="teacher-workspace" id="teacher-workspace-view" aria-labelledby="ws-welcome-heading" hidden>
+      <div class="container">
+        <!-- Personal Workspace Banner -->
+        <header class="ws-banner">
+          <div class="ws-identity">
+            <div class="ws-avatar" id="ws-user-avatar" aria-hidden="true">👩‍🏫</div>
+            <div class="ws-identity-copy">
+              <div class="ws-badge-row">
+                <span class="teacher-verified-pill" id="ws-role-pill">✓ ავტორიზებული მასწავლებელი</span>
+                <span class="ws-email-chip" id="ws-user-email"></span>
+              </div>
+              <h1 class="ws-heading" id="ws-welcome-heading">მასწავლებლის პირადი სივრცე</h1>
+              <p class="ws-subline" id="ws-welcome-sub">
+                მართეთ თქვენი გაზიარებული Google Docs გაკვეთილები, პირადი ჩანაწერები და მოსწავლის QR კოდები ერთ სივრცეში.
+              </p>
+            </div>
+          </div>
+
+          <div class="ws-banner-right">
+            <div class="ws-quick-stats" id="ws-quick-stats">
+              <div class="ws-stat-pill">
+                <strong id="ws-stat-docs-count">0</strong>
+                <span id="ws-stat-docs-label">შენახული დოკუმენტი</span>
+              </div>
+              <div class="ws-stat-pill">
+                <strong id="ws-stat-ai-count">0</strong>
+                <span id="ws-stat-ai-label">AI გაკვეთილი</span>
+              </div>
+              <div class="ws-stat-pill is-admin-stat" id="ws-stat-teachers-wrap" hidden>
+                <strong id="ws-stat-teachers-count">0</strong>
+                <span id="ws-stat-teachers-label">მასწავლებელი ჯგუფში</span>
+              </div>
+            </div>
+
+            <div class="ws-banner-actions">
+              <button type="button" class="btn btn-small btn-primary" id="ws-return-lesson-btn" hidden>
+                ← გაკვეთილზე დაბრუნება
+              </button>
+              <button type="button" class="btn btn-small btn-secondary" id="ws-student-hub-btn">
+                🎓 მოსწავლის საწყისი
+              </button>
+              <button type="button" class="btn btn-small btn-ghost" id="ws-signout-btn">
+                გასვლა
+              </button>
+            </div>
+          </div>
+        </header>
+
+        <!-- Accessible Single-Row Workspace Tablist -->
+        <div class="ws-tabs-shell">
+          <div class="ws-tablist" id="ws-tablist" focusgroup="tablist nomemory" role="tablist" aria-labelledby="ws-welcome-heading">
+            <button type="button" class="ws-tab" role="tab" id="ws-tab-history" data-ws-tab="history" aria-selected="true" focusgroupstart>
+              <span class="ws-tab-icon" aria-hidden="true">📚</span>
+              <span class="ws-tab-label" id="ws-tab-history-label">ჩემი დოკუმენტების ისტორია</span>
+            </button>
+            <button type="button" class="ws-tab" role="tab" id="ws-tab-create" data-ws-tab="create" aria-selected="false">
+              <span class="ws-tab-icon" aria-hidden="true">➕</span>
+              <span class="ws-tab-label" id="ws-tab-create-label">ახალი გაკვეთილი და QR</span>
+            </button>
+            <button type="button" class="ws-tab" role="tab" id="ws-tab-admin" data-ws-tab="admin" aria-selected="false" hidden focusgroup="none">
+              <span class="ws-tab-icon" aria-hidden="true">👥</span>
+              <span class="ws-tab-label" id="ws-tab-admin-label">ადმინ პანელი · მასწავლებლები</span>
+            </button>
+            <button type="button" class="ws-tab" role="tab" id="ws-tab-settings" data-ws-tab="settings" aria-selected="false">
+              <span class="ws-tab-icon" aria-hidden="true">⚙️</span>
+              <span class="ws-tab-label" id="ws-tab-settings-label">AI კავშირი და ქეში</span>
+            </button>
+          </div>
+
+          <div class="ws-panels-stack">
+            <!-- Panel 1: Teacher's Personal Saved & Shared Docs History -->
+            <div role="tabpanel" id="ws-panel-history" data-ws-panel="history" aria-labelledby="ws-tab-history">
+              <div class="ws-panel-surface">
+                <div class="ws-panel-top">
+                  <div>
+                    <h2 id="ws-history-heading">ჩემი გაზიარებული დოკუმენტები და ჩანაწერები</h2>
+                    <p class="ws-panel-desc" id="ws-history-desc">
+                      აქ ინახება ყველა Google Doc, რომელიც დაამატეთ ან გაუზიარეთ მოსწავლეებს — კლასის მითითებით, პირადი შენიშვნებითა და მყისიერი QR კოდით.
+                    </p>
+                  </div>
+                  <div class="ws-panel-top-actions">
+                    <button type="button" class="btn btn-small btn-secondary" id="ws-import-local-btn" hidden>
+                      ⚡ ბრაუზერიდან იმპორტი
+                    </button>
+                    <button type="button" class="btn btn-primary btn-small" id="ws-jump-create-btn">
+                      + ახალი დოკუმენტის დამატება
+                    </button>
+                  </div>
+                </div>
+
+                <div class="ws-history-toolbar">
+                  <search class="ws-search-box">
+                    <label class="visually-hidden" for="ws-history-search" id="ws-history-search-label">მოძებნე შენახულ გაკვეთილებში</label>
+                    <input
+                      type="search"
+                      id="ws-history-search"
+                      placeholder="მოძებნე სათაურით, საგნით, კლასით ან ჩანაწერით..."
+                      autocorrect="off"
+                      autocapitalize="none"
+                      spellcheck="false"
+                    >
+                  </search>
+
+                  <div class="ws-filter-pills" role="group" aria-label="Filter saved documents">
+                    <button type="button" class="ws-filter-btn is-active" data-doc-filter="all" aria-pressed="true" id="ws-filter-all">ყველა</button>
+                    <button type="button" class="ws-filter-btn" data-doc-filter="ai_generated" aria-pressed="false" id="ws-filter-ai">AI გენერირებული</button>
+                    <button type="button" class="ws-filter-btn" data-doc-filter="qr_shared" aria-pressed="false" id="ws-filter-qr">QR გაზიარებული</button>
+                  </div>
+                </div>
+
+                <p class="api-ping-status ws-toast" id="ws-history-feedback" role="status" aria-live="polite" hidden></p>
+
+                <div class="ws-docs-grid" id="ws-docs-grid"></div>
+              </div>
+            </div>
+
+            <!-- Panel 2: New Lesson & QR Studio (Personal Workspace Creator) -->
+            <div role="tabpanel" id="ws-panel-create" data-ws-panel="create" aria-labelledby="ws-tab-create" hidden>
+              <div class="ws-panel-surface">
+                <div class="ws-create-grid">
+                  <div class="ws-create-form-col">
+                    <h2 id="ws-create-heading">ახალი გაკვეთილის დამატება და QR კოდის შექმნა</h2>
+                    <p class="ws-panel-desc" id="ws-create-desc">
+                      ჩასვით საჯარო Google Docs ბმული, მიუთითეთ კლასი ან პირადი კომენტარი — დოკუმენტი ავტომატურად შეინახება თქვენს პირად ისტორიაში.
+                    </p>
+
+                    <form id="ws-create-doc-form" novalidate>
+                      <div class="field-group">
+                        <label for="ws-doc-url-input">
+                          <span id="ws-doc-url-label">Google Docs / Drive (PDF, DOCX, TXT) ბმული</span>
+                          <span class="req-star" aria-hidden="true">*</span>
+                        </label>
+                        <span class="field-hint" id="ws-doc-url-hint">
+                          Share → Anyone with the link (Viewer) — მხარდაჭერილია Google Docs, Drive PDF, DOCX, TXT.
+                        </span>
+                        <input
+                          type="url"
+                          id="ws-doc-url-input"
+                          name="doc"
+                          placeholder="https://docs.google.com/document/d/... ან https://drive.google.com/file/d/..."
+                          autocorrect="off"
+                          autocapitalize="none"
+                          spellcheck="false"
+                          required
+                        >
+                        <div class="file-upload-row">
+                          <span class="file-upload-hint" data-i18n="orUploadDirectly">ან ატვირთეთ ფაილი:</span>
+                          <input type="file" id="ws-file-input" accept=".pdf,.docx,.txt,application/pdf,application/vnd.openxmlformats-officedocument.wordprocessingml.document,text/plain" hidden>
+                          <button type="button" class="btn btn-secondary btn-small" id="ws-upload-file-btn">
+                            📁 <span data-i18n="uploadFileBtn">ფაილის ატვირთვა (PDF, DOCX, TXT)</span>
+                          </button>
+                          <span class="file-selected-name" id="ws-file-name" hidden></span>
+                        </div>
+                        <span class="field-error" id="ws-doc-url-error" role="alert" hidden></span>
+                      </div>
+
+                      <div class="ws-meta-two-col">
+                        <div class="field-group">
+                          <label for="ws-doc-title-input" id="ws-doc-title-label">გაკვეთილის სათაური (არასავალდებულო)</label>
+                          <input
+                            type="text"
+                            id="ws-doc-title-input"
+                            maxlength="200"
+                            placeholder="მაგ.: დავით აღმაშენებლის რეფორმები"
+                          >
+                        </div>
+
+                        <div class="field-group">
+                          <label for="ws-doc-class-input" id="ws-doc-class-label">კლასი / ჯგუფი (არასავალდებულო)</label>
+                          <input
+                            type="text"
+                            id="ws-doc-class-input"
+                            maxlength="80"
+                            placeholder="მაგ.: IX კლასი · ისტორია"
+                          >
+                        </div>
+                      </div>
+
+                      <div class="field-group">
+                        <label for="ws-doc-note-input" id="ws-doc-note-label">პირადი ჩანაწერი — რა დაამატეთ ან რა დაავალეთ კლასს</label>
+                        <textarea
+                          id="ws-doc-note-input"
+                          rows="2"
+                          maxlength="300"
+                          placeholder="მაგ.: დავამატე მე-4 პარაგრაფის ტერმინები და საშინაო კითხვები თოვლიანი დღისთვის..."
+                        ></textarea>
+                      </div>
+
+                      <fieldset class="domain-fieldset">
+                        <legend id="ws-qr-target-legend">QR კოდის სამიზნე მისამართი</legend>
+                        <div class="radio-row">
+                          <input type="radio" id="ws-target-answer" name="wsQrTarget" value="answer" checked>
+                          <label for="ws-target-answer">
+                            <strong>https://answer.ge</strong>
+                            <span data-i18n="targetProdNote">(საკონკურსო დომენი)</span>
+                          </label>
+                        </div>
+                        <div class="radio-row">
+                          <input type="radio" id="ws-target-current" name="wsQrTarget" value="current">
+                          <label for="ws-target-current">
+                            <strong id="ws-current-origin-text">მიმდინარე მისამართი</strong>
+                            <span data-i18n="targetLocalNote">(ლოკალური ტესტირებისთვის)</span>
+                          </label>
+                        </div>
+                      </fieldset>
+
+                      <div class="studio-btn-row">
+                        <button type="submit" class="btn btn-primary" id="ws-save-qr-btn">
+                          QR შექმნა და ისტორიაში შენახვა
+                        </button>
+                        <button type="button" class="btn btn-secondary" id="ws-generate-open-btn">
+                          AI გაკვეთილის გენერაცია და გახსნა
+                        </button>
+                      </div>
+                      <p class="api-ping-status" id="ws-create-feedback" role="status" aria-live="polite" hidden></p>
+                    </form>
+                  </div>
+
+                  <div class="ws-create-qr-col">
+                    <div class="qr-preview-card" id="ws-qr-preview-card">
+                      <span class="qr-card-badge" data-i18n="scanBadge">დაასკანერე მობილურით</span>
+                      <strong class="ws-qr-doc-heading" id="ws-qr-card-title" hidden></strong>
+                      <div class="qr-svg-box" id="ws-qr-svg-box" aria-live="polite"></div>
+                      <p class="qr-encoded-url" id="ws-qr-encoded-url"></p>
+                      <div class="qr-actions-grid" id="ws-qr-actions" hidden>
+                        <button type="button" class="btn btn-small btn-primary" id="ws-download-qr-btn" data-i18n="downloadPngBtn">
+                          PNG ჩამოტვირთვა
+                        </button>
+                        <button type="button" class="btn btn-small btn-secondary" id="ws-copy-qr-btn" data-i18n="copyLinkBtn">
+                          ბმულის კოპირება
+                        </button>
+                        <button type="button" class="btn btn-small btn-ghost" id="ws-print-qr-btn" data-i18n="printQrBtn">
+                          ამობეჭდვა
+                        </button>
+                      </div>
+                      <p class="copy-toast" id="ws-copy-toast" role="status" aria-live="polite"></p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Panel 3: Super Admin Panel — Teachers Directory & Access Control -->
+            <div role="tabpanel" id="ws-panel-admin" data-ws-panel="admin" aria-labelledby="ws-tab-admin" hidden>
+              <div class="ws-panel-surface">
+                <div class="ws-panel-top">
+                  <div>
+                    <h2 id="admin-panel-title">მასწავლებლების ჯგუფის ადმინ პანელი</h2>
+                    <p class="ws-panel-desc" id="admin-panel-lead">
+                      მართეთ სკოლის ავტორიზებული მასწავლებლები Google / Gmail მისამართებით. დამატებულ წევრებს ეძლევათ საკუთარი პირადი სივრცე და QR გაკვეთილების შექმნის უფლება.
+                    </p>
+                  </div>
+                </div>
+
+                <!-- Admin KPI Cards -->
+                <div class="admin-kpi-grid">
+                  <div class="admin-kpi-card">
+                    <span class="admin-kpi-label" id="admin-kpi-total-label">სულ ჯგუფში</span>
+                    <strong class="admin-kpi-value" id="admin-kpi-total-val">0</strong>
+                  </div>
+                  <div class="admin-kpi-card is-forest">
+                    <span class="admin-kpi-label" id="admin-kpi-active-label">აქტიური (შემოსული)</span>
+                    <strong class="admin-kpi-value" id="admin-kpi-active-val">0</strong>
+                  </div>
+                  <div class="admin-kpi-card is-amber">
+                    <span class="admin-kpi-label" id="admin-kpi-pending-label">მოწვეული (ელოდება შესვლას)</span>
+                    <strong class="admin-kpi-value" id="admin-kpi-pending-val">0</strong>
+                  </div>
+                </div>
+
+                <!-- Add Teacher Card -->
+                <form class="admin-add-card" id="admin-add-teacher-form" novalidate>
+                  <h3 class="admin-card-subheading" id="admin-invite-heading">ახალი მასწავლებლის დამატება ჯგუფში</h3>
+                  <div class="admin-form-grid">
+                    <div class="field-group">
+                      <label for="admin-teacher-email-input">
+                        <span id="admin-email-label-text">მასწავლებლის Google / Gmail ელფოსტა</span>
+                        <span class="req-star" aria-hidden="true">*</span>
+                      </label>
+                      <span class="field-hint" id="admin-teacher-email-hint">
+                        ფორმატი: teacher@gmail.com (მხოლოდ Google-თან დაკავშირებული ელფოსტა)
+                      </span>
+                      <input
+                        type="email"
+                        id="admin-teacher-email-input"
+                        name="teacherEmail"
+                        placeholder="nino.teacher@gmail.com"
+                        autocomplete="off"
+                        autocorrect="off"
+                        autocapitalize="none"
+                        spellcheck="false"
+                        maxlength="254"
+                        required
+                        aria-describedby="admin-teacher-email-hint"
+                        data-error="admin-teacher-email-error"
+                      >
+                      <div class="email-validation-error" id="admin-teacher-email-error">
+                        <span role="img" aria-label="Error">❌</span>
+                        <span id="admin-email-error-text">გთხოვთ, შეიყვანოთ სწორი ელფოსტის მისამართი (მაგ.: teacher@gmail.com).</span>
+                      </div>
+                    </div>
+
+                    <div class="field-group">
+                      <label for="admin-teacher-note-input">
+                        <span id="admin-note-label-text">სახელი, გვარი და საგანი (არასავალდებულო)</span>
+                      </label>
+                      <span class="field-hint" id="admin-teacher-note-hint">
+                        გამოჩნდება მასწავლებლების ცხრილში იდენტიფიკაციისთვის
+                      </span>
+                      <input
+                        type="text"
+                        id="admin-teacher-note-input"
+                        name="teacherNote"
+                        placeholder="მაგ.: ნინო ბერიძე — ისტორია (VIII–X კლ.)"
+                        autocomplete="off"
+                        maxlength="160"
+                      >
+                    </div>
+
+                    <div class="admin-form-submit-col">
+                      <button type="submit" class="btn btn-primary btn-full" id="admin-add-teacher-btn">
+                        + ჯგუფში დამატება
+                      </button>
+                    </div>
+                  </div>
+                  <p class="api-ping-status admin-feedback" id="admin-action-feedback" role="status" aria-live="polite" hidden></p>
+                </form>
+
+                <!-- Teachers Directory Search & Responsive Table -->
+                <div class="admin-directory-toolbar">
+                  <h3 id="admin-list-heading">ავტორიზებული მასწავლებლების სია</h3>
+                  <search class="ws-search-box admin-search-box">
+                    <label class="visually-hidden" for="admin-teacher-search" id="admin-search-label">მოძებნე მასწავლებელი</label>
+                    <input
+                      type="search"
+                      id="admin-teacher-search"
+                      placeholder="მოძებნე ელფოსტით ან სახელით..."
+                      autocorrect="off"
+                      autocapitalize="none"
+                      spellcheck="false"
+                    >
+                  </search>
+                </div>
+
+                <div tabindex="0" role="region" aria-labelledby="admin-table-caption" class="ws-table-wrapper">
+                  <table class="ws-admin-table" id="ws-admin-table">
+                    <caption class="visually-hidden" id="admin-table-caption">ავტორიზებული მასწავლებლების სია</caption>
+                    <thead>
+                      <tr>
+                        <th scope="col" id="admin-col-teacher">მასწავლებელი / ელფოსტა</th>
+                        <th scope="col" id="admin-col-note">სახელი და საგანი</th>
+                        <th scope="col" id="admin-col-role">როლი</th>
+                        <th scope="col" id="admin-col-status">სტატუსი</th>
+                        <th scope="col" id="admin-col-actions">მართვა</th>
+                      </tr>
+                    </thead>
+                    <tbody id="admin-teachers-tbody"></tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+
+            <!-- Panel 4: AI Agent API & Cache Settings -->
+            <div role="tabpanel" id="ws-panel-settings" data-ws-panel="settings" aria-labelledby="ws-tab-settings" hidden>
+              <div class="ws-panel-surface ws-settings-surface">
+                <h2 id="ws-settings-heading">Geosoft AI Agent კავშირი და ლოკალური ქეში</h2>
+                <p class="ws-panel-desc" id="ws-settings-desc">
+                  შეამოწმეთ ან განაახლეთ გამოქვეყნებული Geosoft AI აგენტის ბმული და მართეთ ამ მოწყობილობაზე დაქეშილი გაკვეთილები.
+                </p>
+
+                <div class="field-group">
+                  <label for="ws-agent-url-input">Agent Base URL (<code>/api/v1/agents/&lt;id&gt;</code>)</label>
+                  <input
+                    type="url"
+                    id="ws-agent-url-input"
+                    placeholder="https://your-cdn-host.run.app/api/v1/agents/abc123"
+                    autocorrect="off"
+                    autocapitalize="none"
+                    spellcheck="false"
+                  >
+                </div>
+
+                <div class="studio-btn-row">
+                  <button type="button" class="btn btn-primary btn-small" id="ws-save-api-btn" data-i18n="saveApiBtn">
+                    შენახვა და შემოწმება
+                  </button>
+                  <button type="button" class="btn btn-ghost btn-small" id="ws-clear-cache-btn" data-i18n="clearCacheBtn">
+                    ქეშის გასუფთავება
+                  </button>
+                </div>
+                <p class="api-ping-status" id="ws-api-ping-status" role="status" aria-live="polite"></p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- =====================================================================
+         GENERATED LESSON PORTAL VIEW (shown when ?doc=... is loaded)
+         ===================================================================== -->
+    <div id="lesson-portal-view" hidden>
+      <!-- Dynamic Lesson Hero -->
+      <section class="hero" id="top">
+        <div class="container hero-grid">
+          <div class="hero-copy">
+            <div class="eyebrow-row">
+              <span class="subject-pill" id="lesson-subject-pill"></span>
+              <span class="grade-pill" id="lesson-grade-pill"></span>
+            </div>
+
+            <h1 id="lesson-title"></h1>
+            <p class="hero-lead" id="lesson-hero-lead"></p>
+
+            <div class="teacher-note-box" id="teacher-note-box">
+              <div class="teacher-note-header">
+                <span class="teacher-note-badge" data-i18n="teacherNoteBadge">მასწავლებლის დავალება (თოვლიანი დღის რეჟიმი)</span>
+                <button type="button" class="text-link-btn" id="open-doc-preview-btn" data-i18n="viewTeacherDocBtn">
+                  დოკუმენტის ტექსტის ნახვა
+                </button>
+              </div>
+              <p id="lesson-teacher-note"></p>
+            </div>
+
+            <div class="hero-cta-row">
+              <a class="btn btn-primary" href="#tutor-section" data-i18n="ctaAskTutor">ჰკითხე AI რეპეტიტორს</a>
+              <a class="btn btn-secondary" href="#cards-section" data-i18n="ctaBrowseCards">სასწავლო ბარათები</a>
+              <a class="btn btn-ghost" href="#quiz-section" data-i18n="ctaTakeQuiz">შემაჯამებელი კითხვარი</a>
+            </div>
+          </div>
+
+          <aside class="guide-card" aria-labelledby="guide-card-heading">
+            <div class="guide-icon-row">
+              <span class="guide-badge-icon" aria-hidden="true">
+                <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20" />
+                  <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z" />
+                  <path d="M8 7h8M8 11h6" stroke-linecap="round" />
+                </svg>
+              </span>
+              <h2 id="guide-card-heading"></h2>
+            </div>
+            <p id="guide-card-summary"></p>
+            <ol class="guide-list" id="guide-steps-list"></ol>
+
+            <div class="guide-qr-callout">
+              <div>
+                <strong data-i18n="shareQrHeading">QR კოდი მოსწავლეებისთვის</strong>
+                <p data-i18n="shareQrSub">გააზიარე ამ გაკვეთილის QR კოდი answer.ge-ზე</p>
+              </div>
+              <button type="button" class="btn btn-small btn-secondary" id="hero-qr-btn" data-i18n="showQrBtn">
+                QR ჩვენება
+              </button>
+            </div>
+          </aside>
+        </div>
+      </section>
+
+      <!-- AI Lesson Tutor Section (Geosoft Headless API + JumpIn + Local Grounded Fallback) -->
+      <section class="section tutor-section" id="tutor-section" aria-labelledby="tutor-heading">
+        <div class="container">
+          <div class="section-header">
+            <div>
+              <p class="section-kicker" data-i18n="tutorKicker">ინტერაქტიული დახმარება · დოკუმენტსა და საგანზე დაყრდნობით</p>
+              <h2 id="tutor-heading"></h2>
+            </div>
+            <span class="mode-indicator" id="chatbot-mode-badge" data-i18n="liveModeBadge">Geosoft AI ჩართულია</span>
+          </div>
+
+          <div class="chat-shell" id="chat-shell">
+            <div class="chat-topbar">
+              <div class="chat-identity">
+                <span class="chat-avatar" aria-hidden="true">🎓</span>
+                <div>
+                  <strong id="chat-tutor-name"></strong>
+                  <p class="chat-status-line" id="chat-subline" data-i18n="chatSubline">
+                    პასუხობს მასწავლებლის დოკუმენტისა და საგნობრივი პროგრამის მიხედვით
+                  </p>
+                </div>
+              </div>
+              <div class="chat-topbar-actions">
+                <button type="button" class="btn btn-small" id="reset-chat-btn" data-i18n="resetChat">ახალი საუბარი</button>
+              </div>
+            </div>
+
+            <!-- JumpIn Live Human Teacher Handoff Banner -->
+            <div class="jumpin-banner" id="jumpin-banner" role="status" aria-live="polite" hidden>
+              <div class="jumpin-banner-text">
+                <strong id="jumpin-title" data-i18n="jumpinWaitingTitle">შეტყობინება გაეგზავნა მასწავლებელს...</strong>
+                <span id="jumpin-sub" data-i18n="jumpinWaitingSub">მასწავლებლის პასუხი პირდაპირ ამ ჩათში გამოჩნდება.</span>
+              </div>
+              <button type="button" class="btn btn-small btn-secondary" id="cancel-handoff-btn" data-i18n="continueWithAiBtn">
+                AI რეპეტიტორთან დაბრუნება
+              </button>
+            </div>
+
+            <div class="chat-messages" id="chat-messages" role="log" aria-live="polite" aria-relevant="additions"></div>
+
+            <div class="chat-suggestions" id="chat-suggestions" role="group" aria-label="სწრაფი სასწავლო თემები"></div>
+
+            <form class="chat-form" id="chat-form" action="#tutor-section" method="POST" aria-labelledby="tutor-heading">
+              <label class="visually-hidden" for="chat-input" data-i18n="chatInputLabel">დაუსვი კითხვა AI რეპეტიტორს</label>
+              <input
+                type="text"
+                id="chat-input"
+                name="message"
+                placeholder="დაწერე კითხვა დღევანდელი გაკვეთილიდან..."
+                data-i18n-placeholder="chatPlaceholder"
+                maxlength="400"
+                enterkeyhint="send"
+                required
+              >
+              <button type="submit" class="btn btn-primary" id="chat-submit-btn" data-i18n="sendBtn">გაგზავნა</button>
+            </form>
+          </div>
+        </div>
+      </section>
+
+      <!-- Learning Cards Section -->
+      <section class="section cards-section" id="cards-section" aria-labelledby="cards-heading">
+        <div class="container">
+          <div class="section-header">
+            <div>
+              <p class="section-kicker" id="cards-kicker"></p>
+              <h2 id="cards-heading" data-i18n="cardsHeading">გაკვეთილის სასწავლო ბარათები</h2>
+            </div>
+            <search class="card-search">
+              <form id="card-filter-form" action="#cards-section" method="GET" role="presentation">
+                <label class="visually-hidden" for="card-search-input" data-i18n="searchLabel">მოძებნე სასწავლო ბარათებში</label>
+                <input
+                  type="search"
+                  id="card-search-input"
+                  name="q"
+                  placeholder="მოძებნე თემა, თარიღი ან ტერმინი..."
+                  data-i18n-placeholder="searchPlaceholder"
+                  autocorrect="off"
+                  autocapitalize="none"
+                  spellcheck="false"
+                >
+              </form>
+            </search>
+          </div>
+
+          <p class="source-callout">
+            <strong data-i18n="sourceBannerTitle">როგორ იქმნება ბარათები:</strong>
+            <span data-i18n="sourceBannerBody">
+              AI აგენტი პირველ რიგში ეყრდნობა მასწავლებლის მიერ ატვირთულ Google Doc-ს („დოკუმენტიდან“) და საჭიროებისას ავსებს შესაბამისი სასკოლო საგნის სანდო კონტექსტით („დოკუმენტი + საგანი“).
+            </span>
+          </p>
+
+          <div class="cards-grid" id="cards-grid"></div>
+        </div>
+      </section>
+
+      <!-- Hard Words Glossary Section -->
+      <section class="section glossary-section" id="glossary-section" aria-labelledby="glossary-heading">
+        <div class="container">
+          <div class="section-header">
+            <div>
+              <p class="section-kicker" data-i18n="glossaryKicker">მარტივი ერთხაზიანი განმარტებები</p>
+              <h2 id="glossary-heading" data-i18n="glossaryHeading">რთული სიტყვების ლექსიკონი</h2>
+            </div>
+          </div>
+          <dl class="glossary-grid" id="glossary-grid"></dl>
+        </div>
+      </section>
+
+      <!-- 3-Option Questionnaire Section -->
+      <section class="section quiz-section" id="quiz-section" aria-labelledby="quiz-heading">
+        <div class="container">
+          <div class="quiz-panel">
+            <div class="quiz-header">
+              <div>
+                <p class="section-kicker" data-i18n="quizKicker">ცოდნის შემოწმება · 3 სავარაუდო პასუხი</p>
+                <h2 id="quiz-heading" data-i18n="quizHeading">გაკვეთილის შემაჯამებელი კითხვარი</h2>
+              </div>
+              <div class="quiz-badges">
+                <span class="quiz-score-pill" id="quiz-score-pill" aria-live="polite"></span>
+                <span class="quiz-progress" id="quiz-progress" aria-live="polite"></span>
+              </div>
+            </div>
+
+            <div class="quiz-body" id="quiz-body">
+              <h3 class="quiz-question" id="quiz-question-text"></h3>
+              <div class="quiz-options" id="quiz-options" role="group" aria-labelledby="quiz-question-text"></div>
+              <div class="quiz-feedback" id="quiz-feedback" aria-live="polite" hidden></div>
+              <div class="quiz-controls">
+                <button type="button" class="btn btn-secondary" id="quiz-next-btn" data-i18n="nextQuestionBtn">შემდეგი კითხვა</button>
+                <button type="button" class="btn btn-ghost" id="quiz-restart-btn" data-i18n="restartQuizBtn">თავიდან დაწყება</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+    </div>
+  </main>
+
+  <footer class="site-footer">
+    <div class="container footer-inner">
+      <div>
+        <strong data-i18n="footerTitle">თოვლის დღის კლასი (SnowDay Class) · answer.ge</strong>
+        <p data-i18n="footerNote">
+          შექმნილია მთიანი რეგიონების სკოლების უწყვეტი განათლებისთვის: მასწავლებლის Google Doc + QR კოდი → ავტომატური AI სასწავლო გვერდი და რეპეტიტორი.
+        </p>
+      </div>
+      <div class="footer-actions">
+        <button type="button" class="btn btn-secondary btn-small" id="footer-studio-btn" data-i18n="teacherStudioBtn">
+          მასწავლებლის QR სტუდია
+        </button>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Modal 1: Teacher QR Studio & AI Agent Connection -->
+  <dialog class="app-dialog studio-dialog" id="teacher-studio-dialog" closedby="any" aria-labelledby="studio-dialog-title">
+    <div class="dialog-inner">
+      <div class="dialog-header">
+        <div>
+          <p class="dialog-kicker" data-i18n="studioKicker">მასწავლებლის პანელი · answer.ge</p>
+          <h2 id="studio-dialog-title" data-i18n="studioTitle">გაკვეთილის Google Doc და QR კოდის გენერატორი</h2>
+        </div>
+        <form method="dialog">
+          <button type="submit" class="btn btn-small" value="close" data-i18n="closeBtn">დახურვა</button>
+        </form>
+      </div>
+
+      <div class="studio-grid">
+        <div class="studio-form-col">
+          <div class="teacher-account-bar is-in-dialog" id="studio-teacher-account-bar" hidden></div>
+
+          <div class="instruction-steps">
+            <p class="instruction-title" data-i18n="howTeacherWorksTitle">3 მარტივი ნაბიჯი მასწავლებლისთვის:</p>
+            <ol>
+              <li data-i18n="howStep1">დაწერეთ გაკვეთილის კონსპექტი Google Docs-ში ნებისმიერ სასკოლო საგანში.</li>
+              <li data-i18n="howStep2">დააწკაპუნეთ <strong>Share (გაზიარება)</strong> → აირჩიეთ <strong>Anyone with the link (ნებისმიერი ბმულით — მნახველი)</strong>.</li>
+              <li data-i18n="howStep3">ჩასვით ბმული ქვემოთ, შექმენით QR კოდი და გაუზიარეთ კლასს!</li>
+            </ol>
+          </div>
+
+          <form id="qr-generator-form" action="./" method="GET" aria-labelledby="studio-dialog-title">
+            <div class="field-group">
+              <label for="qr-doc-url-input">
+                <span data-i18n="docLinkLabel">Google Docs / Drive (PDF, DOCX, TXT) გაზიარების ბმული</span>
+                <span class="req-star" aria-hidden="true">*</span>
+              </label>
+              <input
+                type="url"
+                id="qr-doc-url-input"
+                name="doc"
+                placeholder="https://docs.google.com/document/d/... ან https://drive.google.com/file/d/..."
+                autocorrect="off"
+                autocapitalize="none"
+                spellcheck="false"
+                enterkeyhint="done"
+                aria-describedby="doc-url-hint doc-url-error"
+                required
+              >
+              <div class="file-upload-row">
+                <span class="file-upload-hint" data-i18n="orUploadDirectly">ან ატვირთეთ ფაილი:</span>
+                <input type="file" id="qr-file-input" accept=".pdf,.docx,.txt,application/pdf,application/vnd.openxmlformats-officedocument.wordprocessingml.document,text/plain" hidden>
+                <button type="button" class="btn btn-secondary btn-small" id="qr-upload-file-btn">
+                  📁 <span data-i18n="uploadFileBtn">ფაილის ატვირთვა (PDF, DOCX, TXT)</span>
+                </button>
+                <span class="file-selected-name" id="qr-file-name" hidden></span>
+              </div>
+              <span class="field-hint" id="doc-url-hint" data-i18n="docLinkHint">
+                მხარდაჭერილია Google Docs, Drive ფაილები (PDF, DOCX, TXT) და პირდაპირი ბმულები.
+              </span>
+              <span class="field-error" id="doc-url-error" role="alert" hidden></span>
+            </div>
+
+            <fieldset class="domain-fieldset">
+              <legend data-i18n="qrTargetLegend">QR კოდის სამიზნე მისამართი</legend>
+              <div class="radio-row">
+                <input type="radio" id="target-answer-ge" name="qrTarget" value="answer" checked>
+                <label for="target-answer-ge">
+                  <strong>https://answer.ge</strong>
+                  <span data-i18n="targetProdNote">(საკონკურსო დომენი)</span>
+                </label>
+              </div>
+              <div class="radio-row">
+                <input type="radio" id="target-current-host" name="qrTarget" value="current">
+                <label for="target-current-host">
+                  <strong id="current-origin-text">მიმდინარე მისამართი</strong>
+                  <span data-i18n="targetLocalNote">(ლოკალური ტესტირებისთვის)</span>
+                </label>
+              </div>
+            </fieldset>
+
+            <div class="studio-btn-row">
+              <button type="submit" class="btn btn-primary" data-i18n="generateQrBtn">QR კოდის განახლება</button>
+              <button type="button" class="btn btn-secondary" id="open-generated-lesson-btn" data-i18n="testLessonNowBtn">
+                ამ დოკუმენტით გაკვეთილის გახსნა
+              </button>
+            </div>
+          </form>
+
+          <!-- Collapsible Geosoft AI Agent API Setup -->
+          <details class="api-settings-details" id="api-settings-details">
+            <summary data-i18n="apiSettingsSummary">Geosoft AI Agent API კავშირის პარამეტრები</summary>
+            <div class="api-settings-body">
+              <p class="field-hint" data-i18n="apiSettingsDesc">
+                ჩასვით თქვენი გამოქვეყნებული Geosoft აგენტის მისამართი (ან გაწერეთ <code>chatbot-config.js</code>-ში):
+              </p>
+              <div class="field-group">
+                <label for="agent-base-url-input">Agent Base URL (<code>/api/v1/agents/&lt;id&gt;</code>)</label>
+                <input
+                  type="url"
+                  id="agent-base-url-input"
+                  name="agentBaseUrl"
+                  placeholder="https://your-cdn-host.run.app/api/v1/agents/abc123"
+                  autocorrect="off"
+                  autocapitalize="none"
+                  spellcheck="false"
+                >
+              </div>
+              <div class="api-btn-row">
+                <button type="button" class="btn btn-small btn-primary" id="save-api-url-btn" data-i18n="saveApiBtn">
+                  შენახვა და შემოწმება
+                </button>
+                <button type="button" class="btn btn-small btn-ghost" id="clear-cache-btn" data-i18n="clearCacheBtn">
+                  ქეშის გასუფთავება
+                </button>
+              </div>
+              <p class="api-ping-status" id="api-ping-status" role="status" aria-live="polite"></p>
+            </div>
+          </details>
+        </div>
+
+        <!-- Right Column: Printable QR Card -->
+        <div class="studio-qr-col">
+          <div class="qr-preview-card" id="qr-preview-card">
+            <span class="qr-card-badge" data-i18n="scanBadge">დაასკანერე მობილურით</span>
+            <div class="qr-svg-box" id="qr-svg-box" aria-live="polite"></div>
+            <p class="qr-encoded-url" id="qr-encoded-url"></p>
+            <div class="qr-actions-grid" id="studio-qr-actions">
+              <button type="button" class="btn btn-small btn-primary" id="download-qr-png-btn" data-i18n="downloadPngBtn">
+                PNG ჩამოტვირთვა
+              </button>
+              <button type="button" class="btn btn-small btn-secondary" id="copy-qr-link-btn" data-i18n="copyLinkBtn">
+                ბმულის კოპირება
+              </button>
+              <button type="button" class="btn btn-small btn-ghost" id="print-qr-btn" data-i18n="printQrBtn">
+                ამობეჭდვა
+              </button>
+            </div>
+            <p class="copy-toast" id="copy-toast" role="status" aria-live="polite"></p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </dialog>
+
+  <!-- Modal 2: Teacher's Uploaded Lesson Doc Text Viewer -->
+  <dialog class="app-dialog doc-dialog" id="doc-viewer-dialog" closedby="any" aria-labelledby="doc-dialog-title">
+    <div class="dialog-inner">
+      <div class="dialog-header">
+        <div>
+          <p class="dialog-kicker" data-i18n="docViewerKicker">პირველწყარო დოკუმენტი</p>
+          <h2 id="doc-dialog-title" data-i18n="docViewerTitle">მასწავლებლის ატვირთული კონსპექტი</h2>
+        </div>
+        <form method="dialog">
+          <button type="submit" class="btn btn-small" value="close" data-i18n="closeBtn">დახურვა</button>
+        </form>
+      </div>
+      <div class="doc-viewer-body">
+        <pre class="doc-pre" id="doc-viewer-pre"></pre>
+        <div class="doc-viewer-footer">
+          <a class="btn btn-secondary btn-small" id="doc-modal-external-link" href="#" target="_blank" rel="noopener noreferrer" hidden data-i18n="openOriginalDoc">
+            Google Doc-ის გახსნა ↗
+          </a>
+        </div>
+      </div>
+    </div>
+  </dialog>
+
+  <!-- Modal 3: Teacher Google OAuth Sign-In / Account Status -->
+  <dialog class="app-dialog auth-dialog" id="teacher-auth-dialog" closedby="any" aria-labelledby="auth-dialog-title">
+    <div class="dialog-inner">
+      <div class="dialog-header">
+        <div>
+          <p class="dialog-kicker" id="auth-dialog-kicker">მასწავლებლის ავტორიზაცია · answer.ge</p>
+          <h2 id="auth-dialog-title">შესვლა მასწავლებლის Google ანგარიშით</h2>
+        </div>
+        <form method="dialog">
+          <button type="submit" class="btn btn-small" value="close" data-i18n="closeBtn">დახურვა</button>
+        </form>
+      </div>
+      <div id="auth-dialog-body"></div>
+    </div>
+  </dialog>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/mammoth/1.6.0/mammoth.browser.min.js"></script>
+  <script src="./qrcode.js"></script>
+  <script src="./chatbot-config.js"></script>
+  <script src="./auth-config.js"></script>
+  <script src="./app.js" defer></script>
+  <script type="module" src="./teacher-auth.js"></script>
+</body>
+</html>

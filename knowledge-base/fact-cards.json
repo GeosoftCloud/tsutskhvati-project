@@ -1,0 +1,562 @@
+{
+  "meta": {
+    "project": {
+      "ka": "ცუცხვათის სკოლის ადგილობრივი მემკვიდრეობა",
+      "en": "Tsutskhvati School Local Heritage"
+    },
+    "assistantName": {
+      "ka": "მღვიმის დამხმარე",
+      "en": "Cave Helper"
+    },
+    "reviewStatus": {
+      "isDraft": true,
+      "ka": "სამუშაო ვერსია – მასწავლებლის შესამოწმებლად",
+      "en": "Draft – For Teacher Review"
+    },
+    "fallbackMessage": {
+      "ka": "ეს ინფორმაცია ჩვენი სკოლის მასალებში ჯერ არ არის. ჰკითხე მასწავლებელს ან სცადე სხვა კითხვა.",
+      "en": "This is not in our school materials yet. Ask your teacher or try another question."
+    },
+    "greeting": {
+      "ka": "გამარჯობა! მე ვარ მღვიმის დამხმარე. შემიძლია გაგიმხილო, რა ვიცით ცუცხვათის მღვიმეზე და ჩვენი კუთხის სხვა ადგილებზე. რა გაინტერესებს?",
+      "en": "Hello! I am Cave Helper. I can share what we know from our school fact cards about Tsutskhvati Cave and other local places. What would you like to explore?"
+    }
+  },
+  "cards": [
+    {
+      "id": "cave",
+      "chip": {
+        "ka": "მღვიმე",
+        "en": "Cave"
+      },
+      "title": {
+        "ka": "ცუცხვათის მღვიმე („მაღარა“)",
+        "en": "Tsutskhvati Cave (\"Maghara\")"
+      },
+      "category": {
+        "ka": "ბუნების ძეგლი და არქეოლოგია",
+        "en": "Natural Monument & Archaeology"
+      },
+      "icon": "cave",
+      "accent": "stone",
+      "summary": {
+        "ka": "სოფელ ცუცხვათთან მდებარეობს უნიკალური 13-სართულიანი კარსტული მღვიმოვანი, რომელსაც ადგილობრივები „მაღარას“ უწოდებენ. ის ბუნების ძეგლია და უძველესი დროიდან ადამიანთა თავშესაფარი იყო.",
+        "en": "Near Tsutskhvati village lies a unique 13-level karst cave complex locally called \"Maghara\". Protected as a Natural Monument, its dry upper levels sheltered humans since prehistoric times."
+      },
+      "facts": {
+        "ka": [
+          "მდებარეობს ტყიბულის მუნიციპალიტეტში, იმერეთში (ისტორიული ოკრიბა) და დაცულია როგორც ბუნების ძეგლი.",
+          "ადგილობრივები მას „მაღარას“ ეძახიან, თუმცა ის წყლის მიერ კირქვაში გაჭრილი ბუნებრივი მღვიმეა და 13 სართულს ითვლის.",
+          "პირველ სართულზე მდინარე შაბათაღელე გაედინება, მეორე სართული დიდი ბუნებრივი გვირაბია, მეოთხე სართულიდან ზემოთ კი მშრალი მღვიმეებია.",
+          "ზედა სართულებს (მათ შორის „ბრინჯაოს მღვიმეს“) ადამიანები პალეოლითის ხანიდან იყენებდნენ, შუა საუკუნეებში კი იქ თავდაცვითი კედლებიც ააგეს.",
+          "მღვიმეში ბინადრობენ ღამურები, რომელთა შეწუხება არ შეიძლება."
+        ],
+        "en": [
+          "Located in Tkibuli municipality, Imereti (historic Okriba), and protected as a Natural Monument.",
+          "Locally nicknamed \"Maghara\", it is a natural limestone cave complex carved by water across 13 distinct levels (floors).",
+          "The Shabataghele stream flows through the lowest floor, the second floor forms a large natural tunnel, and floors four and above are dry caves.",
+          "Prehistoric humans sheltered in upper caves such as \"Bronze Cave\" from the Paleolithic era, and medieval defensive stone walls remain on higher tiers.",
+          "Bats roost inside the cave complex and must never be disturbed."
+        ]
+      },
+      "safety": {
+        "ka": "მღვიმის მონახულება შესაძლებელია მხოლოდ წინასწარი ჩაწერით (შეთანხმებით), საფასურის გადახდით და ორგანიზებული ვიზიტით — მასწავლებელთან ან ოფიციალურ გიდთან ერთად. მარტო შესვლა აკრძალულია.",
+        "en": "The cave can be visited only by advance appointment, with a fee and an organised visit led by a teacher or official guide. Never enter alone."
+      },
+      "teacherTodo": {
+        "ka": "ოფიციალური ვიზიტის დაჯავშნის საკონტაქტო, სამუშაო საათები და ბილეთის ზუსტი საფასური.",
+        "en": "Official appointment booking contact, visiting hours, and exact ticket fee."
+      },
+      "glossary": [
+        {
+          "term": { "ka": "კარსტი", "en": "Karst" },
+          "definition": {
+            "ka": "რელიეფი და მღვიმეები, რომლებსაც წყალი კირქვის ქანების ნელ-ნელა გახსნით ქმნის.",
+            "en": "Landscape and caves formed when water slowly dissolves limestone rock."
+          }
+        },
+        {
+          "term": { "ka": "ბუნების ძეგლი", "en": "Natural Monument" },
+          "definition": {
+            "ka": "სახელმწიფოს მიერ დაცული გამორჩეული ბუნებრივი ადგილი, რომელსაც გაფრთხილება სჭირდება.",
+            "en": "A special natural site protected by law so it stays safe for future generations."
+          }
+        },
+        {
+          "term": { "ka": "პალეოლითი", "en": "Paleolithic" },
+          "definition": {
+            "ka": "ქვის ხანის უძველესი პერიოდი, როცა ადამიანები ქვის იარაღებს იყენებდნენ.",
+            "en": "The Old Stone Age, when early humans made simple tools out of stone."
+          }
+        }
+      ],
+      "nextTopicId": "gorge",
+      "keywords": ["მღვიმე", "მაღარა", "სართული", "13", "ღამურა", "ბრინჯაოს", "პალეოლითი", "cave", "maghara", "floors", "levels", "bat", "paleolithic"]
+    },
+    {
+      "id": "fortress",
+      "chip": {
+        "ka": "ციხე",
+        "en": "Fortress"
+      },
+      "title": {
+        "ka": "ცუცხვათის შუა საუკუნეების ციხე",
+        "en": "Tsutskhvati Medieval Fortress"
+      },
+      "category": {
+        "ka": "ისტორიული ძეგლი",
+        "en": "Historical Monument"
+      },
+      "icon": "fortress",
+      "accent": "amber",
+      "summary": {
+        "ka": "ცუცხვათის ციხე შუა საუკუნეებში ისტორიული ოკრიბის მნიშვნელოვანი სიმაგრე იყო. 1770 წელს იგი იმერეთის მეფე სოლომონ I-მა გაათავისუფლა.",
+        "en": "Tsutskhvati Fortress was a key medieval stronghold of historic Okriba. In 1770, King Solomon I of Imereti liberated the fortress."
+      },
+      "facts": {
+        "ka": [
+          "შუა საუკუნეების ციხესიმაგრის ნანგრევები ისტორიული ოკრიბის ერთ-ერთ მთავარ თავდაცვით ცენტრს წარმოადგენდა.",
+          "გარე გალავნისა და კოშკის გარდა, თავდაცვით სახიზრად მღვიმის მაღალ სართულებსაც იყენებდნენ, სადაც ქვითკირის კედლებია შემორჩენილი.",
+          "XVIII საუკუნის ისტორიკოსი ვახუშტი ბატონიშვილი ცუცხვათის ციხეს საგანგებოდ მოიხსენიებს.",
+          "1721 წელს ციხე ოსმალებმა დაიკავეს, ხოლო 1770 წელს იმერეთის მეფე სოლომონ I-მა გაათავისუფლა."
+        ],
+        "en": [
+          "The medieval stone fortress ruins once served as one of the main defensive strongholds of historic Okriba.",
+          "Alongside outer walls and tower structures, defenders fortified the high dry tiers of Tsutskhvati Cave with lime-mortar walls as a refuge.",
+          "The 18th-century Georgian historian and geographer Vakhushti Batonishvili wrote about Tsutskhvati Fortress.",
+          "Ottoman forces captured the fortress in 1721, and King Solomon I of Imereti liberated it in 1770."
+        ]
+      },
+      "safety": {
+        "ka": "ნანგრევებთან ფერდობი ციცაბოა და ძველი ქვები შეიძლება ჩამოიშალოს. ეწვიე მხოლოდ მასწავლებელთან ან უფროსთან ერთად და არ აძვრე კედლებზე.",
+        "en": "Slopes near the ruins are steep and stones may be loose. Visit only with a teacher or adult and never climb fragile walls."
+      },
+      "teacherTodo": {
+        "ka": "სოფელში შემორჩენილი ადგილობრივი ცნობები და სასკოლო ექსკურსიის დაკვირვებები.",
+        "en": "Local village accounts and school field-trip observations."
+      },
+      "glossary": [
+        {
+          "term": { "ka": "ქვითკირი", "en": "Lime-mortar stonework" },
+          "definition": {
+            "ka": "ქვისა და კირის დუღაბით ნაშენები მტკიცე ძველი კედელი.",
+            "en": "Strong traditional masonry built by binding stones together with lime mortar."
+          }
+        },
+        {
+          "term": { "ka": "გალავანი", "en": "Defensive wall" },
+          "definition": {
+            "ka": "ციხესიმაგრის ან ეკლესიის გარშემო შემოვლებული მაღალი დამცავი კედელი.",
+            "en": "A high protective stone wall built around a fortress or churchyard."
+          }
+        },
+        {
+          "term": { "ka": "სახიზარი", "en": "Refuge" },
+          "definition": {
+            "ka": "უსაფრთხო, ძნელად მისადგომი ადგილი, სადაც საფრთხის დროს მოსახლეობა თავს აფარებდა.",
+            "en": "A hard-to-reach safe shelter where villagers hid during times of danger."
+          }
+        }
+      ],
+      "nextTopicId": "church",
+      "keywords": ["ციხე", "სოლომონ", "ვახუშტი", "1721", "1770", "გალავანი", "ქვითკირი", "fortress", "castle", "ruins", "solomon", "vakhushti"]
+    },
+    {
+      "id": "church",
+      "chip": {
+        "ka": "ცხრაკარას ეკლესია",
+        "en": "Tskhrakara Church"
+      },
+      "title": {
+        "ka": "ცხრაკარას ეკლესია",
+        "en": "Tskhrakara Church"
+      },
+      "category": {
+        "ka": "სულიერი და კულტურული მემკვიდრეობა",
+        "en": "Spiritual & Cultural Heritage"
+      },
+      "icon": "church",
+      "accent": "terracotta",
+      "summary": {
+        "ka": "ცხრაკარას ეკლესია ცუცხვათის მოსახლეობისთვის მნიშვნელოვანი ისტორიული და სულიერი მემკვიდრეობის ადგილია. სიტყვა „ცხრაკარა“ ცხრა კარს ან მრავალშესასვლელიან ნაგებობას უკავშირდება.",
+        "en": "Tskhrakara Church is an important local spiritual and cultural heritage site for Tsutskhvati. In Georgian, \"Tskhrakara\" literally refers to nine doors or openings."
+      },
+      "facts": {
+        "ka": [
+          "ცხრაკარას ეკლესია სოფელ ცუცხვათისა და მისი შემოგარენის კულტურული და სულიერი მემკვიდრეობის ძვირფასი ნაწილია.",
+          "ქართულ ენაში სახელწოდება „ცხრაკარა“ სიტყვასიტყვით „ცხრა კარს“ (ცხრაკარიან ან მრავალთაღიან ნაგებობას) უკავშირდება.",
+          "რადგან საქართველოს სხვა კუთხეებშიც არსებობს ამავე სახელის ძეგლები, ჩვენი სკოლა ეყრდნობა მხოლოდ ცუცხვათში მასწავლებლებისა და მოსწავლეების მიერ შემოწმებულ ადგილობრივ ცნობებს."
+        ],
+        "en": [
+          "Tskhrakara Church is a cherished part of the spiritual and cultural landscape of Tsutskhvati village.",
+          "In Georgian, the name \"Tskhrakara\" literally means \"nine-doored\" or nine-arched.",
+          "Because other regions of Georgia also have monuments named Tskhrakara, our school uses strictly verified local records from Tsutskhvati so outside details are never mixed in."
+        ]
+      },
+      "safety": {
+        "ka": "ისტორიულ სალოცავსა და ძველ ქვებს მოფრთხილება სჭირდება: არ დატოვო ნარჩენები, არ გადაადგილო ქვები და ბილიკებზე იარე მხოლოდ მასწავლებელთან ან უფროსთან ერთად.",
+        "en": "Treat sacred ruins and old stones gently: leave no litter, never move stones, and walk hillside paths only with a teacher or adult."
+      },
+      "teacherTodo": {
+        "ka": "ეკლესიის ზუსტი ადგილმდებარეობა სოფელში, აგების საუკუნე, არქიტექტურული აღწერა და სოფლის ტრადიციები.",
+        "en": "Exact village location, construction century, architectural notes, and local village feast-day traditions."
+      },
+      "glossary": [
+        {
+          "term": { "ka": "ხუროთმოძღვრება", "en": "Architecture" },
+          "definition": {
+            "ka": "შენობებისა და ტაძრების დაგეგმვისა და აგების ხელოვნება.",
+            "en": "The art and craft of designing and building structures such as churches and fortresses."
+          }
+        },
+        {
+          "term": { "ka": "კულტურული მემკვიდრეობა", "en": "Cultural heritage" },
+          "definition": {
+            "ka": "წინაპრების დატოვებული ძეგლები, ტრადიციები და ისტორია, რომელსაც ვუფრთხილდებით.",
+            "en": "Monuments, traditions, and history passed down from ancestors for us to protect."
+          }
+        }
+      ],
+      "nextTopicId": "fortress",
+      "keywords": ["ცხრაკარა", "ეკლესია", "ტაძარი", "სალოცავი", "ხუროთმოძღვრება", "tskhrakara", "church", "nine"]
+    },
+    {
+      "id": "gorge",
+      "chip": {
+        "ka": "ხეობა",
+        "en": "Gorge"
+      },
+      "title": {
+        "ka": "ცუცხვათის კარსტული ხეობა",
+        "en": "Tsutskhvati Karst Gorge"
+      },
+      "category": {
+        "ka": "გეოლოგია და ცოცხალი ბუნება",
+        "en": "Geology & Living Nature"
+      },
+      "icon": "gorge",
+      "accent": "teal",
+      "summary": {
+        "ka": "მდინარე შაბათაღელემ ათასობით წლის განმავლობაში კირქვის ქანებში ულამაზესი კარსტული ხეობა და მღვიმის სართულები გამოკვეთა.",
+        "en": "Over thousands of years, the Shabataghele stream carved a dramatic limestone karst gorge and shaped the stacked floors of Tsutskhvati Cave."
+      },
+      "facts": {
+        "ka": [
+          "კარსტული ხეობა მდინარე შაბათაღელემ კირქვის ქანების ნელ-ნელა გახსნითა და ჩაღრმავებით შექმნა.",
+          "წყლის დონის თანდათანობითმა დაწევამ ათასწლეულების განმავლობაში ცუცხვათის მღვიმის სხვადასხვა სართული ჩამოაყალიბა.",
+          "ხეობის გრილ და ტენიან გარემოში ხარობს ხავსები, გვიმრები და კლდის მცენარეები; კლდეებთან ბინადრობენ ფრინველები და ღამურები."
+        ],
+        "en": [
+          "The Shabataghele stream shaped the karst gorge by slowly dissolving and cutting into Okriba's limestone rock.",
+          "As the stream cut deeper over geological time, older underground channels dried out to become the upper floors of Tsutskhvati Cave.",
+          "Cool, humid air in the gorge supports mosses, ferns, cliff plants, birds, and cave-roosting bats."
+        ]
+      },
+      "safety": {
+        "ka": "სველი კირქვა ძალიან სრიალაა, წვიმის დროს კი წყლის დონე სწრაფად იმატებს. ხეობაში მარტო ჩასვლა არ შეიძლება — იარე მხოლოდ მასწავლებელთან ან გიდთან ერთად.",
+        "en": "Wet limestone rocks are slippery and rain can raise water quickly. Never enter the gorge alone — go only with a teacher or official guide."
+      },
+      "teacherTodo": {
+        "ka": "ხეობის მცენარეებისა და წყაროების ადგილობრივი სახელები.",
+        "en": "Local names of springs and plant species observed in the gorge."
+      },
+      "glossary": [
+        {
+          "term": { "ka": "კირქვა", "en": "Limestone" },
+          "definition": {
+            "ka": "ღია ფერის დანალექი ქანი, რომელსაც წყალი დროთა განმავლობაში ადვილად ხსნის და მღვიმეებს აჩენს.",
+            "en": "A light-colored sedimentary rock that water can slowly dissolve to form caves and gorges."
+          }
+        },
+        {
+          "term": { "ka": "ხეობა", "en": "Gorge" },
+          "definition": {
+            "ka": "მდინარის მიერ მთებსა და კლდეებს შორის გაჭრილი ღრმა, წაგრძელებული ჩაღრმავება.",
+            "en": "A deep, narrow valley between rocky hills carved by a flowing stream or river."
+          }
+        }
+      ],
+      "nextTopicId": "chestnut",
+      "keywords": ["ხეობა", "შაბათაღელე", "კირქვა", "კარსტული", "გვიმრა", "მდინარე", "gorge", "limestone", "karst", "stream", "shabataghele"]
+    },
+    {
+      "id": "chestnut",
+      "chip": {
+        "ka": "წაბლნარი",
+        "en": "Chestnut Forest"
+      },
+      "title": {
+        "ka": "ცუცხვათისა და ოკრიბის წაბლნარი",
+        "en": "Chestnut Forests of Tsutskhvati & Okriba"
+      },
+      "category": {
+        "ka": "ტყე და ეკოლოგია",
+        "en": "Forest & Ecology"
+      },
+      "icon": "chestnut",
+      "accent": "forest",
+      "summary": {
+        "ka": "ჩვენი ფერდობების წაბლნარი იცავს ნიადაგსა და წყაროებს, აძლევს თავშესაფარს ცხოველებს და გვჩუქნის წაბლსა და ძვირფას წაბლის თაფლს.",
+        "en": "Our hillside sweet chestnut forests hold soil steady, protect clean springs, shelter wildlife, and give us autumn chestnuts and prized chestnut honey."
+      },
+      "facts": {
+        "ka": [
+          "ცუცხვათისა და ტყიბულის (ოკრიბის) გარშემო ფოთლოვან ტყეებში გამორჩეული ადგილი უჭირავს ჩვეულებრივ წაბლს (Castanea sativa).",
+          "წაბლის ძლიერი ფესვები ციცაბო ფერდობებზე ნიადაგს ჩამორეცხვისგან იცავს და წყაროების სისუფთავეს ინარჩუნებს.",
+          "ყვავილობისას ფუტკრები აგროვებენ ძვირფას წაბლის თაფლს, შემოდგომაზე კი მწიფდება წაბლის ნაყოფი.",
+          "წაბლნარს დაცვა სჭირდება ხის ქერქის დაავადებებისგან, უკანონო ჭრისა და ტყის ხანძრებისგან."
+        ],
+        "en": [
+          "Deciduous forests on the hills around Tsutskhvati and Tkibuli (Okriba) are rich in sweet chestnut trees (Castanea sativa).",
+          "Strong chestnut roots prevent soil erosion on steep slopes and help keep mountain springs clean.",
+          "Bees gather nectar from chestnut blossoms to make prized chestnut honey, and nutritious chestnuts ripen in autumn.",
+          "Chestnut groves need protection against bark diseases, illegal cutting, and forest fires."
+        ]
+      },
+      "safety": {
+        "ka": "ტყეში არასდროს დაანთო ცეცხლი, არ დატოვო ნარჩენები და ტყის ბილიკებზე იარე მხოლოდ უფროსთან ან სასკოლო ჯგუფთან ერთად.",
+        "en": "Never light fires in the forest, carry all trash back home, and walk forest trails only with an adult or school group."
+      },
+      "teacherTodo": {
+        "ka": "სოფლის გარშემო არსებული წაბლნარის უბნების სახელები და ადგილობრივი მეფუტკრეობის ტრადიციები.",
+        "en": "Local names of chestnut groves around the village and local beekeeping traditions."
+      },
+      "glossary": [
+        {
+          "term": { "ka": "ფოთლოვანი ტყე", "en": "Deciduous forest" },
+          "definition": {
+            "ka": "ტყე, რომლის ხეებიც შემოდგომაზე ფოთლებს იცვლიან და გაზაფხულზე ისევ იმოსებიან.",
+            "en": "A forest of broadleaf trees that shed their leaves in autumn and grow fresh ones in spring."
+          }
+        },
+        {
+          "term": { "ka": "ეკოსისტემა", "en": "Ecosystem" },
+          "definition": {
+            "ka": "მცენარეების, ცხოველების, წყლისა და ნიადაგის ერთიანი გარემო, სადაც ყველაფერი ერთმანეთზეა დამოკიდებული.",
+            "en": "A living community of plants, animals, water, and soil working together in one place."
+          }
+        }
+      ],
+      "nextTopicId": "mining",
+      "keywords": ["წაბლნარი", "წაბლი", "ტყე", "თაფლი", "ფუტკარი", "ეკოსისტემა", "chestnut", "forest", "honey", "tree", "trees"]
+    },
+    {
+      "id": "mining",
+      "chip": {
+        "ka": "სამთო მემკვიდრეობა",
+        "en": "Mining Heritage"
+      },
+      "title": {
+        "ka": "ტყიბულის სამთო მემკვიდრეობა",
+        "en": "Tkibuli Mining-Town Heritage"
+      },
+      "category": {
+        "ka": "ინდუსტრიული და შრომის ისტორია",
+        "en": "Industrial & Community History"
+      },
+      "icon": "mining",
+      "accent": "slate",
+      "summary": {
+        "ka": "ტყიბული XIX საუკუნიდან ქვანახშირის მოპოვებით გახდა ცნობილი, რამაც რკინიგზის გაყვანა, ქალაქის ზრდა და ოკრიბის მრავალი ოჯახის ისტორია განსაზღვრა.",
+        "en": "Since the 19th century, coal mining shaped Tkibuli's railway, architecture, and the family histories of communities across Okriba."
+      },
+      "facts": {
+        "ka": [
+          "ცუცხვათის მუნიციპალური ცენტრი, ქალაქი ტყიბული, საქართველოს ერთ-ერთი უმნიშვნელოვანესი სამთო-მომპოვებელი ქალაქია.",
+          "ტყიბულის ქვანახშირის საბადო XIX საუკუნის შუა ხანებში (1840-იან წლებში) აღმოაჩინეს, რასაც მოჰყვა ქუთაისი-ტყიბულის რკინიგზის გაყვანა.",
+          "ქვანახშირი მილიონობით წლის წინანდელი უძველესი მცენარეების ნაშთებისგან წარმოიქმნა.",
+          "საინტერესო განსხვავება: ცუცხვათის ბუნებრივ მღვიმეს ხალხურად „მაღარას“ ეძახიან, ხოლო ტყიბულის მაღაროები და შახტები ადამიანის მიერ ქვანახშირის მოსაპოვებლად გაყვანილი ნაგებობებია."
+        ],
+        "en": [
+          "Tkibuli, the municipal center for Tsutskhvati, developed into one of Georgia's best-known coal-mining towns.",
+          "Coal deposits near Tkibuli were identified in the 1840s, leading to the Kutaisi–Tkibuli railway link and industrial growth.",
+          "Geologically, coal formed underground from ancient plant layers compressed over millions of years.",
+          "Word note: locals call Tsutskhvati's natural cave \"Maghara\", whereas Tkibuli's mines and shafts are industrial tunnels built by people to mine coal."
+        ]
+      },
+      "safety": {
+        "ka": "მოქმედ ან მიტოვებულ შახტებთან, მაღაროებთან და სამრეწველო ზონებთან მიახლოება მკაცრად აკრძალული და საშიშია. სამთო ისტორიას ვეცნობით მხოლოდ სკოლაში ან მუზეუმში.",
+        "en": "Active or abandoned mine shafts and industrial zones are strictly off-limits and hazardous. Learn about mining heritage only in school or museums."
+      },
+      "teacherTodo": {
+        "ka": "ცუცხვათელი მეშახტეების ოჯახური ისტორიები ან ტყიბულის მხარეთმცოდნეობის მუზეუმის მასალები.",
+        "en": "Local miners' family stories or materials from the Tkibuli local history museum."
+      },
+      "glossary": [
+        {
+          "term": { "ka": "ქვანახშირი", "en": "Coal" },
+          "definition": {
+            "ka": "მიწის წიაღში მილიონობით წლის წინანდელი მცენარეებისგან წარმოქმნილი წვადი ქანი.",
+            "en": "A dark combustible rock formed underground over millions of years from ancient plants."
+          }
+        },
+        {
+          "term": { "ka": "ინდუსტრიული მემკვიდრეობა", "en": "Industrial heritage" },
+          "definition": {
+            "ka": "წარსული შრომისა და წარმოების ამსახველი ნაგებობები, იარაღები და ისტორია.",
+            "en": "Historic buildings, tools, railways, and stories preserved from past industry and workers."
+          }
+        }
+      ],
+      "nextTopicId": "cave",
+      "keywords": ["სამთო", "ტყიბული", "ქვანახშირი", "შახტი", "მაღარო", "მეშახტე", "რკინიგზა", "mining", "tkibuli", "coal", "mine", "shaft", "railway"]
+    }
+  ],
+  "quiz": [
+    {
+      "id": "q1",
+      "cardId": "cave",
+      "question": {
+        "ka": "რამდენ სართულს ითვლის ცუცხვათის მღვიმოვანი („მაღარა“)?",
+        "en": "How many levels (floors) does the Tsutskhvati Cave complex (\"Maghara\") have?"
+      },
+      "options": {
+        "ka": ["3 სართულს", "13 სართულს", "25 სართულს"],
+        "en": ["3 levels", "13 levels", "25 levels"]
+      },
+      "correctIndex": 1,
+      "hint": {
+        "ka": "მინიშნება: ეს რიცხვი 10-ზე მეტია და 15-ზე ნაკლები — ამიტომ უწოდებენ მრავალსართულიან კომპლექსს. კიდევ ერთხელ სცადე!",
+        "en": "Hint: It is more than 10 and fewer than 15 — making it a famous multi-story cave system. Try once more!"
+      },
+      "funFact": {
+        "ka": "პირველ სართულზე მდინარე შაბათაღელე გაედინება, ხოლო მეოთხე სართულიდან ზემოთ მშრალი მღვიმეებია, სადაც უძველესი ადამიანები აფარებდნენ თავს.",
+        "en": "The Shabataghele stream flows through the first floor, while dry upper caves from the fourth floor upward sheltered prehistoric humans."
+      }
+    },
+    {
+      "id": "q2",
+      "cardId": "cave",
+      "question": {
+        "ka": "როგორ არის დაშვებული და უსაფრთხო ცუცხვათის მღვიმის მონახულება?",
+        "en": "What is the safe and allowed way to visit Tsutskhvati Cave?"
+      },
+      "options": {
+        "ka": [
+          "ნებისმიერ დროს მეგობრებთან ერთად უფროსის გარეშე",
+          "მხოლოდ წინასწარი ჩაწერით, საფასურით და მასწავლებელთან ან გიდთან ორგანიზებული ვიზიტით",
+          "ფანრით მარტო შესვლით"
+        ],
+        "en": [
+          "Anytime with friends without an adult",
+          "Only by appointment, with a fee and an organised visit with a teacher or guide",
+          "Going inside alone with a flashlight"
+        ]
+      },
+      "correctIndex": 1,
+      "hint": {
+        "ka": "მინიშნება: გაიხსენე მღვიმეში სტუმრობის მთავარი უსაფრთხოების წესი — მარტო შესვლა არ შეიძლება.",
+        "en": "Hint: Think of the main safety rule — students should never enter the cave without an organised guided visit."
+      },
+      "funFact": {
+        "ka": "ცუცხვათის მღვიმე სახელმწიფოს მიერ დაცული ბუნების ძეგლია და იქ ღამურების კოლონიებიც ბინადრობენ, რომელთა შეწუხება არ შეიძლება.",
+        "en": "Tsutskhvati Cave is a protected Natural Monument and home to roosting bat colonies that must never be disturbed."
+      }
+    },
+    {
+      "id": "q3",
+      "cardId": "fortress",
+      "question": {
+        "ka": "იმერეთის რომელმა მეფემ გაათავისუფლა ცუცხვათის ციხე 1770 წელს?",
+        "en": "Which King of Imereti liberated Tsutskhvati Fortress in 1770?"
+      },
+      "options": {
+        "ka": ["სოლომონ I-მა", "ვახტანგ გორგასალმა", "დავით აღმაშენებელმა"],
+        "en": ["King Solomon I", "King Vakhtang Gorgasali", "King David the Builder"]
+      },
+      "correctIndex": 0,
+      "hint": {
+        "ka": "მინიშნება: ის XVIII საუკუნეში მეფობდა იმერეთში და დასავლეთ საქართველოს ციხესიმაგრეების გათავისუფლებითაა ცნობილი.",
+        "en": "Hint: He ruled the Kingdom of Imereti in the 18th century and liberated key western Georgian fortresses."
+      },
+      "funFact": {
+        "ka": "XVIII საუკუნის ცნობილი ქართველი ისტორიკოსი და გეოგრაფი ვახუშტი ბატონიშვილი თავის ნაშრომში საგანგებოდ მოიხსენიებს ცუცხვათის ციხეს.",
+        "en": "The famous 18th-century Georgian historian and geographer Vakhushti Batonishvili wrote specifically about Tsutskhvati Fortress."
+      }
+    },
+    {
+      "id": "q4",
+      "cardId": "church",
+      "question": {
+        "ka": "რას უკავშირდება სიტყვასიტყვით სახელწოდება „ცხრაკარა“ ქართულ ენაში?",
+        "en": "What does the Georgian name \"Tskhrakara\" literally mean?"
+      },
+      "options": {
+        "ka": ["ცხრა მთას", "ცხრა კარს (ცხრაკარიან ნაგებობას)", "ცხრა ხიდს"],
+        "en": ["Nine mountains", "Nine doors / nine-gated", "Nine bridges"]
+      },
+      "correctIndex": 1,
+      "hint": {
+        "ka": "მინიშნება: დააკვირდი თვითონ სიტყვის აგებულებას: „ცხრა“ და „კარი“.",
+        "en": "Hint: Look closely at the two Georgian roots inside the name: tskhra (nine) and kari (door)."
+      },
+      "funFact": {
+        "ka": "რადგან საქართველოს სხვა კუთხეებშიც გვხვდება სახელი „ცხრაკარა“, ჩვენი სკოლა ეყრდნობა მხოლოდ ცუცხვათში შემოწმებულ ადგილობრივ ცნობებს.",
+        "en": "Because other regions of Georgia also have monuments called Tskhrakara, our school project relies strictly on verified local Tsutskhvati records."
+      }
+    },
+    {
+      "id": "q5",
+      "cardId": "gorge",
+      "question": {
+        "ka": "რომელი ქანის გახსნით წარმოიქმნა ცუცხვათის კარსტული ხეობა და მღვიმე?",
+        "en": "Dissolving which rock formed the Tsutskhvati karst gorge and cave?"
+      },
+      "options": {
+        "ka": ["კირქვის", "ბაზალტის", "გრანიტის"],
+        "en": ["Limestone", "Basalt", "Granite"]
+      },
+      "correctIndex": 0,
+      "hint": {
+        "ka": "მინიშნება: ეს ღია ფერის ქანი წყლის ხანგრძლივი მოქმედებით ნელ-ნელა იხსნება და კარსტულ რელიეფს ქმნის.",
+        "en": "Hint: Water slowly dissolves this light-colored rock over thousands of years to carve karst caves."
+      },
+      "funFact": {
+        "ka": "ხეობის გრილ და ტენიან კლდეებზე კარგად ხარობს ხავსები და გვიმრები, ხოლო ქვედა იარუსში მდინარე შაბათაღელე მიედინება.",
+        "en": "Cool, humid air in the gorge supports lush mosses and ferns along the Shabataghele stream."
+      }
+    },
+    {
+      "id": "q6",
+      "cardId": "chestnut",
+      "question": {
+        "ka": "რომელი ძვირფასი პროდუქტი მზადდება ფუტკრების დახმარებით წაბლის ყვავილობისას?",
+        "en": "Which prized local product do bees help make when chestnut trees bloom?"
+      },
+      "options": {
+        "ka": ["წაბლის თაფლი", "ლერწმის შაქარი", "ზეითუნის ზეთი"],
+        "en": ["Chestnut honey", "Cane sugar", "Olive oil"]
+      },
+      "correctIndex": 0,
+      "hint": {
+        "ka": "მინიშნება: ფუტკრები მას წაბლის ყვავილების ნექტრიდან აგროვებენ.",
+        "en": "Hint: Bees collect nectar from chestnut blossoms in early summer to produce it."
+      },
+      "funFact": {
+        "ka": "წაბლის ძლიერი ფესვები ციცაბო ფერდობებზე ნიადაგს ჩამორეცხვისგან იცავს და წყაროების სისუფთავეს უნარჩუნებს სოფელს.",
+        "en": "Strong chestnut tree roots anchor steep hillside soil and help keep village springs clean."
+      }
+    },
+    {
+      "id": "q7",
+      "cardId": "mining",
+      "question": {
+        "ka": "რომელი ბუნებრივი წიაღისეულის მოპოვებით გახდა ცნობილი ქალაქი ტყიბული XIX საუკუნიდან?",
+        "en": "Extracting which natural resource made the town of Tkibuli famous starting in the 19th century?"
+      },
+      "options": {
+        "ka": ["ქვანახშირის", "მარილის", "მარმარილოს"],
+        "en": ["Coal", "Salt", "Marble"]
+      },
+      "correctIndex": 0,
+      "hint": {
+        "ka": "მინიშნება: ეს შავი ფერის წვადი ქანი მილიონობით წლის წინანდელი მცენარეების ნაშთებისგან წარმოიქმნა.",
+        "en": "Hint: It is a dark rock formed underground over millions of years from ancient plants."
+      },
+      "funFact": {
+        "ka": "ქვანახშირის მოპოვებას მოჰყვა ქუთაისიდან ტყიბულამდე რკინიგზის გაყვანა XIX საუკუნეში.",
+        "en": "Coal mining in the 19th century led to building the railway line connecting Kutaisi and Tkibuli."
+      }
+    }
+  ]
+}

@@ -1,0 +1,345 @@
+rules_version = '2';
+
+// ===============================================================
+// Assumed Data Model
+// ===============================================================
+//
+// Project: tsutskhvati-teacher-auth (Standard edition, (default) database)
+//
+// 1. Collection: /teachers/{teacherEmail}
+//    Document ID: {teacherEmail} - Canonical lowercase email address of an
+//                 authorized teacher (e.g., "example@gmail.com").
+//    Fields:
+//      - email:       string    (required, immutable, 5..254 chars, lowercase,
+//                                must equal {teacherEmail} and match email pattern)
+//      - role:        string    (required, enum: ['teacher', 'super_admin'];
+//                                'super_admin' allowed ONLY for 'luka@geosoft.dev',
+//                                all other documents must have 'teacher';
+//                                immutable for non-admin teachers)
+//      - addedBy:     string    (required, immutable, 5..254 chars, lowercase email;
+//                                on create must equal request.auth.token.email.lower())
+//      - addedAt:     timestamp (required, immutable; on create must equal request.time)
+//      - note:        string    (optional, 0..160 chars; modifiable only by Super Admin)
+//      - googleName:  string    (optional, 0..120 chars; modifiable by Super Admin
+//                                or the teacher on login self-checkin)
+//      - photoURL:    string    (optional, 0..1024 chars, empty or http/https URL;
+//                                modifiable by Super Admin or the teacher on login)
+//      - lastLoginAt: timestamp (optional; on teacher self-checkin must equal request.time)
+//
+// 2. Subcollection: /teachers/{teacherEmail}/docs/{docKey}
+//    Document ID: {docKey} - Safe URL/document identifier (1..128 chars, ^[A-Za-z0-9_-]+$).
+//    Fields:
+//      - docKey:       string    (required, immutable, 1..128 chars, must equal {docKey},
+//                                 matches ^[A-Za-z0-9_-]+$)
+//      - docUrl:       string    (required, immutable, 10..1024 chars, valid https://
+//                                 document URL: Google Docs, Google Drive, or shared lesson link)
+//      - studentQrUrl: string    (required, 10..1200 chars, valid http/https URL)
+//      - title:        string    (required, 1..200 chars)
+//      - status:       string    (required, enum: ['qr_shared', 'ai_generated'])
+//      - createdAt:    timestamp (required, immutable; on create must equal request.time)
+//      - updatedAt:    timestamp (required; on create and update must equal request.time)
+//      - subject:      string    (optional, 0..120 chars)
+//      - classLabel:   string    (optional, 0..80 chars)
+//      - personalNote: string    (optional, 0..300 chars)
+//      - shareCount:   int       (optional, 0..100000)
+//
+// ===============================================================
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // ===============================================================
+    // Helper Functions
+    // ===============================================================
+
+    // Check if the request comes from an authenticated Firebase Auth user
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+
+    // Check if the user is signed in with a verified email (Google OAuth)
+    function isVerifiedGoogleUser() {
+      return isAuthenticated() &&
+             'email' in request.auth.token &&
+             request.auth.token.email is string &&
+             'email_verified' in request.auth.token &&
+             request.auth.token.email_verified == true;
+    }
+
+    // Normalized lowercase email of the caller (call only when isVerifiedGoogleUser() is true)
+    function callerEmail() {
+      return request.auth.token.email.lower();
+    }
+
+    // Check if the caller is the bootstrapped Super Admin ('luka@geosoft.dev')
+    function isSuperAdmin() {
+      return isVerifiedGoogleUser() &&
+             callerEmail() == 'luka@geosoft.dev';
+    }
+
+    // Check if the caller's verified Google email matches the target {teacherEmail} document ID
+    function isSelfEmail(teacherEmail) {
+      return isVerifiedGoogleUser() &&
+             callerEmail() == teacherEmail;
+    }
+
+    // Check if the caller owns {teacherEmail} AND is currently an active authorized teacher
+    // (either Super Admin or has an existing membership record in /teachers/{callerEmail()})
+    function isSelfAuthorizedTeacher(teacherEmail) {
+      return isSelfEmail(teacherEmail) &&
+             (isSuperAdmin() ||
+              exists(/databases/$(database)/documents/teachers/$(callerEmail())));
+    }
+
+    // Validate required fields exist on a map
+    function hasRequiredFields(data, fields) {
+      return data.keys().hasAll(fields);
+    }
+
+    // Validate that a map contains only explicitly allowed fields (no schema pollution)
+    function hasOnlyAllowedFields(data, fields) {
+      return data.keys().hasOnly(fields);
+    }
+
+    // Validate that specified fields have not been modified during an update
+    function areImmutableFieldsUnchanged(fields) {
+      return !request.resource.data.diff(resource.data).affectedKeys().hasAny(fields);
+    }
+
+    // Validate basic email address format
+    function isValidEmail(email) {
+      return email is string &&
+             email.size() >= 5 &&
+             email.size() <= 254 &&
+             email.matches("^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$");
+    }
+
+    // Validate HTTP/HTTPS URL format
+    function isValidUrl(url) {
+      return url is string &&
+             (url.matches("^https://.*") || url.matches("^http://.*"));
+    }
+
+    // Validate teacher-shared lesson document URL format (Google Docs, Drive files, or any https document URL)
+    function isValidLessonDocUrl(url) {
+      return url is string &&
+             url.size() >= 10 &&
+             url.size() <= 1024 &&
+             url.matches("^https://.*");
+    }
+
+    // Backward-compatible alias for isValidLessonDocUrl
+    function isValidGoogleDocUrl(url) {
+      return isValidLessonDocUrl(url);
+    }
+
+    // Validate an optional string field with min/max character length bounds
+    function isValidOptionalString(data, field, minLen, maxLen) {
+      return !(field in data) ||
+             (data[field] is string &&
+              data[field].size() >= minLen &&
+              data[field].size() <= maxLen);
+    }
+
+    // Validate an optional integer field within [minVal, maxVal]
+    function isValidOptionalInt(data, field, minVal, maxVal) {
+      return !(field in data) ||
+             (data[field] is int &&
+              data[field] >= minVal &&
+              data[field] <= maxVal);
+    }
+
+    // ===============================================================
+    // Domain Validators (Used in BOTH create and update rules)
+    // ===============================================================
+
+    function isValidTeacherDoc(data, teacherEmail) {
+      let requiredFields = ['email', 'role', 'addedBy', 'addedAt'];
+      let allowedFields = [
+        'email',
+        'role',
+        'addedBy',
+        'addedAt',
+        'note',
+        'googleName',
+        'photoURL',
+        'lastLoginAt'
+      ];
+
+      return hasRequiredFields(data, requiredFields) &&
+             hasOnlyAllowedFields(data, allowedFields) &&
+             // email: canonical lowercase email matching document ID
+             isValidEmail(data.email) &&
+             data.email == teacherEmail &&
+             data.email == data.email.lower() &&
+             // role: strict enum; only 'luka@geosoft.dev' can hold 'super_admin'
+             data.role is string &&
+             data.role in ['teacher', 'super_admin'] &&
+             (data.role == 'teacher' || teacherEmail == 'luka@geosoft.dev') &&
+             // addedBy: lowercase email within RFC length bounds
+             isValidEmail(data.addedBy) &&
+             data.addedBy == data.addedBy.lower() &&
+             // addedAt: Firestore timestamp
+             data.addedAt is timestamp &&
+             // Optional metadata fields with strict type & DoS length bounds
+             isValidOptionalString(data, 'note', 0, 160) &&
+             isValidOptionalString(data, 'googleName', 0, 120) &&
+             isValidOptionalString(data, 'photoURL', 0, 1024) &&
+             (!('photoURL' in data) || data.photoURL.size() == 0 || isValidUrl(data.photoURL)) &&
+             (!('lastLoginAt' in data) || data.lastLoginAt is timestamp);
+    }
+
+    // Super Admin update validator: enforces immutable audit/identity fields
+    function isValidAdminTeacherUpdate(teacherEmail) {
+      return isSuperAdmin() &&
+             isValidTeacherDoc(request.resource.data, teacherEmail) &&
+             areImmutableFieldsUnchanged(['email', 'addedBy', 'addedAt']) &&
+             request.resource.data.email == resource.data.email &&
+             request.resource.data.addedBy == resource.data.addedBy &&
+             request.resource.data.addedAt == resource.data.addedAt;
+    }
+
+    // Authorized teacher login self-checkin validator:
+    // Can ONLY touch ['lastLoginAt', 'googleName', 'photoURL'] on their own existing record,
+    // must set lastLoginAt to server timestamp (request.time), and cannot escalate role.
+    function isValidTeacherSelfCheckin(teacherEmail) {
+      return isSelfEmail(teacherEmail) &&
+             isValidTeacherDoc(request.resource.data, teacherEmail) &&
+             request.resource.data.diff(resource.data).affectedKeys().hasOnly([
+               'lastLoginAt',
+               'googleName',
+               'photoURL'
+             ]) &&
+             areImmutableFieldsUnchanged(['email', 'role', 'addedBy', 'addedAt', 'note']) &&
+             'lastLoginAt' in request.resource.data &&
+             request.resource.data.lastLoginAt == request.time;
+    }
+
+    // Personal saved lesson/document validator (used on BOTH create and update)
+    function isValidSavedDoc(data, docKey) {
+      let requiredFields = [
+        'docKey',
+        'docUrl',
+        'studentQrUrl',
+        'title',
+        'status',
+        'createdAt',
+        'updatedAt'
+      ];
+      let allowedFields = [
+        'docKey',
+        'docUrl',
+        'studentQrUrl',
+        'title',
+        'subject',
+        'classLabel',
+        'personalNote',
+        'status',
+        'shareCount',
+        'createdAt',
+        'updatedAt'
+      ];
+
+      return hasRequiredFields(data, requiredFields) &&
+             hasOnlyAllowedFields(data, allowedFields) &&
+             // docKey: safe identifier matching path {docKey}
+             data.docKey is string &&
+             data.docKey.size() >= 1 &&
+             data.docKey.size() <= 128 &&
+             data.docKey == docKey &&
+             data.docKey.matches("^[A-Za-z0-9_-]+$") &&
+             // docUrl: shared lesson document URL (Google Docs, Google Drive, or any https URL)
+             isValidLessonDocUrl(data.docUrl) &&
+             // studentQrUrl: bounded HTTP(S) student share link
+             data.studentQrUrl is string &&
+             data.studentQrUrl.size() >= 10 &&
+             data.studentQrUrl.size() <= 1200 &&
+             isValidUrl(data.studentQrUrl) &&
+             // title: non-empty lesson title
+             data.title is string &&
+             data.title.size() >= 1 &&
+             data.title.size() <= 200 &&
+             // status: strict enum
+             data.status is string &&
+             data.status in ['qr_shared', 'ai_generated'] &&
+             // timestamps
+             data.createdAt is timestamp &&
+             data.updatedAt is timestamp &&
+             // optional teacher annotations & share telemetry
+             isValidOptionalString(data, 'subject', 0, 120) &&
+             isValidOptionalString(data, 'classLabel', 0, 80) &&
+             isValidOptionalString(data, 'personalNote', 0, 300) &&
+             isValidOptionalInt(data, 'shareCount', 0, 100000);
+    }
+
+    // ===============================================================
+    // Collection Rules: /teachers/{teacherEmail}
+    // ===============================================================
+
+    match /teachers/{teacherEmail} {
+      // Single-document lookup:
+      // - Super Admin can read any teacher record.
+      // - A verified Google user can check ONLY their own email document (no enumeration).
+      allow get: if isSuperAdmin() || isSelfEmail(teacherEmail);
+
+      // Collection listing / queries:
+      // - Strictly restricted to Super Admin to prevent teacher list/PII enumeration.
+      allow list: if isSuperAdmin();
+
+      // Create teacher record:
+      // - Strictly restricted to Super Admin, enforcing server timestamp and audit attribution.
+      allow create: if isSuperAdmin() &&
+                       isValidTeacherDoc(request.resource.data, teacherEmail) &&
+                       request.resource.data.addedBy == callerEmail() &&
+                       request.resource.data.addedAt == request.time;
+
+      // Update teacher record:
+      // - Branch A: Super Admin updating mutable teacher fields while preserving immutable fields.
+      // - Branch B: Authorized teacher updating their own login telemetry & Google profile info.
+      allow update: if isValidAdminTeacherUpdate(teacherEmail) ||
+                       isValidTeacherSelfCheckin(teacherEmail);
+
+      // Delete teacher record:
+      // - Strictly restricted to Super Admin; cannot delete own 'luka@geosoft.dev' record.
+      allow delete: if isSuperAdmin() &&
+                       teacherEmail != 'luka@geosoft.dev' &&
+                       teacherEmail.lower() != 'luka@geosoft.dev';
+
+      // =============================================================
+      // Subcollection Rules: /teachers/{teacherEmail}/docs/{docKey}
+      // =============================================================
+
+      match /docs/{docKey} {
+        // Authorized teacher can read/list their own saved docs; Super Admin can inspect.
+        allow read: if isSelfAuthorizedTeacher(teacherEmail) || isSuperAdmin();
+
+        // Authorized teacher can save a new lesson record in their own workspace.
+        allow create: if isSelfAuthorizedTeacher(teacherEmail) &&
+                         isValidSavedDoc(request.resource.data, docKey) &&
+                         request.resource.data.createdAt == request.time &&
+                         request.resource.data.updatedAt == request.time;
+
+        // Authorized teacher can update metadata/notes/shareCount on their own saved doc,
+        // keeping docKey, docUrl, and createdAt immutable and refreshing updatedAt.
+        allow update: if isSelfAuthorizedTeacher(teacherEmail) &&
+                         isValidSavedDoc(request.resource.data, docKey) &&
+                         areImmutableFieldsUnchanged(['docKey', 'docUrl', 'createdAt']) &&
+                         request.resource.data.docKey == resource.data.docKey &&
+                         request.resource.data.docUrl == resource.data.docUrl &&
+                         request.resource.data.createdAt == resource.data.createdAt &&
+                         request.resource.data.updatedAt == request.time;
+
+        // Authorized teacher can delete their own saved lesson record.
+        allow delete: if isSelfAuthorizedTeacher(teacherEmail);
+      }
+    }
+
+    // ===============================================================
+    // Default Deny All Other Collections & Paths
+    // ===============================================================
+
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}

@@ -1,0 +1,19 @@
+{
+  "firestore": {
+    "rules": "firestore.rules",
+    "indexes": "firestore.indexes.json"
+  },
+  "auth": {
+    "providers": {
+      "googleSignIn": {
+        "oAuthBrandDisplayName": "SnowDay Class - answer.ge",
+        "supportEmail": "luka@geosoft.dev",
+        "authorizedRedirectUris": [
+          "https://tsutskhvati-teacher-auth.firebaseapp.com/__/auth/handler",
+          "https://tsutskhvati-teacher-auth.web.app/__/auth/handler",
+          "http://localhost:8080"
+        ]
+      }
+    }
+  }
+}

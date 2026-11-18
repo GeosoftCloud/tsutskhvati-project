@@ -1,0 +1,34 @@
+{
+  "name": "Google Doc & Drive File Lesson Reader",
+  "description": "Fetches the full UTF-8 plain text of a teacher's shared Google Doc, Google Drive PDF, Word DOCX, or TXT file ('Anyone with the link can view') given its share URL or Document/File ID.",
+  "icon": "FileText",
+  "returnsHtml": false,
+  "fields": [
+    {
+      "key": "name",
+      "label": "Name",
+      "type": "string",
+      "required": false
+    },
+    {
+      "key": "description",
+      "label": "Description",
+      "type": "string",
+      "required": false
+    },
+    {
+      "key": "maxChars",
+      "label": "Maximum Characters to Extract",
+      "type": "number",
+      "required": false
+    }
+  ],
+  "args": [
+    {
+      "key": "docUrl",
+      "description": "Full Google Docs or Drive share URL (https://docs.google.com/document/d/... or https://drive.google.com/file/d/...), direct document link (.pdf, .docx, .txt), or bare Document/File ID.",
+      "type": "string",
+      "required": true
+    }
+  ]
+}
