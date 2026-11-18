@@ -23,6 +23,8 @@ Resilient bilingual (Georgian / English) AI school lesson portal and QR studio b
 
 | File | Purpose |
 | :--- | :--- |
+| [`server.js`](./server.js) | Production Node.js HTTP server for Google Cloud Run deployment |
+| [`Dockerfile`](./Dockerfile) | Production Docker container configuration |
 | [`index.html`](./index.html) | Main static web app (`answer.ge`), Entry Landing Hub (Student + Teacher QR), AI Tutor chat, Learning Cards, Glossary, and Questionnaire |
 | [`styles.css`](./styles.css) | Responsive design system + classroom QR print stylesheet |
 | [`app.js`](./app.js) | `?doc=` QR reader, direct Google Docs CORS reader, Two-Tier Cache (`localStorage` + shared Geosoft cache), and JumpIn polling |
@@ -47,3 +49,23 @@ Upload the static files directly to `answer.ge` or test locally:
 python3 -m http.server 8080
 # Open http://localhost:8080
 ```
+
+---
+
+## 4. Google Cloud Run Deployment
+
+The web portal is containerized and hosted on **Google Cloud Run**:
+- **Service Name:** `tsutskhvati-web`
+- **Region:** `europe-west1`
+- **Live URL:** [https://tsutskhvati-web-617054738609.europe-west1.run.app](https://tsutskhvati-web-617054738609.europe-west1.run.app)
+- **Health Check:** `https://tsutskhvati-web-617054738609.europe-west1.run.app/health`
+
+Deploy command:
+```bash
+gcloud run deploy tsutskhvati-web \
+  --source . \
+  --project=geosoft-agents-customer-whc5sa \
+  --region=europe-west1 \
+  --allow-unauthenticated
+```
+
