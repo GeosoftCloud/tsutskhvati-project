@@ -1,0 +1,82 @@
+name: Deploy to Google Cloud Run
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+concurrency:
+  group: deploy-cloud-run-main
+  cancel-in-progress: false
+
+env:
+  PROJECT_ID: geosoft-agents-customer-whc5sa
+  REGION: europe-west1
+  SERVICE_NAME: tsutskhvati-web
+  IMAGE_REPO: europe-west1-docker.pkg.dev/geosoft-agents-customer-whc5sa/cloud-run-source-deploy/tsutskhvati-web
+  RUNTIME_SERVICE_ACCOUNT: tsutskhvati-web-sa@geosoft-agents-customer-whc5sa.iam.gserviceaccount.com
+
+jobs:
+  deploy:
+    name: Build & Deploy Cloud Run (europe-west1)
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js 24 & run checks
+        uses: actions/setup-node@v4
+        with:
+          node-version: "24"
+          cache: "npm"
+
+      - name: Install dependencies & run tests
+        run: |
+          npm ci
+          npm test
+          node --check server.js
+          node --check doc-extract.mjs
+          node --check auth-utils.mjs
+
+      - name: Authenticate to Google Cloud (Workload Identity Federation)
+        uses: google-github-actions/auth@v2
+        with:
+          workload_identity_provider: "projects/617054738609/locations/global/workloadIdentityPools/github-actions-pool/providers/github-oidc"
+          service_account: "github-actions-deployer@geosoft-agents-customer-whc5sa.iam.gserviceaccount.com"
+
+      - name: Set up Google Cloud SDK
+        uses: google-github-actions/setup-gcloud@v2
+
+      - name: Configure Docker for Artifact Registry
+        run: gcloud auth configure-docker "${REGION}-docker.pkg.dev" --quiet
+
+      - name: Build & Push Docker image
+        run: |
+          docker build \
+            -t "${IMAGE_REPO}:${GITHUB_SHA}" \
+            -t "${IMAGE_REPO}:latest" \
+            .
+          docker push "${IMAGE_REPO}:${GITHUB_SHA}"
+          docker push "${IMAGE_REPO}:latest"
+
+      - name: Deploy new revision to Cloud Run
+        run: |
+          gcloud run deploy "${SERVICE_NAME}" \
+            --image="${IMAGE_REPO}:${GITHUB_SHA}" \
+            --project="${PROJECT_ID}" \
+            --region="${REGION}" \
+            --service-account="${RUNTIME_SERVICE_ACCOUNT}" \
+            --allow-unauthenticated \
+            --quiet
+
+      - name: Verify live Cloud Run health endpoint
+        run: |
+          SERVICE_URL=$(gcloud run services describe "${SERVICE_NAME}" --project="${PROJECT_ID}" --region="${REGION}" --format="value(status.url)")
+          echo "Deployed URL: ${SERVICE_URL}"
+          curl --fail --silent --show-error "${SERVICE_URL}/health"
+          echo ""

@@ -94,6 +94,8 @@ npm start
    - **Service Name:** `tsutskhvati-web`
    - **Region:** `europe-west1`
    - **Live URL:** [https://tsutskhvati-web-617054738609.europe-west1.run.app](https://tsutskhvati-web-617054738609.europe-west1.run.app)
+   - **Automatic CI/CD:** Pushing to the `main` branch on GitHub automatically triggers [`.github/workflows/deploy-cloud-run.yml`](./.github/workflows/deploy-cloud-run.yml), which authenticates via keyless GCP Workload Identity Federation, runs unit/syntax checks, builds and pushes the Docker image to Artifact Registry, deploys a new `tsutskhvati-web` revision, and verifies `/health`.
+   - **Manual CLI Deploy (optional):**
    ```bash
    gcloud run deploy tsutskhvati-web \
      --source . \
