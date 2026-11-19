@@ -11,6 +11,7 @@ concurrency:
   cancel-in-progress: false
 
 env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: "true"
   PROJECT_ID: geosoft-agents-customer-whc5sa
   REGION: europe-west1
   SERVICE_NAME: tsutskhvati-web
@@ -29,13 +30,13 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Set up Node.js 24 & run checks
+      - name: Set up Node.js 24
         uses: actions/setup-node@v4
         with:
           node-version: "24"
           cache: "npm"
 
-      - name: Install dependencies & run tests
+      - name: Install dependencies & run checks
         run: |
           npm ci
           npm test
@@ -44,23 +45,29 @@ jobs:
           node --check auth-utils.mjs
 
       - name: Authenticate to Google Cloud (Workload Identity Federation)
+        id: auth
         uses: google-github-actions/auth@v2
         with:
+          token_format: "access_token"
           workload_identity_provider: "projects/617054738609/locations/global/workloadIdentityPools/github-actions-pool/providers/github-oidc"
           service_account: "github-actions-deployer@geosoft-agents-customer-whc5sa.iam.gserviceaccount.com"
 
       - name: Set up Google Cloud SDK
         uses: google-github-actions/setup-gcloud@v2
 
-      - name: Configure Docker for Artifact Registry
-        run: gcloud auth configure-docker "${REGION}-docker.pkg.dev" --quiet
+      - name: Log in to Artifact Registry
+        run: |
+          echo "${{ steps.auth.outputs.access_token }}" | docker login -u oauth2accesstoken --password-stdin "https://${REGION}-docker.pkg.dev"
 
-      - name: Build & Push Docker image
+      - name: Build Docker image
         run: |
           docker build \
             -t "${IMAGE_REPO}:${GITHUB_SHA}" \
             -t "${IMAGE_REPO}:latest" \
             .
+
+      - name: Push Docker image to Artifact Registry
+        run: |
           docker push "${IMAGE_REPO}:${GITHUB_SHA}"
           docker push "${IMAGE_REPO}:latest"
 
