@@ -219,7 +219,8 @@ const AUTH_I18N = {
     roleTeacherTag: "მასწავლებელი",
     statusActiveReady: "აქტიური",
     statusOneTimePending: "⏳ ერთჯერადი პაროლი (შესაცვლელი)",
-    editTeacherNoteBtn: "შენიშვნა",
+    actionsMenuBtn: "მოქმედებები",
+    editTeacherNoteBtn: "შეცვლა",
     resetPasswordBtn: "🔑 პაროლის აღდგენა",
     resetConfirmPrompt: "აღდგეს პაროლი?",
     confirmYesBtn: "დიახ",
@@ -455,6 +456,7 @@ const AUTH_I18N = {
     roleTeacherTag: "Teacher",
     statusActiveReady: "Active",
     statusOneTimePending: "⏳ One-time password (must change)",
+    actionsMenuBtn: "Actions",
     editTeacherNoteBtn: "Edit Note",
     resetPasswordBtn: "🔑 Reset Password",
     resetConfirmPrompt: "Reset password?",
@@ -2979,6 +2981,7 @@ function renderAdminPanelDirectory() {
         saveAdminTeacherNote(item.username, inp.value);
       });
       tdNote.appendChild(inlineForm);
+      requestAnimationFrame(() => inp.focus());
     } else {
       tdNote.textContent = item.note || "—";
     }
@@ -3008,111 +3011,214 @@ function renderAdminPanelDirectory() {
     tdStatus.appendChild(statusPill);
     tr.appendChild(tdStatus);
 
-    // Column 5: Actions (Edit Note, Reset Password, Remove)
+    // Column 5: Actions (Revealed via three-dotted menu to keep table neat and un-squished)
     const tdActions = document.createElement("td");
     const actionsWrap = document.createElement("div");
     actionsWrap.className = "admin-row-actions";
 
-    const editNoteBtn = document.createElement("button");
-    editNoteBtn.type = "button";
-    editNoteBtn.className = "btn btn-small btn-ghost";
-    editNoteBtn.textContent = strings.editTeacherNoteBtn;
-    editNoteBtn.addEventListener("click", () => {
-      editingAdminTeacherUsername =
-        editingAdminTeacherUsername === item.username ? "" : item.username;
-      renderAdminPanelDirectory();
-    });
-    actionsWrap.appendChild(editNoteBtn);
+    if (!isAdminItem && confirmingResetUsername === item.username) {
+      const confirmBox = document.createElement("div");
+      confirmBox.className = "admin-inline-confirm is-reset";
+      const lbl = document.createElement("span");
+      lbl.className = "admin-inline-confirm-label";
+      lbl.textContent = strings.resetConfirmPrompt;
 
-    if (!isAdminItem) {
-      // Reset Password Button / Inline Confirmation
-      if (confirmingResetUsername === item.username) {
-        const confirmBox = document.createElement("div");
-        confirmBox.className = "admin-inline-confirm is-reset";
-        const lbl = document.createElement("span");
-        lbl.className = "admin-inline-confirm-label";
-        lbl.textContent = strings.resetConfirmPrompt;
+      const yesBtn = document.createElement("button");
+      yesBtn.type = "button";
+      yesBtn.className = "btn btn-small btn-primary";
+      yesBtn.textContent = strings.confirmYesBtn;
+      yesBtn.addEventListener("click", () => resetTeacherPasswordByAdmin(item.username, yesBtn));
 
-        const yesBtn = document.createElement("button");
-        yesBtn.type = "button";
-        yesBtn.className = "btn btn-small btn-primary";
-        yesBtn.textContent = strings.confirmYesBtn;
-        yesBtn.addEventListener("click", () => resetTeacherPasswordByAdmin(item.username, yesBtn));
+      const noBtn = document.createElement("button");
+      noBtn.type = "button";
+      noBtn.className = "btn btn-small btn-ghost";
+      noBtn.textContent = strings.cancelEditBtn;
+      noBtn.addEventListener("click", () => {
+        confirmingResetUsername = "";
+        renderAdminPanelDirectory();
+      });
 
-        const noBtn = document.createElement("button");
-        noBtn.type = "button";
-        noBtn.className = "btn btn-small btn-ghost";
-        noBtn.textContent = strings.cancelEditBtn;
-        noBtn.addEventListener("click", () => {
-          confirmingResetUsername = "";
-          renderAdminPanelDirectory();
-        });
+      confirmBox.appendChild(lbl);
+      confirmBox.appendChild(yesBtn);
+      confirmBox.appendChild(noBtn);
+      actionsWrap.appendChild(confirmBox);
+    } else if (!isAdminItem && confirmingDeleteUsername === item.username) {
+      const delConfirm = document.createElement("div");
+      delConfirm.className = "admin-inline-confirm";
+      const lbl = document.createElement("span");
+      lbl.className = "admin-inline-confirm-label";
+      lbl.textContent = strings.deleteConfirmPrompt;
 
-        confirmBox.appendChild(lbl);
-        confirmBox.appendChild(yesBtn);
-        confirmBox.appendChild(noBtn);
-        actionsWrap.appendChild(confirmBox);
-      } else {
+      const yesDelBtn = document.createElement("button");
+      yesDelBtn.type = "button";
+      yesDelBtn.className = "btn btn-small btn-danger-ghost";
+      yesDelBtn.textContent = strings.confirmYesBtn;
+      yesDelBtn.addEventListener("click", () => removeTeacherByUsername(item.username, yesDelBtn));
+
+      const noDelBtn = document.createElement("button");
+      noDelBtn.type = "button";
+      noDelBtn.className = "btn btn-small btn-ghost";
+      noDelBtn.textContent = strings.cancelEditBtn;
+      noDelBtn.addEventListener("click", () => {
+        confirmingDeleteUsername = "";
+        renderAdminPanelDirectory();
+      });
+
+      delConfirm.appendChild(lbl);
+      delConfirm.appendChild(yesDelBtn);
+      delConfirm.appendChild(noDelBtn);
+      actionsWrap.appendChild(delConfirm);
+    } else {
+      const menuBtn = document.createElement("button");
+      menuBtn.type = "button";
+      menuBtn.className = "btn btn-small btn-ghost admin-row-menu-btn";
+      const menuLabel = `${strings.actionsMenuBtn || strings.colActions} (${item.username})`;
+      menuBtn.setAttribute("aria-label", menuLabel);
+      menuBtn.title = strings.actionsMenuBtn || strings.colActions;
+      menuBtn.setAttribute("aria-haspopup", "menu");
+      menuBtn.setAttribute("aria-expanded", "false");
+      menuBtn.innerHTML = `<svg viewBox="0 0 20 20" width="16" height="16" fill="currentColor" aria-hidden="true"><circle cx="10" cy="4" r="1.8"/><circle cx="10" cy="10" r="1.8"/><circle cx="10" cy="16" r="1.8"/></svg>`;
+
+      const menuEl = document.createElement("div");
+      menuEl.className = "admin-actions-menu";
+      menuEl.setAttribute("popover", "auto");
+      menuEl.setAttribute("role", "menu");
+      menuEl.setAttribute("aria-label", menuLabel);
+
+      const closeMenu = () => {
+        if (menuEl.hidePopover) {
+          try { menuEl.hidePopover(); } catch (_e) {}
+        }
+        menuEl.classList.remove("is-open");
+        menuBtn.setAttribute("aria-expanded", "false");
+      };
+
+      const positionMenu = () => {
+        const rect = menuBtn.getBoundingClientRect();
+        const menuWidth = menuEl.offsetWidth || 190;
+        const menuHeight = menuEl.offsetHeight || 120;
+
+        let left = rect.right - menuWidth;
+        if (left < 8) left = 8;
+        if (left + menuWidth > window.innerWidth - 8) {
+          left = window.innerWidth - menuWidth - 8;
+        }
+
+        let top = rect.bottom + 4;
+        if (top + menuHeight > window.innerHeight - 8) {
+          top = Math.max(8, rect.top - menuHeight - 4);
+        }
+
+        menuEl.style.position = "fixed";
+        menuEl.style.top = `${Math.round(top)}px`;
+        menuEl.style.left = `${Math.round(left)}px`;
+        menuEl.style.margin = "0";
+      };
+
+      // 1. Edit Note / "შეცვლა"
+      const editNoteBtn = document.createElement("button");
+      editNoteBtn.type = "button";
+      editNoteBtn.className = "btn btn-small btn-ghost admin-menu-item";
+      editNoteBtn.innerHTML = `<svg viewBox="0 0 20 20" width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M11 3H4a2 2 0 0 0-2 2v11a2 2 0 0 0 2 2h11a2 2 0 0 0 2-2v-7"/><path d="M15.5 2.5a2.121 2.121 0 0 1 3 3L10 14l-4 1 1-4 8.5-8.5z"/></svg><span>${strings.editTeacherNoteBtn}</span>`;
+      editNoteBtn.addEventListener("click", () => {
+        closeMenu();
+        editingAdminTeacherUsername =
+          editingAdminTeacherUsername === item.username ? "" : item.username;
+        renderAdminPanelDirectory();
+      });
+      menuEl.appendChild(editNoteBtn);
+
+      if (!isAdminItem) {
+        // 2. Reset Password
         const resetBtn = document.createElement("button");
         resetBtn.type = "button";
-        resetBtn.className = "btn btn-small btn-warning-ghost";
-        resetBtn.textContent = strings.resetPasswordBtn;
+        resetBtn.className = "btn btn-small btn-warning-ghost admin-menu-item";
+        resetBtn.innerHTML = `<span>${strings.resetPasswordBtn}</span>`;
         resetBtn.addEventListener("click", () => {
+          closeMenu();
           confirmingDeleteUsername = "";
           confirmingResetUsername = item.username;
           renderAdminPanelDirectory();
         });
-        actionsWrap.appendChild(resetBtn);
-      }
+        menuEl.appendChild(resetBtn);
 
-      // Delete Teacher Button / Inline Confirmation
-      if (confirmingDeleteUsername === item.username) {
-        const delConfirm = document.createElement("div");
-        delConfirm.className = "admin-inline-confirm";
-        const lbl = document.createElement("span");
-        lbl.className = "admin-inline-confirm-label";
-        lbl.textContent = strings.deleteConfirmPrompt;
-
-        const yesDelBtn = document.createElement("button");
-        yesDelBtn.type = "button";
-        yesDelBtn.className = "btn btn-small btn-danger-ghost";
-        yesDelBtn.textContent = strings.confirmYesBtn;
-        yesDelBtn.addEventListener("click", () => removeTeacherByUsername(item.username, yesDelBtn));
-
-        const noDelBtn = document.createElement("button");
-        noDelBtn.type = "button";
-        noDelBtn.className = "btn btn-small btn-ghost";
-        noDelBtn.textContent = strings.cancelEditBtn;
-        noDelBtn.addEventListener("click", () => {
-          confirmingDeleteUsername = "";
-          renderAdminPanelDirectory();
-        });
-
-        delConfirm.appendChild(lbl);
-        delConfirm.appendChild(yesDelBtn);
-        delConfirm.appendChild(noDelBtn);
-        actionsWrap.appendChild(delConfirm);
-      } else {
+        // 3. Remove Teacher
         const delBtn = document.createElement("button");
         delBtn.type = "button";
-        delBtn.className = "btn btn-small btn-danger-ghost";
-        delBtn.textContent = strings.removeTeacherBtn;
+        delBtn.className = "btn btn-small btn-danger-ghost admin-menu-item";
+        delBtn.innerHTML = `<svg viewBox="0 0 20 20" width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 6h14M8 6V4a2 2 0 0 1 2-2h0a2 2 0 0 1 2 2v2M5 6v10a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2V6"/></svg><span>${strings.removeTeacherBtn}</span>`;
         const srLabel = document.createElement("span");
         srLabel.className = "visually-hidden";
         srLabel.textContent = ` (${item.username})`;
         delBtn.appendChild(srLabel);
         delBtn.addEventListener("click", () => {
+          closeMenu();
           confirmingResetUsername = "";
           confirmingDeleteUsername = item.username;
           renderAdminPanelDirectory();
         });
-        actionsWrap.appendChild(delBtn);
+        menuEl.appendChild(delBtn);
+      } else {
+        const lockSpan = document.createElement("div");
+        lockSpan.className = "admin-menu-item admin-protected-note";
+        lockSpan.innerHTML = `<svg viewBox="0 0 20 20" width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="9" width="12" height="9" rx="2"/><path d="M7 9V6a3 3 0 0 1 6 0v3"/></svg><span>${strings.protectedAdminLabel}</span>`;
+        menuEl.appendChild(lockSpan);
       }
-    } else {
-      const lockSpan = document.createElement("span");
-      lockSpan.className = "admin-protected-note";
-      lockSpan.textContent = strings.protectedAdminLabel;
-      actionsWrap.appendChild(lockSpan);
+
+      menuBtn.addEventListener("click", (ev) => {
+        ev.stopPropagation();
+        document.querySelectorAll(".admin-actions-menu").forEach((other) => {
+          if (other !== menuEl) {
+            if (other.hidePopover) {
+              try { other.hidePopover(); } catch (_e) {}
+            }
+            other.classList.remove("is-open");
+            const otherBtn = other.parentElement?.querySelector(".admin-row-menu-btn");
+            if (otherBtn) otherBtn.setAttribute("aria-expanded", "false");
+          }
+        });
+
+        if (menuEl.togglePopover) {
+          try {
+            menuEl.togglePopover();
+          } catch (_e) {
+            const isOpen = menuEl.classList.toggle("is-open");
+            menuBtn.setAttribute("aria-expanded", isOpen ? "true" : "false");
+            if (isOpen) {
+              positionMenu();
+              requestAnimationFrame(positionMenu);
+            }
+          }
+        } else {
+          const isOpen = menuEl.classList.toggle("is-open");
+          menuBtn.setAttribute("aria-expanded", isOpen ? "true" : "false");
+          if (isOpen) {
+            positionMenu();
+            requestAnimationFrame(positionMenu);
+          }
+        }
+      });
+
+      menuEl.addEventListener("beforetoggle", (ev) => {
+        if (ev.newState === "open") {
+          menuBtn.setAttribute("aria-expanded", "true");
+          positionMenu();
+          requestAnimationFrame(positionMenu);
+        } else {
+          menuBtn.setAttribute("aria-expanded", "false");
+        }
+      });
+
+      menuEl.addEventListener("keydown", (ev) => {
+        if (ev.key === "Escape") {
+          ev.stopPropagation();
+          closeMenu();
+          menuBtn.focus();
+        }
+      });
+
+      actionsWrap.appendChild(menuBtn);
+      actionsWrap.appendChild(menuEl);
     }
 
     tdActions.appendChild(actionsWrap);
@@ -3769,6 +3875,38 @@ function bindWorkspaceAndAuthEvents() {
 
   setupWorkspaceTabsEvents();
 
+  // Dismiss any open admin row popovers when clicking outside, pressing Escape, or scrolling
+  document.addEventListener("click", (ev) => {
+    if (!ev.target.closest(".admin-actions-menu") && !ev.target.closest(".admin-row-menu-btn")) {
+      document.querySelectorAll(".admin-actions-menu.is-open").forEach((el) => {
+        el.classList.remove("is-open");
+        const btn = el.parentElement?.querySelector(".admin-row-menu-btn");
+        if (btn) btn.setAttribute("aria-expanded", "false");
+      });
+    }
+  });
+  document.addEventListener("keydown", (ev) => {
+    if (ev.key === "Escape") {
+      document.querySelectorAll(".admin-actions-menu.is-open").forEach((el) => {
+        el.classList.remove("is-open");
+        const btn = el.parentElement?.querySelector(".admin-row-menu-btn");
+        if (btn) btn.setAttribute("aria-expanded", "false");
+      });
+    }
+  });
+  window.addEventListener("scroll", () => {
+    document.querySelectorAll(".admin-actions-menu").forEach((el) => {
+      if (el.matches?.(":popover-open")) {
+        try { el.hidePopover(); } catch (_e) {}
+      }
+      if (el.classList.contains("is-open")) {
+        el.classList.remove("is-open");
+        const btn = el.parentElement?.querySelector(".admin-row-menu-btn");
+        if (btn) btn.setAttribute("aria-expanded", "false");
+      }
+    });
+  }, { passive: true, capture: true });
+
   window.addEventListener("snowday:langchange", () => {
     renderAllAuthSurfaces();
   });
@@ -3802,7 +3940,14 @@ window.SnowDayTeacherAuth = {
   openAuthDialog,
   openChangePasswordDialog,
   openWorkspaceView,
-  openAdminDialog: () => openWorkspaceView("admin")
+  openAdminDialog: () => openWorkspaceView("admin"),
+  __setTestState: (teachers, isSuperAdmin = true) => {
+    authState.isSuperAdmin = isSuperAdmin;
+    authState.isAuthorizedTeacher = true;
+    authState.username = "admin";
+    cachedTeachersList = teachers;
+    renderAdminPanelDirectory();
+  }
 };
 
 if (document.readyState === "loading") {

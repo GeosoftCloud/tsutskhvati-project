@@ -2872,6 +2872,13 @@ input[type="search"] {
   vertical-align: middle;
 }
 
+.ws-admin-table thead th:last-child,
+.ws-admin-table tbody td:last-child {
+  width: 1%;
+  white-space: nowrap;
+  text-align: end;
+}
+
 .ws-admin-table tbody tr:last-child > * {
   border-bottom: 0;
 }
@@ -2942,10 +2949,89 @@ tr:has(.admin-status-pill.is-pending) .admin-table-identity::before {
 }
 
 .admin-row-actions {
-  display: flex;
-  flex-wrap: wrap;
+  display: inline-flex;
   align-items: center;
+  justify-content: flex-end;
   gap: 0.35rem;
+  position: relative;
+}
+
+.admin-row-menu-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.25rem;
+  height: 2.25rem;
+  min-width: 2.25rem;
+  padding: 0;
+  border-radius: var(--radius-xs);
+  color: var(--text-2);
+  cursor: pointer;
+  background: transparent;
+  border: 1px solid var(--border);
+  transition: background 0.15s var(--ease), color 0.15s var(--ease), border-color 0.15s var(--ease);
+}
+
+.admin-row-menu-btn:hover,
+.admin-row-menu-btn:focus-visible,
+.admin-row-menu-btn[aria-expanded="true"] {
+  background: var(--surface-3);
+  color: var(--text);
+  border-color: var(--border-strong);
+}
+
+.admin-actions-menu {
+  position: fixed;
+  margin: 0;
+  padding: 0.35rem;
+  min-width: 13.5rem;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  background: var(--surface);
+  color: var(--text);
+  box-shadow: var(--shadow-lg);
+  display: none;
+  flex-direction: column;
+  gap: 0.2rem;
+  z-index: 1000;
+  animation: toast-in 0.15s var(--ease);
+}
+
+.admin-actions-menu:is(:popover-open, .is-open) {
+  display: flex;
+}
+
+.admin-actions-menu .admin-menu-item {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 0.55rem;
+  width: 100%;
+  min-height: 2.25rem;
+  padding: 0.45rem 0.75rem;
+  font-size: 0.88rem;
+  font-weight: 500;
+  text-align: start;
+  border: 1px solid transparent;
+  border-radius: var(--radius-xs);
+  cursor: pointer;
+  white-space: nowrap;
+  text-decoration: none;
+}
+
+.admin-actions-menu .admin-menu-item svg {
+  flex-shrink: 0;
+  opacity: 0.85;
+}
+
+.admin-actions-menu .admin-protected-note {
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+  padding: 0.45rem 0.75rem;
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: var(--muted);
 }
 
 .admin-protected-note {
@@ -3073,6 +3159,11 @@ tr:has(.admin-status-pill.is-pending) .admin-table-identity::before {
 
   .admin-row-actions > .btn {
     flex: 1 1 auto;
+  }
+
+  .admin-row-actions > .admin-row-menu-btn {
+    flex: 0 0 auto;
+    margin-inline-start: auto;
   }
 }
 
