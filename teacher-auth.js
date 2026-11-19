@@ -1,15 +1,13 @@
 /**
  * SnowDay Class (თოვლის დღის კლასი) — answer.ge
- * Teacher Google OAuth, Personal Lesson History Space & Full-Page Super Admin Panel
- * Powered by Firebase Authentication (Google Sign-In) + Cloud Firestore Security Rules
+ * Teacher Username + Password Authentication, Mandatory One-Time Password Change,
+ * Personal Lesson History Workspace & Full-Page Super Admin Panel
+ * Powered by Firebase Auth + Cloud Run Firebase Admin API + Cloud Firestore Security Rules
  */
 import { initializeApp } from "https://www.gstatic.com/firebasejs/11.4.0/firebase-app.js";
 import {
   getAuth,
-  GoogleAuthProvider,
-  signInWithPopup,
-  signInWithRedirect,
-  getRedirectResult,
+  signInWithEmailAndPassword,
   onAuthStateChanged,
   signOut
 } from "https://www.gstatic.com/firebasejs/11.4.0/firebase-auth.js";
@@ -33,46 +31,95 @@ const AUTH_I18N = {
     headerSuperAdminShort: "ადმინი",
     headerTeacherFull: "ჩემი პირადი სივრცე",
     headerTeacherShort: "სივრცე",
+    headerMustChangeFull: "პაროლის შეცვლა სავალდებულოა",
+    headerMustChangeShort: "პაროლი",
     headerUnauthorizedFull: "წვდომა შეზღუდულია",
     headerUnauthorizedShort: "სტატუსი",
     loadingAuth: "მოწმდება მასწავლებლის ავტორიზაცია...",
-    googleSignInBtn: "Google-ით შესვლა",
-    switchAccountBtn: "სხვა Google ანგარიშით შესვლა",
+
+    // Login Form
+    loginUsernameLabel: "მომხმარებლის სახელი (Username)",
+    loginUsernamePlaceholder: "მაგ.: nino.beridze",
+    loginPasswordLabel: "პაროლი",
+    loginPasswordPlaceholder: "შეიყვანეთ თქვენი პაროლი",
+    showPasswordBtn: "ჩვენება",
+    hidePasswordBtn: "დამალვა",
+    signInBtn: "შესვლა",
+    signingInBtn: "მოწმდება...",
     signOutBtn: "გასვლა",
+    forgotPasswordHint:
+      "დაგავიწყდათ პაროლი? მიმართეთ სკოლის მთავარ ადმინისტრატორს ერთჯერადი პაროლის აღსადგენად.",
+
     openWorkspaceBtn: "ჩემს პირად სივრცეში გადასვლა →",
     openAdminPanelBtn: "ადმინ პანელის გახსნა",
+    changePasswordBtn: "🔑 პაროლის შეცვლა",
     verifiedTeacherBadge: "✓ ავტორიზებული მასწავლებელი",
     verifiedAdminBadge: "★ მთავარი ადმინი (Super Admin)",
+    mustChangeBadge: "🔒 ერთჯერადი პაროლი",
     unauthorizedBadge: "წვდომა შეზღუდულია",
-    gateGuestTitle: "საჭიროა მასწავლებლის ავტორიზაცია",
+
+    gateGuestTitle: "მასწავლებლის შესვლა (Username + პაროლი)",
     gateGuestDesc:
-      "გაიარეთ ავტორიზაცია Google (Gmail) ანგარიშით, რომ გახსნათ თქვენი პირადი სივრცე, შეინახოთ გაზიარებული Google Docs ისტორია და შექმნათ QR კოდები.",
+      "შედით მთავარი ადმინისტრატორის მიერ გადმოცემული მომხმარებლის სახელითა და პაროლით, რომ გახსნათ პირადი სივრცე და შექმნათ მოსწავლის QR კოდები.",
     gateStudentNote:
       "მოსწავლეებს ავტორიზაცია არ სჭირდებათ — გაკვეთილი იხსნება პირდაპირ QR კოდით ან მარცხენა ბარათიდან.",
-    gateUnauthTitle: "ეს ელფოსტა არ არის მასწავლებლების ჯგუფში",
-    gateUnauthBodyPrefix: "თქვენ შესული ხართ მისამართით ",
+    gateUnauthTitle: "ეს ანგარიში არ არის რეგისტრირებული მასწავლებლებში",
+    gateUnauthBodyPrefix: "მომხმარებელი ",
     gateUnauthBodySuffix:
-      ", რომელიც ჯერ არ არის დამატებული ავტორიზებულ მასწავლებლებში. მიმართეთ მთავარ ადმინისტრატორს:",
+      " ვერ მოიძებნა სკოლის მასწავლებლების სიაში. მიმართეთ მთავარ ადმინისტრატორს.",
+
     authModalKicker: "მასწავლებლის ავტორიზაცია · answer.ge",
-    authModalTitleGuest: "შესვლა მასწავლებლის Google ანგარიშით",
-    authModalTitleUnauth: "წვდომა მხოლოდ ჯგუფის მასწავლებლებისთვის",
+    authModalTitleGuest: "შესვლა მასწავლებლის ანგარიშით",
+    authModalTitleMustChange: "შეცვალეთ ერთჯერადი პაროლი",
+    authModalTitleVoluntaryChange: "პაროლის განახლება",
+    authModalTitleUnauth: "წვდომა მხოლოდ რეგისტრირებული მასწავლებლებისთვის",
+
+    // One-Time / Strong Password Change UI
+    mustChangeTitle: "სავალდებულოა ერთჯერადი პაროლის შეცვლა",
+    mustChangeDescFmt: (username) =>
+      `თქვენ შეხვედით როგორც „${username}“ ადმინისტრატორის მიერ გენერირებული ერთჯერადი პაროლით. გასაგრძელებლად გთხოვთ, დააყენოთ თქვენი ახალი ძლიერი პაროლი.`,
+    voluntaryChangeDescFmt: (username) =>
+      `განაახლეთ ანგარიშის „${username}“ პაროლი. ახალი პაროლი უნდა აკმაყოფილებდეს უსაფრთხოების ყველა მოთხოვნას.`,
+    currentPasswordLabel: "მიმდინარე (ან ერთჯერადი) პაროლი",
+    currentPasswordPlaceholder: "შეიყვანეთ მიმდინარე პაროლი",
+    newPasswordLabel: "ახალი ძლიერი პაროლი",
+    newPasswordPlaceholder: "შეიყვანეთ ახალი პაროლი",
+    confirmPasswordLabel: "გაიმეორეთ ახალი პაროლი",
+    confirmPasswordPlaceholder: "გაიმეორეთ ახალი პაროლი",
+    pwdRuleMinLen: "მინიმუმ 8 სიმბოლო",
+    pwdRuleUpper: "მინიმუმ 1 დიდი ლათინური ასო (A–Z)",
+    pwdRuleLower: "მინიმუმ 1 პატარა ლათინური ასო (a–z)",
+    pwdRuleDigit: "მინიმუმ 1 ციფრი (0–9)",
+    pwdRuleSpecial: "მინიმუმ 1 სპეციალური სიმბოლო (!@#$%...)",
+    pwdComplexityError: "პაროლი არ აკმაყოფილებს ზემოთ ჩამოთვლილ ყველა მოთხოვნას.",
+    pwdMismatchError: "ახალი პაროლები ერთმანეთს არ ემთხვევა.",
+    pwdSameAsOldError: "ახალი პაროლი უნდა განსხვავდებოდეს ერთჯერადი / ძველი პაროლისგან.",
+    pwdCurrentMissingError: "გთხოვთ, შეიყვანოთ მიმდინარე (ერთჯერადი) პაროლი.",
+    pwdCurrentWrongError: "მიმდინარე პაროლი არასწორია.",
+    saveNewPasswordBtn: "ახალი პაროლის შენახვა და გაგრძელება",
+    savingNewPasswordBtn: "ინახება...",
+    passwordChangedToast: "✓ პაროლი წარმატებით შეიცვალა!",
 
     // Workspace Banner & Tabs
     wsWelcomeDefault: "მასწავლებლის პირადი სივრცე",
     wsWelcomeNamedFmt: (name) => `${name} — პირადი სივრცე`,
     wsWelcomeSubTeacher:
-      "შეინახეთ და მართეთ თქვენი გაზიარებული Google Docs გაკვეთილები, კლასის მინიშნებები, პირადი ჩანაწერები და QR კოდები.",
+      "შეინახეთ და მართეთ თქვენი გაზიარებული გაკვეთილები, კლასის მინიშნებები, პირადი ჩანაწერები და QR კოდები.",
     wsWelcomeSubAdmin:
-      "თქვენი მასწავლებლის პირადი სივრცე და სკოლის მასწავლებლების ჯგუფის სრული ადმინ პანელი.",
+      "თქვენი მასწავლებლის პირადი სივრცე და სკოლის მასწავლებლების ანგარიშების მართვის ადმინ პანელი.",
     wsStatDocsLabel: "შენახული დოკუმენტი",
     wsStatAiLabel: "AI გაკვეთილი",
-    wsStatTeachersLabel: "მასწავლებელი ჯგუფში",
+    wsStatTeachersLabel: "ანგარიში სისტემაში",
     wsReturnLessonBtn: "← გაკვეთილზე დაბრუნება",
     wsStudentHubBtn: "🎓 მოსწავლის საწყისი",
     tabHistoryLabel: "ჩემი დოკუმენტების ისტორია",
     tabCreateLabel: "ახალი გაკვეთილი და QR",
     tabAdminLabel: "ადმინ პანელი · მასწავლებლები",
     tabSettingsLabel: "AI კავშირი და ქეში",
+    tabHistoryShort: "ისტორია",
+    tabCreateShort: "ახალი",
+    tabAdminShort: "ადმინი",
+    tabSettingsShort: "AI",
 
     // Ribbon shortcuts
     ribbonSaveBtn: "📌 ისტორიაში შენახვა",
@@ -104,6 +151,8 @@ const AUTH_I18N = {
     docCopyStudentLinkBtn: "ბმულის კოპირება",
     docEditDetailsBtn: "ჩანაწერის ჩასწორება",
     docDeleteBtn: "წაშლა",
+    docDeleteConfirmBtn: "დიახ, წაშლა",
+    docMoreActionsLabel: "სხვა მოქმედებები",
     docOpenGoogleBtn: "პირველწყარო ↗",
     editTitleLabel: "სათაური",
     editSubjectLabel: "საგანი",
@@ -138,43 +187,65 @@ const AUTH_I18N = {
     generateOpenBtn: "AI გაკვეთილის გენერაცია და გახსნა",
     qrEmptyPrompt: "ჩასვით დოკუმენტის ბმული ან ატვირთეთ ფაილი QR კოდის შესაქმნელად",
     qrPngDownloaded: "PNG ფაილი ჩამოიტვირთა!",
+    uploadFileBtn: "ფაილის ატვირთვა (PDF, DOCX, TXT)",
 
     // Admin Panel Tab
-    adminPanelTitle: "მასწავლებლების ჯგუფის ადმინ პანელი",
+    adminPanelTitle: "მასწავლებლების მართვის ადმინ პანელი",
     adminPanelLead:
-      "მართეთ სკოლის ავტორიზებული მასწავლებლები Google / Gmail მისამართებით. დამატებულ წევრებს ეძლევათ საკუთარი პირადი სივრცე და QR გაკვეთილების შექმნის უფლება.",
-    kpiTotalLabel: "სულ ჯგუფში",
-    kpiActiveLabel: "აქტიური (შემოსული)",
-    kpiPendingLabel: "მოწვეული (ელოდება შესვლას)",
-    inviteHeading: "ახალი მასწავლებლის დამატება ჯგუფში",
-    addEmailLabel: "მასწავლებლის Google / Gmail ელფოსტა",
-    addEmailHint: "ფორმატი: teacher@gmail.com (მხოლოდ Google-თან დაკავშირებული ელფოსტა)",
-    addEmailPlaceholder: "nino.teacher@gmail.com",
-    addEmailError: "გთხოვთ, შეიყვანოთ სწორი ელფოსტის მისამართი (მაგ.: teacher@gmail.com).",
+      "შექმენით მასწავლებლის მომხმარებლის სახელი (Username) და სისტემა ავტომატურად დააგენერირებს ძლიერ ერთჯერად პაროლს. პირველი შესვლისას მასწავლებელს მოეთხოვება პაროლის შეცვლა, ხოლო საჭიროებისას შეგიძლიათ პაროლის აღდგენა.",
+    kpiTotalLabel: "სულ ანგარიში",
+    kpiActiveLabel: "აქტიური (პაროლი დაყენებულია)",
+    kpiPendingLabel: "ერთჯერადი პაროლით (შესაცვლელი)",
+    inviteHeading: "ახალი მასწავლებლის შექმნა (ავტომატური ძლიერი ერთჯერადი პაროლით)",
+    addUsernameLabel: "მასწავლებლის მომხმარებლის სახელი (Username)",
+    addUsernameHint:
+      "3–32 სიმბოლო: ლათინური პატარა ასოები, ციფრები, წერტილი (.), ტირე (-) ან ქვედა ტირე (_)",
+    addUsernamePlaceholder: "nino.beridze",
+    addUsernameError:
+      "მომხმარებლის სახელი უნდა შეიცავდეს 3–32 სიმბოლოს (ლათინური ასოები, ციფრები, ., -, _).",
     addNoteLabel: "სახელი, გვარი და საგანი (არასავალდებულო)",
     addNoteHint: "გამოჩნდება მასწავლებლების ცხრილში იდენტიფიკაციისთვის",
     addNotePlaceholder: "მაგ.: ნინო ბერიძე — ისტორია (VIII–X კლ.)",
-    addTeacherSubmitBtn: "+ ჯგუფში დამატება",
-    addingTeacherBtn: "ემატება...",
-    teachersListHeading: "ავტორიზებული მასწავლებლების სია",
-    adminSearchPlaceholder: "მოძებნე ელფოსტით ან სახელით...",
-    colTeacher: "მასწავლებელი / ელფოსტა",
+    addTeacherSubmitBtn: "+ შექმნა და პაროლის გენერაცია",
+    addingTeacherBtn: "იქმნება...",
+    teachersListHeading: "რეგისტრირებული მასწავლებლების სია",
+    adminSearchPlaceholder: "მოძებნე username-ით ან სახელით...",
+    colTeacher: "მომხმარებელი (Username)",
     colNote: "სახელი და საგანი",
     colRole: "როლი",
-    colStatus: "სტატუსი",
+    colStatus: "პაროლი და სტატუსი",
     colActions: "მართვა",
     roleSuperAdminTag: "მთავარი ადმინი",
     roleTeacherTag: "მასწავლებელი",
-    statusLoggedBefore: "აქტიური",
-    statusInvitedPending: "ელოდება პირველ შესვლას",
+    statusActiveReady: "აქტიური",
+    statusOneTimePending: "⏳ ერთჯერადი პაროლი (შესაცვლელი)",
     editTeacherNoteBtn: "შენიშვნა",
+    resetPasswordBtn: "🔑 პაროლის აღდგენა",
+    resetConfirmPrompt: "აღდგეს პაროლი?",
+    confirmYesBtn: "დიახ",
+    resettingBtn: "ახლდება...",
     removeTeacherBtn: "წაშლა",
+    deleteConfirmPrompt: "წაიშალოს?",
     removingBtn: "იშლება...",
     protectedAdminLabel: "ძირითადი ადმინი",
-    addedSuccessFmt: (email) => `✓ მასწავლებელი დაემატა ჯგუფში: ${email}`,
-    alreadyExistsFmt: (email) => `✓ განახლდა მასწავლებლის ჩანაწერი: ${email}`,
-    removedSuccessFmt: (email) => `✓ წაიშალა ჯგუფიდან: ${email}`,
+    addedSuccessFmt: (u) => `✓ შეიქმნა მასწავლებელი „${u}“ ერთჯერადი ძლიერი პაროლით.`,
+    resetSuccessFmt: (u) => `✓ მასწავლებლის „${u}“ პაროლი განულდა ახალი ერთჯერადი პაროლით.`,
+    updatedTeacherFmt: (u) => `✓ განახლდა მასწავლებლის ჩანაწერი: ${u}`,
+    removedSuccessFmt: (u) => `✓ წაიშალა ანგარიში: ${u}`,
+    usernameExistsFmt: (u) => `მომხმარებლის სახელი „${u}“ უკვე არსებობს. პაროლის შესაცვლელად გამოიყენეთ „პაროლის აღდგენა“.`,
     emptyTeachersList: "ამ საძიებო სიტყვით მასწავლებელი ვერ მოიძებნა.",
+
+    // Generated Credentials Banner
+    credCreatedTitleFmt: (u) => `✓ მასწავლებლის ანგარიში „${u}“ მზადაა — ერთჯერადი პაროლი`,
+    credResetTitleFmt: (u) => `✓ პაროლი აღდგენილია ანგარიშისთვის „${u}“ — ახალი ერთჯერადი პაროლი`,
+    credWarningText:
+      "გადაეცით ეს მონაცემები მასწავლებელს. უსაფრთხოების მიზნით ერთჯერადი პაროლი მხოლოდ ახლა ჩანს — შესვლისთანავე მასწავლებელს მოეთხოვება საკუთარი ძლიერი პაროლის დაყენება.",
+    credUsernameLabel: "მომხმარებელი (Username)",
+    credPasswordLabel: "ერთჯერადი ძლიერი პაროლი",
+    copyBtnShort: "კოპირება",
+    copiedBtnShort: "✓ დაკოპირდა",
+    copyBothCredsBtn: "📋 მონაცემების ერთად კოპირება",
+    dismissCredsBtn: "დახურვა",
 
     // Settings Tab
     settingsHeading: "Geosoft AI Agent კავშირი და ლოკალური ქეში",
@@ -182,11 +253,10 @@ const AUTH_I18N = {
       "შეამოწმეთ ან განაახლეთ გამოქვეყნებული Geosoft AI აგენტის ბმული და მართეთ ამ მოწყობილობაზე დაქეშილი გაკვეთილები.",
 
     // Errors
-    popupClosedMsg: "ავტორიზაციის ფანჯარა დაიხურა შესვლის დასრულებამდე.",
-    unauthorizedDomainMsg:
-      "მიმდინარე დომენი არ არის დამატებული Firebase Auth Authorized Domains სიაში.",
+    invalidLoginMsg: "არასწორი მომხმარებლის სახელი (Username) ან პაროლი.",
+    tooManyRequestsMsg: "ძალიან ბევრი მცდელობა. გთხოვთ, სცადოთ რამდენიმე წუთში.",
     genericAuthErrorPrefix: "ავტორიზაციის შეცდომა: ",
-    genericSaveErrorPrefix: "შენახვის შეცდომა: "
+    genericSaveErrorPrefix: "შეცდომა: "
   },
   en: {
     headerSignInFull: "Teacher Sign In",
@@ -195,46 +265,95 @@ const AUTH_I18N = {
     headerSuperAdminShort: "Admin",
     headerTeacherFull: "My Teacher Space",
     headerTeacherShort: "My Space",
+    headerMustChangeFull: "Password Change Required",
+    headerMustChangeShort: "Password",
     headerUnauthorizedFull: "Access Restricted",
     headerUnauthorizedShort: "Status",
     loadingAuth: "Checking teacher authentication...",
-    googleSignInBtn: "Sign in with Google",
-    switchAccountBtn: "Switch Google Account",
+
+    // Login Form
+    loginUsernameLabel: "Username",
+    loginUsernamePlaceholder: "e.g., nino.beridze",
+    loginPasswordLabel: "Password",
+    loginPasswordPlaceholder: "Enter your password",
+    showPasswordBtn: "Show",
+    hidePasswordBtn: "Hide",
+    signInBtn: "Sign In",
+    signingInBtn: "Signing in...",
     signOutBtn: "Sign Out",
+    forgotPasswordHint:
+      "Forgot your password? Contact your school's Super Admin to receive a new one-time reset password.",
+
     openWorkspaceBtn: "Open My Personal Workspace →",
     openAdminPanelBtn: "Open Admin Panel",
+    changePasswordBtn: "🔑 Change Password",
     verifiedTeacherBadge: "✓ Authorized Teacher",
     verifiedAdminBadge: "★ Super Admin",
+    mustChangeBadge: "🔒 One-Time Password",
     unauthorizedBadge: "Access Restricted",
-    gateGuestTitle: "Teacher Sign-In Required",
+
+    gateGuestTitle: "Teacher Sign In (Username + Password)",
     gateGuestDesc:
-      "Sign in with your authorized Google (Gmail) account to open your personal workspace, save shared Google Docs in your history, and create student QR codes.",
+      "Sign in with the username and password provided by your Super Admin to open your personal workspace and generate student QR codes.",
     gateStudentNote:
       "Students do not need to sign in — open lessons directly via QR code or the Student card.",
-    gateUnauthTitle: "This email is not in the Teachers Group",
-    gateUnauthBodyPrefix: "You are signed in as ",
+    gateUnauthTitle: "Account Not Registered in Teachers Directory",
+    gateUnauthBodyPrefix: "Username ",
     gateUnauthBodySuffix:
-      ", which has not been added to the authorized teachers group yet. Please contact the Super Admin:",
+      " was not found in the authorized school teachers directory. Please contact your Super Admin.",
+
     authModalKicker: "Teacher Authentication · answer.ge",
-    authModalTitleGuest: "Sign in with Teacher Google Account",
-    authModalTitleUnauth: "Restricted to Authorized School Teachers",
+    authModalTitleGuest: "Sign In to Teacher Account",
+    authModalTitleMustChange: "Change Your One-Time Password",
+    authModalTitleVoluntaryChange: "Change Account Password",
+    authModalTitleUnauth: "Restricted to Registered School Teachers",
+
+    // One-Time / Strong Password Change UI
+    mustChangeTitle: "One-Time Password Change Required",
+    mustChangeDescFmt: (username) =>
+      `You signed in as "${username}" using a one-time password generated by your Super Admin. Please choose your own strong password to continue.`,
+    voluntaryChangeDescFmt: (username) =>
+      `Update the password for "${username}". Your new password must satisfy all strength requirements below.`,
+    currentPasswordLabel: "Current (or One-Time) Password",
+    currentPasswordPlaceholder: "Enter current password",
+    newPasswordLabel: "New Strong Password",
+    newPasswordPlaceholder: "Enter new strong password",
+    confirmPasswordLabel: "Confirm New Password",
+    confirmPasswordPlaceholder: "Re-enter new password",
+    pwdRuleMinLen: "At least 8 characters",
+    pwdRuleUpper: "One uppercase letter (A–Z)",
+    pwdRuleLower: "One lowercase letter (a–z)",
+    pwdRuleDigit: "One number (0–9)",
+    pwdRuleSpecial: "One special character (!@#$%...)",
+    pwdComplexityError: "Password doesn't meet all the strength requirements listed above.",
+    pwdMismatchError: "New password and confirmation do not match.",
+    pwdSameAsOldError: "Your new password must be different from the one-time / current password.",
+    pwdCurrentMissingError: "Please enter your current (one-time) password.",
+    pwdCurrentWrongError: "Current password is incorrect.",
+    saveNewPasswordBtn: "Save New Password & Continue",
+    savingNewPasswordBtn: "Saving...",
+    passwordChangedToast: "✓ Password updated successfully!",
 
     // Workspace Banner & Tabs
     wsWelcomeDefault: "Teacher Personal Workspace",
     wsWelcomeNamedFmt: (name) => `${name}'s Workspace`,
     wsWelcomeSubTeacher:
-      "Keep track of every Google Doc you added or shared with classes, personal teaching notes, and printable student QR codes.",
+      "Keep track of every lesson document you added or shared with classes, personal teaching notes, and printable student QR codes.",
     wsWelcomeSubAdmin:
-      "Your personal teaching history plus the full school Teachers Group Admin Panel.",
+      "Your personal teaching history plus the full school Teachers Account & Password Admin Panel.",
     wsStatDocsLabel: "Saved Docs",
     wsStatAiLabel: "AI Lessons",
-    wsStatTeachersLabel: "Group Teachers",
+    wsStatTeachersLabel: "Accounts",
     wsReturnLessonBtn: "← Back to Open Lesson",
     wsStudentHubBtn: "🎓 Student Hub",
     tabHistoryLabel: "My Docs & History",
     tabCreateLabel: "New Lesson & QR",
     tabAdminLabel: "Admin Panel · Teachers",
     tabSettingsLabel: "AI Agent & Cache",
+    tabHistoryShort: "Docs",
+    tabCreateShort: "New",
+    tabAdminShort: "Teachers",
+    tabSettingsShort: "AI",
 
     // Ribbon shortcuts
     ribbonSaveBtn: "📌 Save to My History",
@@ -266,6 +385,8 @@ const AUTH_I18N = {
     docCopyStudentLinkBtn: "Copy Link",
     docEditDetailsBtn: "Edit Note",
     docDeleteBtn: "Remove",
+    docDeleteConfirmBtn: "Yes, remove",
+    docMoreActionsLabel: "More actions",
     docOpenGoogleBtn: "Original Doc ↗",
     editTitleLabel: "Lesson Title",
     editSubjectLabel: "Subject",
@@ -285,8 +406,10 @@ const AUTH_I18N = {
     createDesc:
       "Paste a public Google Docs or Drive (PDF, DOCX, TXT) link or upload a file, add an optional class tag or note, and save it directly to your personal history.",
     docUrlLabel: "Google Docs / Drive (PDF, DOCX, TXT) Link",
-    docUrlHint: "Share → Anyone with the link (Viewer) — Supports Google Docs, Drive PDF, DOCX, TXT, and web files.",
-    docUrlInvalid: "Please enter a valid Google Docs or Drive (PDF, DOCX, TXT) share URL, or upload a file.",
+    docUrlHint:
+      "Share → Anyone with the link (Viewer) — Supports Google Docs, Drive PDF, DOCX, TXT, and web files.",
+    docUrlInvalid:
+      "Please enter a valid Google Docs or Drive (PDF, DOCX, TXT) share URL, or upload a file.",
     docTitleLabel: "Lesson Title (Optional)",
     docTitlePlaceholder: "e.g., Reforms of David the Builder (or auto-filled by AI)",
     docClassLabel: "Class / Group (Optional)",
@@ -300,43 +423,66 @@ const AUTH_I18N = {
     generateOpenBtn: "Generate & Open AI Lesson",
     qrEmptyPrompt: "Paste a document link or upload a file to preview its QR code",
     qrPngDownloaded: "QR PNG downloaded!",
+    uploadFileBtn: "Upload File (PDF, DOCX, TXT)",
 
     // Admin Panel Tab
-    adminPanelTitle: "Teachers Group Admin Panel",
+    adminPanelTitle: "Teachers Account & Password Admin Panel",
     adminPanelLead:
-      "Manage authorized school teachers via their Google / Gmail addresses. Authorized teachers receive their own personal history workspace and QR creation tools.",
-    kpiTotalLabel: "Total Members",
-    kpiActiveLabel: "Active (Signed In)",
-    kpiPendingLabel: "Invited (Pending Login)",
-    inviteHeading: "Add New Teacher to Group",
-    addEmailLabel: "Teacher's Google / Gmail Address",
-    addEmailHint: "Format: teacher@gmail.com (must be a valid Google/Gmail address)",
-    addEmailPlaceholder: "nino.teacher@gmail.com",
-    addEmailError: "Please enter a valid email address in the format teacher@gmail.com.",
+      "Create teacher usernames with automatically generated strong one-time passwords. Teachers are required to set their own strong password on first login, and you can reset any teacher's password at any time.",
+    kpiTotalLabel: "Total Accounts",
+    kpiActiveLabel: "Active (Password Set)",
+    kpiPendingLabel: "One-Time Password (Pending Change)",
+    inviteHeading: "Create New Teacher (Auto-Generated Strong One-Time Password)",
+    addUsernameLabel: "Teacher Username",
+    addUsernameHint:
+      "3–32 characters: lowercase letters, numbers, dots (.), hyphens (-), or underscores (_)",
+    addUsernamePlaceholder: "nino.beridze",
+    addUsernameError:
+      "Username must be 3–32 characters using letters, numbers, '.', '-', or '_'.",
     addNoteLabel: "Full Name & Subject (Optional)",
     addNoteHint: "Shown in the teachers directory for easy identification",
     addNotePlaceholder: "e.g., Nino Beridze — History (Grades 8–10)",
-    addTeacherSubmitBtn: "+ Add to Group",
-    addingTeacherBtn: "Adding...",
-    teachersListHeading: "Authorized Teachers Directory",
-    adminSearchPlaceholder: "Filter by email or teacher name...",
-    colTeacher: "Teacher / Email",
+    addTeacherSubmitBtn: "+ Create & Generate Password",
+    addingTeacherBtn: "Creating...",
+    teachersListHeading: "Registered Teachers Directory",
+    adminSearchPlaceholder: "Filter by username or teacher name...",
+    colTeacher: "Username",
     colNote: "Name & Subject",
     colRole: "Role",
-    colStatus: "Status",
+    colStatus: "Password & Status",
     colActions: "Manage",
     roleSuperAdminTag: "Super Admin",
     roleTeacherTag: "Teacher",
-    statusLoggedBefore: "Active",
-    statusInvitedPending: "Pending first login",
+    statusActiveReady: "Active",
+    statusOneTimePending: "⏳ One-time password (must change)",
     editTeacherNoteBtn: "Edit Note",
+    resetPasswordBtn: "🔑 Reset Password",
+    resetConfirmPrompt: "Reset password?",
+    confirmYesBtn: "Yes",
+    resettingBtn: "Resetting...",
     removeTeacherBtn: "Remove",
+    deleteConfirmPrompt: "Delete?",
     removingBtn: "Removing...",
-    protectedAdminLabel: "Primary Admin",
-    addedSuccessFmt: (email) => `✓ Added teacher to group: ${email}`,
-    alreadyExistsFmt: (email) => `✓ Updated teacher record: ${email}`,
-    removedSuccessFmt: (email) => `✓ Removed from group: ${email}`,
+    protectedAdminLabel: "Super Admin",
+    addedSuccessFmt: (u) => `✓ Created teacher "${u}" with a strong one-time password.`,
+    resetSuccessFmt: (u) => `✓ Reset password for "${u}" with a new one-time password.`,
+    updatedTeacherFmt: (u) => `✓ Updated teacher record: ${u}`,
+    removedSuccessFmt: (u) => `✓ Removed teacher account: ${u}`,
+    usernameExistsFmt: (u) =>
+      `Username "${u}" already exists. Use "Reset Password" in the table if they need a new password.`,
     emptyTeachersList: "No teachers matched your search.",
+
+    // Generated Credentials Banner
+    credCreatedTitleFmt: (u) => `✓ Teacher Account "${u}" Created — One-Time Credentials`,
+    credResetTitleFmt: (u) => `✓ Password Reset for "${u}" — New One-Time Credentials`,
+    credWarningText:
+      "Share these credentials with the teacher now. For security, this one-time password is shown only once — the teacher will be required to change it to their own strong password immediately upon signing in.",
+    credUsernameLabel: "Username",
+    credPasswordLabel: "One-Time Strong Password",
+    copyBtnShort: "Copy",
+    copiedBtnShort: "✓ Copied",
+    copyBothCredsBtn: "📋 Copy Username & Password",
+    dismissCredsBtn: "Dismiss",
 
     // Settings Tab
     settingsHeading: "Geosoft AI Agent Connection & Local Cache",
@@ -344,18 +490,18 @@ const AUTH_I18N = {
       "Test or update your published Geosoft Headless Agent URL and manage cached lessons stored in this browser.",
 
     // Errors
-    popupClosedMsg: "Sign-in window was closed before completing authentication.",
-    unauthorizedDomainMsg:
-      "This domain is not yet listed in Firebase Auth Authorized Domains.",
+    invalidLoginMsg: "Incorrect username or password.",
+    tooManyRequestsMsg: "Too many attempts. Please wait a few minutes and try again.",
     genericAuthErrorPrefix: "Authentication error: ",
-    genericSaveErrorPrefix: "Save error: "
+    genericSaveErrorPrefix: "Error: "
   }
 };
 
-const EMAIL_REGEX = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+const USERNAME_REGEX = /^[a-z0-9][a-z0-9._-]{2,31}$/;
+const STRONG_PASSWORD_HTML_PATTERN = "(?=.*\\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[^A-Za-z0-9]).{8,128}";
 
 const cfg = window.SNOWDAY_AUTH_CONFIG || {};
-const superAdminEmail = String(cfg.superAdminEmail || "luka@geosoft.dev")
+const AUTH_EMAIL_DOMAIN = String(cfg.authEmailDomain || "teachers.answer.ge")
   .trim()
   .toLowerCase();
 
@@ -365,23 +511,33 @@ const db = getFirestore(firebaseApp);
 
 const authState = {
   ready: false,
-  status: "loading", // "loading" | "guest" | "unauthorized" | "teacher" | "super_admin"
+  status: "loading", // "loading" | "guest" | "must_change_password" | "unauthorized" | "teacher" | "super_admin"
   uid: "",
-  email: "",
+  username: "",
   displayName: "",
-  photoURL: "",
+  note: "",
+  mustChangePassword: false,
   isAuthorizedTeacher: false,
   isSuperAdmin: false,
   authError: ""
 };
 
+// Held strictly in closure memory between 1-time password login and immediate password change
+let ephemeralLoginPassword = "";
+let voluntaryPasswordModalOpen = false;
+
 let pendingTeacherAction = null;
+let selfTeacherUnsubscribe = null;
 let teachersUnsubscribe = null;
 let personalDocsUnsubscribe = null;
+
 let cachedTeachersList = [];
 let cachedPersonalDocs = [];
 let editingDocKey = "";
-let editingAdminTeacherEmail = "";
+let editingAdminTeacherUsername = "";
+let confirmingResetUsername = "";
+let confirmingDeleteUsername = "";
+let latestGeneratedCredentials = null; // { mode: "created" | "reset", username, oneTimePassword }
 
 let activeWorkspaceTab = "history"; // "history" | "create" | "admin" | "settings"
 let historySearchQuery = "";
@@ -391,8 +547,8 @@ let adminSearchQuery = "";
 let adminFeedbackMessage = "";
 let adminFeedbackIsError = false;
 let historyToastMessage = "";
-let historyToastIsError = false;
 let isSigningIn = false;
+let isChangingPassword = false;
 
 function getLang() {
   if (window.SnowDayPortal && typeof window.SnowDayPortal.getLang === "function") {
@@ -406,8 +562,51 @@ function t() {
   return AUTH_I18N[getLang()] || AUTH_I18N.ka;
 }
 
-function normalizeEmail(raw) {
-  return String(raw || "").trim().toLowerCase();
+function normalizeUsername(raw) {
+  let s = String(raw || "").trim().toLowerCase();
+  const suffix = `@${AUTH_EMAIL_DOMAIN}`;
+  if (s.endsWith(suffix)) {
+    s = s.slice(0, -suffix.length);
+  }
+  return s;
+}
+
+function isValidUsername(username) {
+  return typeof username === "string" && USERNAME_REGEX.test(username);
+}
+
+function usernameToAuthEmail(username) {
+  const clean = normalizeUsername(username);
+  if (!isValidUsername(clean)) return "";
+  return `${clean}@${AUTH_EMAIL_DOMAIN}`;
+}
+
+function authEmailToUsername(email) {
+  const s = String(email || "").trim().toLowerCase();
+  const suffix = `@${AUTH_EMAIL_DOMAIN}`;
+  if (!s.endsWith(suffix)) return "";
+  const uname = s.slice(0, -suffix.length);
+  return isValidUsername(uname) ? uname : "";
+}
+
+function evaluatePasswordStrength(password) {
+  const pwd = typeof password === "string" ? password : "";
+  const checks = {
+    minLength: pwd.length >= 8,
+    maxLength: pwd.length <= 128,
+    hasUpper: /[A-Z]/.test(pwd),
+    hasLower: /[a-z]/.test(pwd),
+    hasDigit: /[0-9]/.test(pwd),
+    hasSpecial: /[^A-Za-z0-9]/.test(pwd)
+  };
+  const valid =
+    checks.minLength &&
+    checks.maxLength &&
+    checks.hasUpper &&
+    checks.hasLower &&
+    checks.hasDigit &&
+    checks.hasSpecial;
+  return { valid, checks };
 }
 
 function sanitizeHttpUrl(raw, maxLen = 1024) {
@@ -462,6 +661,24 @@ function formatDateTime(ms) {
   }
 }
 
+async function callBackendApi(path, { method = "POST", body = null, withAuth = true } = {}) {
+  const headers = { "Content-Type": "application/json" };
+  if (withAuth && auth.currentUser) {
+    const idToken = await auth.currentUser.getIdToken();
+    headers.Authorization = `Bearer ${idToken}`;
+  }
+  const resp = await fetch(path, {
+    method,
+    headers,
+    body: body !== null ? JSON.stringify(body) : undefined
+  });
+  let data = {};
+  try {
+    data = await resp.json();
+  } catch (_e) {}
+  return { ok: resp.ok, status: resp.status, data };
+}
+
 // ============================================================================
 // Focusgroup Progressive Enhancement Polyfill (Modern Web Guidance `tabs`)
 // ============================================================================
@@ -474,17 +691,15 @@ async function ensureFocusgroupSupport() {
       if (mod && typeof mod.polyfill === "function") {
         mod.polyfill();
       }
-    } catch (_e) {
-      // Keyboard arrow handler below guarantees tab keyboard support even offline
-    }
+    } catch (_e) {}
   }
 }
 
 // ============================================================================
-// Firestore Real-Time Subscriptions (Personal Docs + Super Admin Roster)
+// Firestore Real-Time Subscriptions (Self Profile + Personal Docs + Admin Roster)
 // ============================================================================
 
-function stopAllSubscriptions() {
+function stopWorkspaceSubscriptions() {
   if (typeof teachersUnsubscribe === "function") {
     teachersUnsubscribe();
     teachersUnsubscribe = null;
@@ -497,18 +712,22 @@ function stopAllSubscriptions() {
   cachedPersonalDocs = [];
 }
 
-/**
- * Real-time listener on `/teachers/{email}/docs` keeps the logged-in teacher's
- * saved lesson history, notes, and AI-enriched titles live across tabs/devices.
- */
-function startPersonalDocsSubscription(emailLower) {
-  if (!emailLower) return;
+function stopAllSubscriptions() {
+  if (typeof selfTeacherUnsubscribe === "function") {
+    selfTeacherUnsubscribe();
+    selfTeacherUnsubscribe = null;
+  }
+  stopWorkspaceSubscriptions();
+}
+
+function startPersonalDocsSubscription(username) {
+  if (!username) return;
   if (typeof personalDocsUnsubscribe === "function") {
     personalDocsUnsubscribe();
     personalDocsUnsubscribe = null;
   }
 
-  const docsCol = collection(db, "teachers", emailLower, "docs");
+  const docsCol = collection(db, "teachers", username, "docs");
   personalDocsUnsubscribe = onSnapshot(
     docsCol,
     (snapshot) => {
@@ -544,16 +763,10 @@ function startPersonalDocsSubscription(emailLower) {
       renderImportFromBrowserButton();
       renderRibbonTeacherButtons();
     },
-    (_err) => {
-      // Handled gracefully if rules revoke access on teacher removal
-    }
+    (_err) => {}
   );
 }
 
-/**
- * Real-time listener on `/teachers` (strictly when Super Admin is signed in)
- * keeps the Admin Panel directory and KPI counters live.
- */
 function startTeachersSubscription() {
   if (teachersUnsubscribe) return;
   const colRef = collection(db, "teachers");
@@ -563,26 +776,31 @@ function startTeachersSubscription() {
       const items = [];
       snapshot.forEach((docSnap) => {
         const d = docSnap.data() || {};
+        const uname = d.username || docSnap.id;
         items.push({
           id: docSnap.id,
-          email: d.email || docSnap.id,
-          role: d.role || (docSnap.id === superAdminEmail ? "super_admin" : "teacher"),
+          username: uname,
+          role: d.role === "super_admin" ? "super_admin" : "teacher",
+          mustChangePassword: Boolean(d.mustChangePassword),
           note: d.note || "",
-          googleName: d.googleName || "",
-          photoURL: d.photoURL || "",
+          displayName: d.displayName || "",
           addedBy: d.addedBy || "",
           addedAtMs: d.addedAt && typeof d.addedAt.toMillis === "function" ? d.addedAt.toMillis() : 0,
           lastLoginAtMs:
             d.lastLoginAt && typeof d.lastLoginAt.toMillis === "function"
               ? d.lastLoginAt.toMillis()
+              : 0,
+          passwordChangedAtMs:
+            d.passwordChangedAt && typeof d.passwordChangedAt.toMillis === "function"
+              ? d.passwordChangedAt.toMillis()
               : 0
         });
       });
 
       items.sort((a, b) => {
-        if (a.email === superAdminEmail && b.email !== superAdminEmail) return -1;
-        if (b.email === superAdminEmail && a.email !== superAdminEmail) return 1;
-        return b.addedAtMs - a.addedAtMs || a.email.localeCompare(b.email);
+        if (a.role === "super_admin" && b.role !== "super_admin") return -1;
+        if (b.role === "super_admin" && a.role !== "super_admin") return 1;
+        return b.addedAtMs - a.addedAtMs || a.username.localeCompare(b.username);
       });
 
       cachedTeachersList = items;
@@ -598,110 +816,149 @@ function startTeachersSubscription() {
   );
 }
 
-async function performTeacherSelfCheckin(emailLower, user) {
+async function performServerCheckin() {
   try {
-    const teacherRef = doc(db, "teachers", emailLower);
-    const snap = await getDoc(teacherRef);
-    const payload = {
-      lastLoginAt: serverTimestamp(),
-      googleName: String(user.displayName || "").trim().slice(0, 120),
-      photoURL: sanitizeHttpUrl(user.photoURL, 1024)
-    };
-
-    if (snap.exists()) {
-      await updateDoc(teacherRef, payload);
-    } else if (emailLower === superAdminEmail) {
-      await setDoc(teacherRef, {
-        email: superAdminEmail,
-        role: "super_admin",
-        addedBy: superAdminEmail,
-        addedAt: serverTimestamp(),
-        note: "Main Super Admin",
-        ...payload
-      });
-    }
+    await callBackendApi("/api/auth/checkin", { method: "POST", body: {}, withAuth: true });
   } catch (_e) {
-    // Non-blocking login check-in
+    // Fallback client self-checkin timestamp if allowed
+    if (authState.isAuthorizedTeacher && authState.username) {
+      try {
+        await updateDoc(doc(db, "teachers", authState.username), {
+          lastLoginAt: serverTimestamp()
+        });
+      } catch (_e2) {}
+    }
   }
 }
 
-async function handleAuthUserChange(user) {
-  authState.authError = "";
-
-  if (!user || !user.email || !user.emailVerified) {
-    stopAllSubscriptions();
+function applyTeacherSnapshot(username, snapExists, data) {
+  if (!snapExists) {
+    stopWorkspaceSubscriptions();
     authState.ready = true;
-    authState.status = "guest";
-    authState.uid = "";
-    authState.email = "";
-    authState.displayName = "";
-    authState.photoURL = "";
+    authState.status = "unauthorized";
+    authState.mustChangePassword = false;
     authState.isAuthorizedTeacher = false;
     authState.isSuperAdmin = false;
-    closeWorkspaceIfLoggedOut();
+    closeWorkspaceIfLocked();
     renderAllAuthSurfaces();
     return;
   }
 
-  const emailLower = normalizeEmail(user.email);
-  authState.uid = user.uid || "";
-  authState.email = emailLower;
-  authState.displayName = String(user.displayName || "").trim();
-  authState.photoURL = sanitizeHttpUrl(user.photoURL, 1024);
+  const role = data.role === "super_admin" ? "super_admin" : "teacher";
+  const mustChange = Boolean(data.mustChangePassword);
+  authState.note = String(data.note || "").trim();
+  authState.displayName = String(data.displayName || data.note || "").trim();
+  authState.mustChangePassword = mustChange;
 
-  if (emailLower === superAdminEmail) {
+  if (mustChange) {
+    stopWorkspaceSubscriptions();
     authState.ready = true;
-    authState.status = "super_admin";
-    authState.isAuthorizedTeacher = true;
-    authState.isSuperAdmin = true;
-    startPersonalDocsSubscription(emailLower);
-    startTeachersSubscription();
-    performTeacherSelfCheckin(emailLower, user);
+    authState.status = "must_change_password";
+    authState.isAuthorizedTeacher = false;
+    authState.isSuperAdmin = false;
+    closeWorkspaceIfLocked();
     renderAllAuthSurfaces();
-    autoEnterWorkspaceIfAtLanding();
-    runPendingTeacherActionIfAuthorized();
+    openAuthDialog();
     return;
   }
 
-  if (typeof teachersUnsubscribe === "function") {
+  // Active authorized teacher or Super Admin
+  ephemeralLoginPassword = "";
+  const wasAlreadyAuthed = authState.isAuthorizedTeacher;
+  authState.ready = true;
+  authState.status = role === "super_admin" ? "super_admin" : "teacher";
+  authState.isAuthorizedTeacher = true;
+  authState.isSuperAdmin = role === "super_admin";
+
+  if (!authState.isSuperAdmin && activeWorkspaceTab === "admin") {
+    activeWorkspaceTab = "history";
+  }
+
+  startPersonalDocsSubscription(username);
+  if (authState.isSuperAdmin) {
+    startTeachersSubscription();
+  } else if (typeof teachersUnsubscribe === "function") {
     teachersUnsubscribe();
     teachersUnsubscribe = null;
     cachedTeachersList = [];
   }
 
-  try {
-    const teacherSnap = await getDoc(doc(db, "teachers", emailLower));
-    if (teacherSnap.exists()) {
-      authState.ready = true;
-      authState.status = "teacher";
-      authState.isAuthorizedTeacher = true;
-      authState.isSuperAdmin = false;
-      if (activeWorkspaceTab === "admin") activeWorkspaceTab = "history";
-      startPersonalDocsSubscription(emailLower);
-      performTeacherSelfCheckin(emailLower, user);
-      renderAllAuthSurfaces();
-      autoEnterWorkspaceIfAtLanding();
-      runPendingTeacherActionIfAuthorized();
-      return;
-    }
+  if (!wasAlreadyAuthed) {
+    performServerCheckin();
+  }
 
-    stopAllSubscriptions();
-    authState.ready = true;
-    authState.status = "unauthorized";
-    authState.isAuthorizedTeacher = false;
-    authState.isSuperAdmin = false;
-    closeWorkspaceIfLoggedOut();
-  } catch (err) {
-    stopAllSubscriptions();
-    authState.ready = true;
-    authState.status = "unauthorized";
-    authState.isAuthorizedTeacher = false;
-    authState.isSuperAdmin = false;
-    authState.authError = err && err.message ? err.message : String(err);
-    closeWorkspaceIfLoggedOut();
+  if (!voluntaryPasswordModalOpen) {
+    const authDlg = document.getElementById("teacher-auth-dialog");
+    if (authDlg && authDlg.open) authDlg.close();
   }
 
   renderAllAuthSurfaces();
+  if (!wasAlreadyAuthed) {
+    autoEnterWorkspaceIfAtLanding();
+  }
+  runPendingTeacherActionIfAuthorized();
+}
+
+function handleAuthUserChange(user) {
+  authState.authError = "";
+
+  if (!user || !user.email) {
+    stopAllSubscriptions();
+    ephemeralLoginPassword = "";
+    voluntaryPasswordModalOpen = false;
+    authState.ready = true;
+    authState.status = "guest";
+    authState.uid = "";
+    authState.username = "";
+    authState.displayName = "";
+    authState.note = "";
+    authState.mustChangePassword = false;
+    authState.isAuthorizedTeacher = false;
+    authState.isSuperAdmin = false;
+    closeWorkspaceIfLocked();
+    renderAllAuthSurfaces();
+    return;
+  }
+
+  const username = authEmailToUsername(user.email);
+  if (!username) {
+    stopAllSubscriptions();
+    authState.ready = true;
+    authState.status = "unauthorized";
+    authState.uid = user.uid || "";
+    authState.username = String(user.email || "");
+    authState.isAuthorizedTeacher = false;
+    authState.isSuperAdmin = false;
+    closeWorkspaceIfLocked();
+    renderAllAuthSurfaces();
+    return;
+  }
+
+  authState.uid = user.uid || "";
+  authState.username = username;
+
+  if (typeof selfTeacherUnsubscribe === "function") {
+    selfTeacherUnsubscribe();
+    selfTeacherUnsubscribe = null;
+  }
+
+  const selfRef = doc(db, "teachers", username);
+  selfTeacherUnsubscribe = onSnapshot(
+    selfRef,
+    (snap) => {
+      applyTeacherSnapshot(username, snap.exists(), snap.data() || {});
+    },
+    (err) => {
+      stopWorkspaceSubscriptions();
+      authState.ready = true;
+      authState.status = "unauthorized";
+      authState.isAuthorizedTeacher = false;
+      authState.isSuperAdmin = false;
+      authState.authError = err && err.message ? err.message : String(err);
+      closeWorkspaceIfLocked();
+      renderAllAuthSurfaces();
+    }
+  );
 }
 
 function autoEnterWorkspaceIfAtLanding() {
@@ -721,7 +978,7 @@ function autoEnterWorkspaceIfAtLanding() {
   }
 }
 
-function closeWorkspaceIfLoggedOut() {
+function closeWorkspaceIfLocked() {
   const wsSec = document.getElementById("teacher-workspace-view");
   if (!wsSec || wsSec.hidden) return;
   wsSec.hidden = true;
@@ -751,46 +1008,169 @@ function runPendingTeacherActionIfAuthorized() {
 function formatAuthError(err) {
   const strings = t();
   const code = (err && err.code) || "";
-  if (code === "auth/popup-closed-by-user" || code === "auth/cancelled-popup-request") {
-    return strings.popupClosedMsg;
+  if (
+    code === "auth/invalid-credential" ||
+    code === "auth/invalid-login-credentials" ||
+    code === "auth/user-not-found" ||
+    code === "auth/wrong-password" ||
+    code === "auth/invalid-email"
+  ) {
+    return strings.invalidLoginMsg;
   }
-  if (code === "auth/unauthorized-domain") {
-    return strings.unauthorizedDomainMsg;
+  if (code === "auth/too-many-requests") {
+    return strings.tooManyRequestsMsg;
   }
   return strings.genericAuthErrorPrefix + ((err && err.message) || String(err));
 }
 
-async function signInWithGoogle() {
-  if (isSigningIn) return;
+// ============================================================================
+// Username + Password Login & Password Change Actions
+// ============================================================================
+
+async function signInWithUsernamePassword(rawUsername, rawPassword) {
+  if (isSigningIn) return false;
+  const strings = t();
+  const username = normalizeUsername(rawUsername);
+  const password = String(rawPassword || "");
+
+  if (!isValidUsername(username) || !password) {
+    authState.authError = strings.invalidLoginMsg;
+    renderAllAuthSurfaces();
+    return false;
+  }
+
   isSigningIn = true;
   authState.authError = "";
   renderAllAuthSurfaces();
 
-  const provider = new GoogleAuthProvider();
-  provider.setCustomParameters({ prompt: "select_account" });
+  const authEmail = usernameToAuthEmail(username);
 
   try {
-    await signInWithPopup(auth, provider);
+    ephemeralLoginPassword = password;
+    await signInWithEmailAndPassword(auth, authEmail, password);
+    return true;
   } catch (err) {
     const code = (err && err.code) || "";
-    if (code === "auth/popup-blocked") {
+    const mayNeedBootstrap =
+      code === "auth/user-not-found" ||
+      code === "auth/invalid-credential" ||
+      code === "auth/invalid-login-credentials";
+
+    if (mayNeedBootstrap) {
       try {
-        await signInWithRedirect(auth, provider);
-        return;
-      } catch (redirErr) {
-        authState.authError = formatAuthError(redirErr);
-      }
-    } else {
-      authState.authError = formatAuthError(err);
+        const boot = await callBackendApi("/api/auth/bootstrap-login", {
+          method: "POST",
+          body: { username, password },
+          withAuth: false
+        });
+        if (boot.ok && boot.data && boot.data.bootstrapped) {
+          await signInWithEmailAndPassword(auth, authEmail, password);
+          return true;
+        }
+      } catch (_bootErr) {}
     }
+
+    ephemeralLoginPassword = "";
+    authState.authError = formatAuthError(err);
+    return false;
   } finally {
     isSigningIn = false;
     renderAllAuthSurfaces();
   }
 }
 
+async function submitPasswordChange({ currentPassword, newPassword, confirmPassword }) {
+  if (isChangingPassword) return false;
+  const strings = t();
+  authState.authError = "";
+
+  const effectiveCurrent = String(currentPassword || ephemeralLoginPassword || "");
+  if (!effectiveCurrent) {
+    authState.authError = strings.pwdCurrentMissingError;
+    renderAllAuthSurfaces();
+    return false;
+  }
+
+  const strength = evaluatePasswordStrength(newPassword);
+  if (!strength.valid) {
+    authState.authError = strings.pwdComplexityError;
+    renderAllAuthSurfaces();
+    return false;
+  }
+
+  if (newPassword !== confirmPassword) {
+    authState.authError = strings.pwdMismatchError;
+    renderAllAuthSurfaces();
+    return false;
+  }
+
+  if (newPassword === effectiveCurrent) {
+    authState.authError = strings.pwdSameAsOldError;
+    renderAllAuthSurfaces();
+    return false;
+  }
+
+  isChangingPassword = true;
+  renderAllAuthSurfaces();
+
+  try {
+    const res = await callBackendApi("/api/auth/change-password", {
+      method: "POST",
+      body: {
+        currentPassword: effectiveCurrent,
+        newPassword
+      },
+      withAuth: true
+    });
+
+    if (!res.ok) {
+      const errCode = (res.data && res.data.error) || "";
+      if (errCode === "WRONG_CURRENT_PASSWORD") {
+        ephemeralLoginPassword = "";
+        authState.authError = strings.pwdCurrentWrongError;
+      } else if (errCode === "SAME_PASSWORD") {
+        authState.authError = strings.pwdSameAsOldError;
+      } else if (errCode === "WEAK_PASSWORD") {
+        authState.authError = strings.pwdComplexityError;
+      } else if (errCode === "TOO_MANY_ATTEMPTS") {
+        authState.authError = strings.tooManyRequestsMsg;
+      } else {
+        authState.authError =
+          strings.genericSaveErrorPrefix + ((res.data && res.data.message) || res.status);
+      }
+      return false;
+    }
+
+    ephemeralLoginPassword = "";
+    voluntaryPasswordModalOpen = false;
+
+    // Re-sign in immediately so Firebase client receives fresh tokens for the updated password
+    const authEmail = usernameToAuthEmail(authState.username);
+    if (authEmail) {
+      await signInWithEmailAndPassword(auth, authEmail, newPassword);
+    }
+
+    const dlg = document.getElementById("teacher-auth-dialog");
+    if (dlg && dlg.open) dlg.close();
+
+    openWorkspaceView(activeWorkspaceTab || "history");
+    showHistoryToast(strings.passwordChangedToast, false);
+    return true;
+  } catch (err) {
+    authState.authError =
+      strings.genericSaveErrorPrefix + ((err && err.message) || String(err));
+    return false;
+  } finally {
+    isChangingPassword = false;
+    renderAllAuthSurfaces();
+  }
+}
+
 async function signOutTeacher() {
   pendingTeacherAction = null;
+  ephemeralLoginPassword = "";
+  voluntaryPasswordModalOpen = false;
+  latestGeneratedCredentials = null;
   stopAllSubscriptions();
   authState.authError = "";
   try {
@@ -802,11 +1182,27 @@ async function signOutTeacher() {
   if (studioDlg && studioDlg.open) studioDlg.close();
   const authDlg = document.getElementById("teacher-auth-dialog");
   if (authDlg && authDlg.open) authDlg.close();
-  closeWorkspaceIfLoggedOut();
+  closeWorkspaceIfLocked();
   renderAllAuthSurfaces();
 }
 
 function openAuthDialog() {
+  voluntaryPasswordModalOpen = false;
+  authState.authError = "";
+  renderAuthDialogContent();
+  const dlg = document.getElementById("teacher-auth-dialog");
+  if (dlg && typeof dlg.showModal === "function" && !dlg.open) {
+    dlg.showModal();
+  }
+}
+
+function openChangePasswordDialog() {
+  if (!authState.isAuthorizedTeacher) {
+    openAuthDialog();
+    return;
+  }
+  voluntaryPasswordModalOpen = true;
+  authState.authError = "";
   renderAuthDialogContent();
   const dlg = document.getElementById("teacher-auth-dialog");
   if (dlg && typeof dlg.showModal === "function" && !dlg.open) {
@@ -848,7 +1244,6 @@ function openWorkspaceView(tabName, prefillDocUrl) {
   syncWorkspaceSettingsInput();
   renderWorkspaceBanner();
   if (window.SnowDayPortal && typeof window.SnowDayPortal.syncHeader === "function") {
-    // Also hide active doc ribbon while full-page workspace is displayed
     const ribbon = document.getElementById("active-doc-ribbon");
     const mainNav = document.getElementById("main-nav");
     if (ribbon) ribbon.hidden = true;
@@ -868,7 +1263,7 @@ function requireTeacherAccess(onAuthorized) {
 }
 
 // ============================================================================
-// Teacher Personal Docs History CRUD (`/teachers/{email}/docs/{docKey}`)
+// Teacher Personal Docs History CRUD (`/teachers/{username}/docs/{docKey}`)
 // ============================================================================
 
 function computeStudentUrlForWorkspace(normalizedDoc) {
@@ -892,7 +1287,7 @@ async function upsertPersonalDocRecord({
   incrementShare = false,
   preserveExistingNotes = true
 }) {
-  if (!authState.isAuthorizedTeacher || !authState.email) return null;
+  if (!authState.isAuthorizedTeacher || !authState.username) return null;
 
   const normalizedUrl = normalizeHttpsDocUrl(rawDocUrl);
   if (!normalizedUrl) return null;
@@ -901,7 +1296,7 @@ async function upsertPersonalDocRecord({
   const studentQrUrl = sanitizeHttpUrl(computeStudentUrlForWorkspace(normalizedUrl), 1200);
   if (!studentQrUrl) return null;
 
-  const docRef = doc(db, "teachers", authState.email, "docs", docKey);
+  const docRef = doc(db, "teachers", authState.username, "docs", docKey);
   const existingSnap = await getDoc(docRef);
 
   const cleanTitle = String(title || "").trim().slice(0, 200);
@@ -952,7 +1347,6 @@ async function upsertPersonalDocRecord({
 
 function showHistoryToast(msg, isError = false) {
   historyToastMessage = msg;
-  historyToastIsError = isError;
   const el = document.getElementById("ws-history-feedback");
   if (!el) return;
   if (!msg) {
@@ -968,7 +1362,7 @@ function showHistoryToast(msg, isError = false) {
       el.hidden = true;
       historyToastMessage = "";
     }
-  }, 3800);
+  }, 4200);
 }
 
 async function importRecentBrowserLessonsToSpace() {
@@ -1016,7 +1410,7 @@ async function importRecentBrowserLessonsToSpace() {
 }
 
 // ============================================================================
-// Super Admin CRUD Operations (`/teachers/{email}`)
+// Super Admin Teacher Creation, Password Reset, Note Edit & Removal
 // ============================================================================
 
 async function handleAddTeacherSubmit(event) {
@@ -1024,25 +1418,25 @@ async function handleAddTeacherSubmit(event) {
   if (!authState.isSuperAdmin) return;
 
   const strings = t();
-  const emailInput = document.getElementById("admin-teacher-email-input");
+  const usernameInput = document.getElementById("admin-teacher-username-input");
   const noteInput = document.getElementById("admin-teacher-note-input");
   const submitBtn = document.getElementById("admin-add-teacher-btn");
-  if (!emailInput || !submitBtn) return;
+  if (!usernameInput || !submitBtn) return;
 
-  const emailLower = normalizeEmail(emailInput.value);
+  const targetUsername = normalizeUsername(usernameInput.value);
   const noteClean = String((noteInput && noteInput.value) || "").trim().slice(0, 160);
 
-  if (!emailLower || emailLower.length < 5 || emailLower.length > 254 || !EMAIL_REGEX.test(emailLower)) {
-    emailInput.classList.add("user-invalid-fallback");
-    emailInput.setAttribute("aria-invalid", "true");
-    syncFieldErrorDescribe(emailInput, true);
-    emailInput.focus();
+  if (!isValidUsername(targetUsername)) {
+    usernameInput.classList.add("user-invalid-fallback");
+    usernameInput.setAttribute("aria-invalid", "true");
+    syncFieldErrorDescribe(usernameInput, true);
+    usernameInput.focus();
     return;
   }
 
-  emailInput.classList.remove("user-invalid-fallback");
-  emailInput.setAttribute("aria-invalid", "false");
-  syncFieldErrorDescribe(emailInput, false);
+  usernameInput.classList.remove("user-invalid-fallback");
+  usernameInput.setAttribute("aria-invalid", "false");
+  syncFieldErrorDescribe(usernameInput, false);
 
   submitBtn.disabled = true;
   submitBtn.textContent = strings.addingTeacherBtn;
@@ -1051,29 +1445,34 @@ async function handleAddTeacherSubmit(event) {
   renderAdminFeedback();
 
   try {
-    const targetRef = doc(db, "teachers", emailLower);
-    const existing = await getDoc(targetRef);
+    const res = await callBackendApi("/api/admin/teachers", {
+      method: "POST",
+      body: { username: targetUsername, note: noteClean },
+      withAuth: true
+    });
 
-    if (existing.exists()) {
-      await updateDoc(targetRef, {
-        note: noteClean
-      });
-      adminFeedbackIsError = false;
-      adminFeedbackMessage = strings.alreadyExistsFmt(emailLower);
-    } else {
-      await setDoc(targetRef, {
-        email: emailLower,
-        role: emailLower === superAdminEmail ? "super_admin" : "teacher",
-        addedBy: authState.email,
-        addedAt: serverTimestamp(),
-        note: noteClean
-      });
-      adminFeedbackIsError = false;
-      adminFeedbackMessage = strings.addedSuccessFmt(emailLower);
+    if (!res.ok) {
+      adminFeedbackIsError = true;
+      if (res.data && res.data.error === "USERNAME_EXISTS") {
+        adminFeedbackMessage = strings.usernameExistsFmt(targetUsername);
+      } else {
+        adminFeedbackMessage =
+          strings.genericSaveErrorPrefix + ((res.data && res.data.message) || res.status);
+      }
+      return;
     }
 
-    emailInput.value = "";
-    emailInput.dataset.touched = "false";
+    latestGeneratedCredentials = {
+      mode: "created",
+      username: res.data.username || targetUsername,
+      oneTimePassword: res.data.oneTimePassword
+    };
+    renderAdminCredentialsCard(true);
+
+    adminFeedbackIsError = false;
+    adminFeedbackMessage = strings.addedSuccessFmt(targetUsername);
+    usernameInput.value = "";
+    usernameInput.dataset.touched = "false";
     if (noteInput) noteInput.value = "";
   } catch (err) {
     adminFeedbackIsError = true;
@@ -1085,15 +1484,66 @@ async function handleAddTeacherSubmit(event) {
   }
 }
 
-async function saveAdminTeacherNote(targetEmail, nextNote) {
-  if (!authState.isSuperAdmin || !targetEmail) return;
+async function resetTeacherPasswordByAdmin(targetUsername, btnEl) {
+  if (!authState.isSuperAdmin || !targetUsername) return;
+  const strings = t();
+  if (btnEl) {
+    btnEl.disabled = true;
+    btnEl.textContent = strings.resettingBtn;
+  }
+
   try {
-    await updateDoc(doc(db, "teachers", targetEmail), {
-      note: String(nextNote || "").trim().slice(0, 160)
-    });
-    editingAdminTeacherEmail = "";
+    const res = await callBackendApi(
+      `/api/admin/teachers/${encodeURIComponent(targetUsername)}/reset-password`,
+      {
+        method: "POST",
+        body: {},
+        withAuth: true
+      }
+    );
+
+    if (!res.ok) {
+      adminFeedbackIsError = true;
+      adminFeedbackMessage =
+        strings.genericSaveErrorPrefix + ((res.data && res.data.message) || res.status);
+      renderAdminFeedback();
+      confirmingResetUsername = "";
+      renderAdminPanelDirectory();
+      return;
+    }
+
+    confirmingResetUsername = "";
+    latestGeneratedCredentials = {
+      mode: "reset",
+      username: res.data.username || targetUsername,
+      oneTimePassword: res.data.oneTimePassword
+    };
+    renderAdminCredentialsCard(true);
+
     adminFeedbackIsError = false;
-    adminFeedbackMessage = t().alreadyExistsFmt(targetEmail);
+    adminFeedbackMessage = strings.resetSuccessFmt(targetUsername);
+    renderAdminFeedback();
+    renderAdminPanelDirectory();
+  } catch (err) {
+    confirmingResetUsername = "";
+    adminFeedbackIsError = true;
+    adminFeedbackMessage = strings.genericSaveErrorPrefix + ((err && err.message) || String(err));
+    renderAdminFeedback();
+    renderAdminPanelDirectory();
+  }
+}
+
+async function saveAdminTeacherNote(targetUsername, nextNote) {
+  if (!authState.isSuperAdmin || !targetUsername) return;
+  const clean = String(nextNote || "").trim().slice(0, 160);
+  try {
+    await updateDoc(doc(db, "teachers", targetUsername), {
+      note: clean,
+      displayName: clean.slice(0, 120)
+    });
+    editingAdminTeacherUsername = "";
+    adminFeedbackIsError = false;
+    adminFeedbackMessage = t().updatedTeacherFmt(targetUsername);
     renderAdminFeedback();
     renderAdminPanelDirectory();
   } catch (err) {
@@ -1103,26 +1553,38 @@ async function saveAdminTeacherNote(targetEmail, nextNote) {
   }
 }
 
-async function removeTeacherByEmail(targetEmail, btnEl) {
-  if (!authState.isSuperAdmin || !targetEmail || targetEmail === superAdminEmail) return;
+async function removeTeacherByUsername(targetUsername, btnEl) {
+  if (!authState.isSuperAdmin || !targetUsername || targetUsername === authState.username) return;
   const strings = t();
   if (btnEl) {
     btnEl.disabled = true;
     btnEl.textContent = strings.removingBtn;
   }
   try {
-    await deleteDoc(doc(db, "teachers", targetEmail));
+    const res = await callBackendApi(
+      `/api/admin/teachers/${encodeURIComponent(targetUsername)}`,
+      {
+        method: "DELETE",
+        withAuth: true
+      }
+    );
+    if (!res.ok) {
+      throw new Error((res.data && res.data.message) || `HTTP ${res.status}`);
+    }
+    confirmingDeleteUsername = "";
+    if (latestGeneratedCredentials && latestGeneratedCredentials.username === targetUsername) {
+      latestGeneratedCredentials = null;
+      renderAdminCredentialsCard(false);
+    }
     adminFeedbackIsError = false;
-    adminFeedbackMessage = strings.removedSuccessFmt(targetEmail);
+    adminFeedbackMessage = strings.removedSuccessFmt(targetUsername);
     renderAdminFeedback();
   } catch (err) {
+    confirmingDeleteUsername = "";
     adminFeedbackIsError = true;
     adminFeedbackMessage = strings.genericSaveErrorPrefix + ((err && err.message) || String(err));
     renderAdminFeedback();
-    if (btnEl) {
-      btnEl.disabled = false;
-      btnEl.textContent = strings.removeTeacherBtn;
-    }
+    renderAdminPanelDirectory();
   }
 }
 
@@ -1200,7 +1662,6 @@ function setupWorkspaceTabsEvents() {
     selectWorkspaceTab(btn.getAttribute("data-ws-tab"), false);
   });
 
-  // Selection follows focus when moving between tabs via keyboard
   tablist.addEventListener("focusin", (e) => {
     const btn = e.target.closest("[data-ws-tab]");
     if (!btn || btn.hidden) return;
@@ -1210,10 +1671,9 @@ function setupWorkspaceTabsEvents() {
     }
   });
 
-  // Fallback arrow-key handler if focusgroup is neither native nor polyfilled yet
   tablist.addEventListener("keydown", (e) => {
     if (Object.hasOwn(HTMLElement.prototype, "focusGroup")) return;
-    if (!["ArrowRight", "ArrowLeft", "Home", "End"].includes(e.key)) return;
+    if (!["ArrowRight", "ArrowLeft", "ArrowDown", "ArrowUp", "Home", "End"].includes(e.key)) return;
     const tabs = getVisibleTabs();
     if (!tabs.length) return;
     const idx = tabs.indexOf(document.activeElement);
@@ -1221,14 +1681,13 @@ function setupWorkspaceTabsEvents() {
 
     e.preventDefault();
     let nextIdx = idx;
-    if (e.key === "ArrowRight") nextIdx = (idx + 1) % tabs.length;
-    else if (e.key === "ArrowLeft") nextIdx = (idx - 1 + tabs.length) % tabs.length;
+    if (e.key === "ArrowRight" || e.key === "ArrowDown") nextIdx = (idx + 1) % tabs.length;
+    else if (e.key === "ArrowLeft" || e.key === "ArrowUp") nextIdx = (idx - 1 + tabs.length) % tabs.length;
     else if (e.key === "Home") nextIdx = 0;
     else if (e.key === "End") nextIdx = tabs.length - 1;
     selectWorkspaceTab(tabs[nextIdx].getAttribute("data-ws-tab"), true);
   });
 
-  // Sync tab selection if browser Find-in-Page reveals a panel
   document.querySelectorAll("[data-ws-panel]").forEach((panel) => {
     panel.addEventListener("beforematch", () => {
       const id = panel.getAttribute("data-ws-panel");
@@ -1323,47 +1782,47 @@ function syncFieldErrorDescribe(input, shown) {
   else input.removeAttribute("aria-describedby");
 }
 
-function setupAdminEmailValidation() {
-  const emailInput = document.getElementById("admin-teacher-email-input");
+function setupAdminUsernameValidation() {
+  const usernameInput = document.getElementById("admin-teacher-username-input");
   const form = document.getElementById("admin-add-teacher-form");
-  if (!emailInput || !form) return;
+  if (!usernameInput || !form) return;
 
-  emailInput.setAttribute("aria-invalid", "false");
+  usernameInput.setAttribute("aria-invalid", "false");
 
   const updateValidity = () => {
-    const val = normalizeEmail(emailInput.value);
-    const valid = emailInput.validity.valid && EMAIL_REGEX.test(val);
+    const val = normalizeUsername(usernameInput.value);
+    const valid = isValidUsername(val);
     const matchesNativeInvalid =
       typeof CSS !== "undefined" &&
       CSS.supports("selector(:user-invalid)") &&
-      emailInput.matches(":user-invalid");
+      usernameInput.matches(":user-invalid");
 
-    if (matchesNativeInvalid || (!valid && emailInput.dataset.touched === "true")) {
-      emailInput.classList.add("user-invalid-fallback");
-      emailInput.setAttribute("aria-invalid", "true");
-      syncFieldErrorDescribe(emailInput, true);
+    if (matchesNativeInvalid || (!valid && usernameInput.dataset.touched === "true")) {
+      usernameInput.classList.add("user-invalid-fallback");
+      usernameInput.setAttribute("aria-invalid", "true");
+      syncFieldErrorDescribe(usernameInput, true);
     } else {
-      emailInput.classList.remove("user-invalid-fallback");
-      emailInput.setAttribute("aria-invalid", "false");
-      syncFieldErrorDescribe(emailInput, false);
+      usernameInput.classList.remove("user-invalid-fallback");
+      usernameInput.setAttribute("aria-invalid", "false");
+      syncFieldErrorDescribe(usernameInput, false);
     }
   };
 
-  emailInput.addEventListener("blur", () => {
-    if (emailInput.value.trim()) {
-      emailInput.dataset.touched = "true";
+  usernameInput.addEventListener("blur", () => {
+    if (usernameInput.value.trim()) {
+      usernameInput.dataset.touched = "true";
       updateValidity();
     }
   });
 
-  emailInput.addEventListener("input", () => {
-    if (emailInput.getAttribute("aria-invalid") === "true") {
+  usernameInput.addEventListener("input", () => {
+    if (usernameInput.getAttribute("aria-invalid") === "true") {
       updateValidity();
     }
   });
 
-  emailInput.addEventListener("invalid", () => {
-    emailInput.dataset.touched = "true";
+  usernameInput.addEventListener("invalid", () => {
+    usernameInput.dataset.touched = "true";
     updateValidity();
   });
 
@@ -1371,17 +1830,398 @@ function setupAdminEmailValidation() {
 }
 
 // ============================================================================
-// UI Rendering: Header, Workspace Banner, History Cards, Admin Table, Modals
+// Reusable DOM Form Builders (Sign-In Form & Strong Password Change Form)
 // ============================================================================
 
-function createGoogleLogoSvg() {
-  const span = document.createElement("span");
-  span.className = "google-g-icon";
-  span.setAttribute("aria-hidden", "true");
-  span.innerHTML =
-    '<svg viewBox="0 0 24 24" width="18" height="18"><path fill="#4285F4" d="M23.49 12.27c0-.79-.07-1.54-.19-2.27H12v4.51h6.47c-.29 1.48-1.14 2.73-2.4 3.58v2.98h3.86c2.26-2.09 3.56-5.17 3.56-8.8z"/><path fill="#34A853" d="M12 24c3.24 0 5.95-1.08 7.93-2.91l-3.86-2.98c-1.08.72-2.45 1.16-4.07 1.16-3.13 0-5.78-2.11-6.73-4.96H1.29v3.09C3.26 21.3 7.31 24 12 24z"/><path fill="#FBBC05" d="M5.27 14.31c-.24-.72-.38-1.49-.38-2.31s.14-1.59.38-2.31V6.6H1.29C.47 8.23 0 10.06 0 12s.47 3.77 1.29 5.4l3.98-3.09z"/><path fill="#EA4335" d="M12 4.75c1.77 0 3.35.61 4.6 1.8l3.42-3.42C17.95 1.19 15.24 0 12 0 7.31 0 3.26 2.7 1.29 6.6l3.98 3.09c.95-2.85 3.6-4.94 6.73-4.94z"/></svg>';
-  return span;
+function createPasswordInputWithToggle({
+  id,
+  name,
+  autocomplete,
+  placeholder,
+  enterkeyhint = "done",
+  minLength = 0,
+  maxLength = 128,
+  pattern = "",
+  ariaDescribedBy = "",
+  dataError = ""
+}) {
+  const strings = t();
+  const wrap = document.createElement("div");
+  wrap.className = "password-input-wrap";
+
+  const inp = document.createElement("input");
+  inp.type = "password";
+  inp.id = id;
+  inp.name = name;
+  inp.autocomplete = autocomplete;
+  inp.placeholder = placeholder;
+  inp.enterKeyHint = enterkeyhint;
+  inp.required = true;
+  inp.maxLength = maxLength;
+  inp.setAttribute("aria-invalid", "false");
+  if (minLength > 0) inp.minLength = minLength;
+  if (pattern) inp.pattern = pattern;
+  if (ariaDescribedBy) inp.setAttribute("aria-describedby", ariaDescribedBy);
+  if (dataError) inp.dataset.error = dataError;
+
+  const toggleBtn = document.createElement("button");
+  toggleBtn.type = "button";
+  toggleBtn.className = "password-toggle-btn";
+  toggleBtn.setAttribute("aria-pressed", "false");
+  toggleBtn.textContent = strings.showPasswordBtn;
+  toggleBtn.addEventListener("click", () => {
+    const showing = inp.type === "text";
+    inp.type = showing ? "password" : "text";
+    toggleBtn.setAttribute("aria-pressed", showing ? "false" : "true");
+    toggleBtn.textContent = showing ? t().showPasswordBtn : t().hidePasswordBtn;
+    inp.focus({ preventScroll: true });
+  });
+
+  wrap.appendChild(inp);
+  wrap.appendChild(toggleBtn);
+  return { wrap, inp, toggleBtn };
 }
+
+function buildSignInFormElement(prefixId) {
+  const strings = t();
+  const form = document.createElement("form");
+  form.className = "auth-login-form";
+  form.id = `${prefixId}-login-form`;
+
+  // Username field
+  const userGroup = document.createElement("div");
+  userGroup.className = "field-group";
+  const userLabel = document.createElement("label");
+  userLabel.htmlFor = `${prefixId}-username`;
+  userLabel.textContent = strings.loginUsernameLabel;
+  const userInput = document.createElement("input");
+  userInput.type = "text";
+  userInput.id = `${prefixId}-username`;
+  userInput.name = "username";
+  userInput.autocomplete = "username";
+  userInput.setAttribute("autocorrect", "off");
+  userInput.setAttribute("autocapitalize", "none");
+  userInput.spellcheck = false;
+  userInput.enterKeyHint = "next";
+  userInput.placeholder = strings.loginUsernamePlaceholder;
+  userInput.required = true;
+  userInput.maxLength = 64;
+  userGroup.appendChild(userLabel);
+  userGroup.appendChild(userInput);
+
+  // Password field
+  const passGroup = document.createElement("div");
+  passGroup.className = "field-group";
+  const passLabel = document.createElement("label");
+  passLabel.htmlFor = `${prefixId}-password`;
+  passLabel.textContent = strings.loginPasswordLabel;
+  const passCtrl = createPasswordInputWithToggle({
+    id: `${prefixId}-password`,
+    name: "password",
+    autocomplete: "current-password",
+    placeholder: strings.loginPasswordPlaceholder,
+    enterkeyhint: "done"
+  });
+  passGroup.appendChild(passLabel);
+  passGroup.appendChild(passCtrl.wrap);
+
+  form.appendChild(userGroup);
+  form.appendChild(passGroup);
+
+  if (authState.authError) {
+    const errP = document.createElement("p");
+    errP.className = "field-error";
+    errP.setAttribute("role", "alert");
+    errP.textContent = authState.authError;
+    form.appendChild(errP);
+  }
+
+  const submitBtn = document.createElement("button");
+  submitBtn.type = "submit";
+  submitBtn.className = "btn btn-primary btn-full";
+  submitBtn.disabled = isSigningIn;
+  submitBtn.textContent = isSigningIn ? strings.signingInBtn : strings.signInBtn;
+  form.appendChild(submitBtn);
+
+  const forgotNote = document.createElement("p");
+  forgotNote.className = "field-hint auth-student-note";
+  forgotNote.textContent = strings.forgotPasswordHint;
+  form.appendChild(forgotNote);
+
+  form.addEventListener("submit", async (ev) => {
+    ev.preventDefault();
+    await signInWithUsernamePassword(userInput.value, passCtrl.inp.value);
+  });
+
+  return form;
+}
+
+function buildPasswordChangeFormElement(prefixId, isMandatory) {
+  const strings = t();
+  const box = document.createElement("div");
+  box.className = "auth-gate-box is-password-change";
+
+  const badge = document.createElement("span");
+  badge.className = "teacher-verified-pill is-warning";
+  badge.textContent = strings.mustChangeBadge;
+  box.appendChild(badge);
+
+  if (isMandatory) {
+    const h3 = document.createElement("h3");
+    h3.className = "auth-gate-title";
+    h3.textContent = strings.mustChangeTitle;
+    box.appendChild(h3);
+  }
+
+  const desc = document.createElement("p");
+  desc.className = "auth-gate-desc";
+  desc.textContent = isMandatory
+    ? strings.mustChangeDescFmt(authState.username)
+    : strings.voluntaryChangeDescFmt(authState.username);
+  box.appendChild(desc);
+
+  const form = document.createElement("form");
+  form.className = "auth-password-change-form";
+  form.id = `${prefixId}-pwd-change-form`;
+  form.noValidate = true;
+
+  // Hidden username field so browser password managers associate the new password properly
+  const hiddenUser = document.createElement("input");
+  hiddenUser.type = "text";
+  hiddenUser.name = "username";
+  hiddenUser.autocomplete = "username";
+  hiddenUser.value = authState.username;
+  hiddenUser.readOnly = true;
+  hiddenUser.tabIndex = -1;
+  hiddenUser.className = "visually-hidden";
+  form.appendChild(hiddenUser);
+
+  // Current / One-Time Password input (shown when voluntary change OR if page was reloaded)
+  let currentPassCtrl = null;
+  const needsCurrentInput = !isMandatory || !ephemeralLoginPassword;
+  if (needsCurrentInput) {
+    const curGroup = document.createElement("div");
+    curGroup.className = "field-group";
+    const curLabel = document.createElement("label");
+    curLabel.htmlFor = `${prefixId}-current-pwd`;
+    curLabel.textContent = strings.currentPasswordLabel;
+    currentPassCtrl = createPasswordInputWithToggle({
+      id: `${prefixId}-current-pwd`,
+      name: "current-password",
+      autocomplete: "current-password",
+      placeholder: strings.currentPasswordPlaceholder,
+      enterkeyhint: "next"
+    });
+    curGroup.appendChild(curLabel);
+    curGroup.appendChild(currentPassCtrl.wrap);
+    form.appendChild(curGroup);
+  }
+
+  // New Strong Password field + checklist above input (Modern Web Guidance `validate-input-after-interaction`)
+  const newGroup = document.createElement("div");
+  newGroup.className = "field-group";
+  const newLabel = document.createElement("label");
+  newLabel.htmlFor = `${prefixId}-new-pwd`;
+  newLabel.textContent = strings.newPasswordLabel;
+
+  const rulesId = `${prefixId}-pwd-rules`;
+  const newErrorId = `${prefixId}-new-pwd-error`;
+  const rulesList = document.createElement("ul");
+  rulesList.id = rulesId;
+  rulesList.className = "password-rules-list";
+
+  const ruleDefs = [
+    { key: "minLength", text: strings.pwdRuleMinLen },
+    { key: "hasUpper", text: strings.pwdRuleUpper },
+    { key: "hasLower", text: strings.pwdRuleLower },
+    { key: "hasDigit", text: strings.pwdRuleDigit },
+    { key: "hasSpecial", text: strings.pwdRuleSpecial }
+  ];
+  const ruleDomMap = {};
+  ruleDefs.forEach((r) => {
+    const li = document.createElement("li");
+    li.className = "password-rule-item";
+    const icon = document.createElement("span");
+    icon.className = "password-rule-icon";
+    icon.setAttribute("aria-hidden", "true");
+    icon.textContent = "•";
+    const txt = document.createElement("span");
+    txt.textContent = r.text;
+    li.appendChild(icon);
+    li.appendChild(txt);
+    rulesList.appendChild(li);
+    ruleDomMap[r.key] = { li, icon };
+  });
+
+  const newPassCtrl = createPasswordInputWithToggle({
+    id: `${prefixId}-new-pwd`,
+    name: "new-password",
+    autocomplete: "new-password",
+    placeholder: strings.newPasswordPlaceholder,
+    enterkeyhint: "next",
+    minLength: 8,
+    maxLength: 128,
+    pattern: STRONG_PASSWORD_HTML_PATTERN,
+    ariaDescribedBy: rulesId,
+    dataError: newErrorId
+  });
+
+  const newErrorDiv = document.createElement("div");
+  newErrorDiv.id = newErrorId;
+  newErrorDiv.className = "password-field-error";
+  newErrorDiv.innerHTML = `<span role="img" aria-label="Error">❌</span> ${escapeText(strings.pwdComplexityError)}`;
+
+  newGroup.appendChild(newLabel);
+  newGroup.appendChild(rulesList);
+  newGroup.appendChild(newPassCtrl.wrap);
+  newGroup.appendChild(newErrorDiv);
+  form.appendChild(newGroup);
+
+  // Confirm New Password field
+  const confirmGroup = document.createElement("div");
+  confirmGroup.className = "field-group";
+  const confirmLabel = document.createElement("label");
+  confirmLabel.htmlFor = `${prefixId}-confirm-pwd`;
+  confirmLabel.textContent = strings.confirmPasswordLabel;
+  const confirmErrorId = `${prefixId}-confirm-pwd-error`;
+  const confirmPassCtrl = createPasswordInputWithToggle({
+    id: `${prefixId}-confirm-pwd`,
+    name: "confirm-password",
+    autocomplete: "new-password",
+    placeholder: strings.confirmPasswordPlaceholder,
+    enterkeyhint: "done",
+    dataError: confirmErrorId
+  });
+  const confirmErrorDiv = document.createElement("div");
+  confirmErrorDiv.id = confirmErrorId;
+  confirmErrorDiv.className = "password-field-error";
+  confirmErrorDiv.innerHTML = `<span role="img" aria-label="Error">❌</span> ${escapeText(strings.pwdMismatchError)}`;
+
+  confirmGroup.appendChild(confirmLabel);
+  confirmGroup.appendChild(confirmPassCtrl.wrap);
+  confirmGroup.appendChild(confirmErrorDiv);
+  form.appendChild(confirmGroup);
+
+  // Live checklist & post-interaction validation
+  const syncLiveChecklist = (showInvalidIfDirty = false) => {
+    const val = newPassCtrl.inp.value;
+    const { valid, checks } = evaluatePasswordStrength(val);
+    Object.keys(ruleDomMap).forEach((k) => {
+      const met = Boolean(checks[k]);
+      ruleDomMap[k].li.classList.toggle("is-met", met);
+      ruleDomMap[k].icon.textContent = met ? "✓" : "•";
+    });
+
+    if (showInvalidIfDirty || newPassCtrl.inp.dataset.touched === "true") {
+      newPassCtrl.inp.classList.toggle("user-invalid-fallback", !valid);
+      newPassCtrl.inp.classList.toggle("user-valid-fallback", valid);
+      newPassCtrl.inp.setAttribute("aria-invalid", valid ? "false" : "true");
+      newErrorDiv.classList.toggle("is-visible", !valid);
+      syncFieldErrorDescribe(newPassCtrl.inp, !valid);
+    }
+
+    if (confirmPassCtrl.inp.dataset.touched === "true" && confirmPassCtrl.inp.value) {
+      const match = confirmPassCtrl.inp.value === val;
+      confirmPassCtrl.inp.classList.toggle("user-invalid-fallback", !match);
+      confirmPassCtrl.inp.classList.toggle("user-valid-fallback", match && valid);
+      confirmPassCtrl.inp.setAttribute("aria-invalid", match ? "false" : "true");
+      confirmErrorDiv.classList.toggle("is-visible", !match);
+      syncFieldErrorDescribe(confirmPassCtrl.inp, !match);
+    }
+  };
+
+  newPassCtrl.inp.addEventListener("input", () => syncLiveChecklist(false));
+  newPassCtrl.inp.addEventListener("blur", () => {
+    if (newPassCtrl.inp.value) {
+      newPassCtrl.inp.dataset.touched = "true";
+      syncLiveChecklist(true);
+    }
+  });
+
+  confirmPassCtrl.inp.addEventListener("input", () => {
+    if (confirmPassCtrl.inp.dataset.touched === "true") syncLiveChecklist(false);
+  });
+  confirmPassCtrl.inp.addEventListener("blur", () => {
+    if (confirmPassCtrl.inp.value) {
+      confirmPassCtrl.inp.dataset.touched = "true";
+      syncLiveChecklist(false);
+    }
+  });
+
+  if (authState.authError) {
+    const errP = document.createElement("p");
+    errP.className = "field-error";
+    errP.setAttribute("role", "alert");
+    errP.textContent = authState.authError;
+    form.appendChild(errP);
+  }
+
+  const actionsRow = document.createElement("div");
+  actionsRow.className = "studio-btn-row auth-modal-actions";
+
+  const saveBtn = document.createElement("button");
+  saveBtn.type = "submit";
+  saveBtn.className = "btn btn-primary";
+  saveBtn.disabled = isChangingPassword;
+  saveBtn.textContent = isChangingPassword
+    ? strings.savingNewPasswordBtn
+    : strings.saveNewPasswordBtn;
+  actionsRow.appendChild(saveBtn);
+
+  if (isMandatory) {
+    const outBtn = document.createElement("button");
+    outBtn.type = "button";
+    outBtn.className = "btn btn-ghost";
+    outBtn.textContent = strings.signOutBtn;
+    outBtn.addEventListener("click", signOutTeacher);
+    actionsRow.appendChild(outBtn);
+  } else {
+    const cancelBtn = document.createElement("button");
+    cancelBtn.type = "button";
+    cancelBtn.className = "btn btn-ghost";
+    cancelBtn.textContent = strings.cancelEditBtn;
+    cancelBtn.addEventListener("click", () => {
+      voluntaryPasswordModalOpen = false;
+      const dlg = document.getElementById("teacher-auth-dialog");
+      if (dlg && dlg.open) dlg.close();
+    });
+    actionsRow.appendChild(cancelBtn);
+  }
+
+  form.appendChild(actionsRow);
+
+  form.addEventListener("submit", async (ev) => {
+    ev.preventDefault();
+    newPassCtrl.inp.dataset.touched = "true";
+    confirmPassCtrl.inp.dataset.touched = "true";
+    syncLiveChecklist(true);
+
+    const strength = evaluatePasswordStrength(newPassCtrl.inp.value);
+    if (!strength.valid) {
+      newPassCtrl.inp.focus();
+      return;
+    }
+    if (confirmPassCtrl.inp.value !== newPassCtrl.inp.value) {
+      confirmErrorDiv.classList.add("is-visible");
+      confirmPassCtrl.inp.setAttribute("aria-invalid", "true");
+      confirmPassCtrl.inp.focus();
+      return;
+    }
+
+    await submitPasswordChange({
+      currentPassword: currentPassCtrl ? currentPassCtrl.inp.value : "",
+      newPassword: newPassCtrl.inp.value,
+      confirmPassword: confirmPassCtrl.inp.value
+    });
+  });
+
+  box.appendChild(form);
+  return box;
+}
+
+// ============================================================================
+// UI Rendering: Header, Workspace Banner, History Cards, Admin Table, Modals
+// ============================================================================
 
 function renderHeaderAuthButton() {
   const btn = document.getElementById("header-teacher-auth-btn");
@@ -1397,19 +2237,25 @@ function renderHeaderAuthButton() {
     btn.classList.add("is-authed", "is-super-admin");
     fullLabel.textContent = strings.headerSuperAdminFull;
     shortLabel.textContent = strings.headerSuperAdminShort;
-    btn.title = `${authState.email} (${strings.roleSuperAdminTag})`;
+    btn.title = `${authState.username} (${strings.roleSuperAdminTag})`;
     if (dot) dot.hidden = false;
   } else if (authState.status === "teacher") {
     btn.classList.add("is-authed");
     fullLabel.textContent = strings.headerTeacherFull;
     shortLabel.textContent = strings.headerTeacherShort;
-    btn.title = authState.email;
+    btn.title = authState.username;
+    if (dot) dot.hidden = false;
+  } else if (authState.status === "must_change_password") {
+    btn.classList.add("is-super-admin");
+    fullLabel.textContent = strings.headerMustChangeFull;
+    shortLabel.textContent = strings.headerMustChangeShort;
+    btn.title = authState.username;
     if (dot) dot.hidden = false;
   } else if (authState.status === "unauthorized") {
     btn.classList.add("is-unauth");
     fullLabel.textContent = strings.headerUnauthorizedFull;
     shortLabel.textContent = strings.headerUnauthorizedShort;
-    btn.title = authState.email;
+    btn.title = authState.username;
     if (dot) dot.hidden = false;
   } else {
     fullLabel.textContent = strings.headerSignInFull;
@@ -1430,16 +2276,8 @@ function renderWorkspaceBanner() {
   const avatarEl = document.getElementById("ws-user-avatar");
   if (avatarEl) {
     avatarEl.innerHTML = "";
-    if (authState.photoURL) {
-      const img = document.createElement("img");
-      img.src = authState.photoURL;
-      img.alt = "";
-      img.referrerPolicy = "no-referrer";
-      avatarEl.appendChild(img);
-    } else {
-      const initial = (authState.displayName || authState.email || "T").charAt(0).toUpperCase();
-      avatarEl.textContent = initial;
-    }
+    const initial = (authState.displayName || authState.username || "T").charAt(0).toUpperCase();
+    avatarEl.textContent = initial;
   }
 
   const rolePill = document.getElementById("ws-role-pill");
@@ -1451,13 +2289,13 @@ function renderWorkspaceBanner() {
   }
 
   const emailChip = document.getElementById("ws-user-email");
-  if (emailChip) emailChip.textContent = authState.email;
+  if (emailChip) emailChip.textContent = `@${authState.username}`;
 
   const headingEl = document.getElementById("ws-welcome-heading");
   if (headingEl) {
     headingEl.textContent = authState.displayName
       ? strings.wsWelcomeNamedFmt(authState.displayName)
-      : strings.wsWelcomeDefault;
+      : strings.wsWelcomeNamedFmt(authState.username);
   }
 
   const subEl = document.getElementById("ws-welcome-sub");
@@ -1492,7 +2330,6 @@ function renderWorkspaceBanner() {
     returnLessonBtn.textContent = strings.wsReturnLessonBtn;
   }
 
-  // Ensure Admin tab visibility stays synced
   const adminTab = document.getElementById("ws-tab-admin");
   if (adminTab) {
     adminTab.hidden = !authState.isSuperAdmin;
@@ -1516,12 +2353,17 @@ function renderWorkspaceStaticLabels() {
   setTxt("ws-stat-ai-label", strings.wsStatAiLabel);
   setTxt("ws-stat-teachers-label", strings.wsStatTeachersLabel);
   setTxt("ws-student-hub-btn", strings.wsStudentHubBtn);
+  setTxt("ws-change-password-btn", strings.changePasswordBtn);
   setTxt("ws-signout-btn", strings.signOutBtn);
 
   setTxt("ws-tab-history-label", strings.tabHistoryLabel);
   setTxt("ws-tab-create-label", strings.tabCreateLabel);
   setTxt("ws-tab-admin-label", strings.tabAdminLabel);
   setTxt("ws-tab-settings-label", strings.tabSettingsLabel);
+  setTxt("ws-tab-history-short", strings.tabHistoryShort);
+  setTxt("ws-tab-create-short", strings.tabCreateShort);
+  setTxt("ws-tab-admin-short", strings.tabAdminShort);
+  setTxt("ws-tab-settings-short", strings.tabSettingsShort);
 
   // History panel
   setTxt("ws-history-heading", strings.historyHeading);
@@ -1554,10 +2396,10 @@ function renderWorkspaceStaticLabels() {
   setTxt("admin-kpi-active-label", strings.kpiActiveLabel);
   setTxt("admin-kpi-pending-label", strings.kpiPendingLabel);
   setTxt("admin-invite-heading", strings.inviteHeading);
-  setTxt("admin-email-label-text", strings.addEmailLabel);
-  setTxt("admin-teacher-email-hint", strings.addEmailHint);
-  setPh("admin-teacher-email-input", strings.addEmailPlaceholder);
-  setTxt("admin-email-error-text", strings.addEmailError);
+  setTxt("admin-username-label-text", strings.addUsernameLabel);
+  setTxt("admin-teacher-username-hint", strings.addUsernameHint);
+  setPh("admin-teacher-username-input", strings.addUsernamePlaceholder);
+  setTxt("admin-username-error-text", strings.addUsernameError);
   setTxt("admin-note-label-text", strings.addNoteLabel);
   setTxt("admin-teacher-note-hint", strings.addNoteHint);
   setPh("admin-teacher-note-input", strings.addNotePlaceholder);
@@ -1571,7 +2413,6 @@ function renderWorkspaceStaticLabels() {
   setTxt("admin-col-status", strings.colStatus);
   setTxt("admin-col-actions", strings.colActions);
 
-  // Responsive table stacked labels via CSS custom properties (Modern Web Guidance `responsive-table`)
   const tableEl = document.getElementById("ws-admin-table");
   if (tableEl) {
     tableEl.style.setProperty("--label-2", JSON.stringify(strings.colNote));
@@ -1579,6 +2420,8 @@ function renderWorkspaceStaticLabels() {
     tableEl.style.setProperty("--label-4", JSON.stringify(strings.colStatus));
     tableEl.style.setProperty("--label-5", JSON.stringify(strings.colActions));
   }
+
+  renderAdminCredentialsCard(false);
 
   // Settings panel
   setTxt("ws-settings-heading", strings.settingsHeading);
@@ -1659,7 +2502,6 @@ function renderPersonalDocsGrid() {
     const card = document.createElement("article");
     card.className = "ws-doc-card";
 
-    // Card Top Meta Pills
     const metaTop = document.createElement("div");
     metaTop.className = "ws-doc-meta-top";
 
@@ -1686,7 +2528,6 @@ function renderPersonalDocsGrid() {
 
     card.appendChild(metaTop);
 
-    // Title + Timestamp
     const titleEl = document.createElement("h3");
     titleEl.className = "ws-doc-title";
     titleEl.textContent = item.title || strings.untitledDocFmt(item.docKey.slice(0, 8));
@@ -1697,7 +2538,6 @@ function renderPersonalDocsGrid() {
     timeLine.textContent = `${strings.updatedLabelPrefix}${formatDateTime(item.updatedAtMs)} · ${strings.sharedCountFmt(item.shareCount)}`;
     card.appendChild(timeLine);
 
-    // Personal Note Callout
     const noteBox = document.createElement("div");
     noteBox.className = "ws-doc-note" + (item.personalNote ? "" : " is-muted");
     if (item.personalNote) {
@@ -1710,7 +2550,6 @@ function renderPersonalDocsGrid() {
     }
     card.appendChild(noteBox);
 
-    // Inline Edit Form (when teacher clicks "Edit Note")
     if (editingDocKey === item.docKey) {
       const editForm = document.createElement("form");
       editForm.className = "ws-doc-edit-form";
@@ -1802,7 +2641,6 @@ function renderPersonalDocsGrid() {
       card.appendChild(editForm);
     }
 
-    // Action Footer
     const actionsRow = document.createElement("footer");
     actionsRow.className = "ws-doc-actions";
 
@@ -1839,11 +2677,31 @@ function renderPersonalDocsGrid() {
       }).catch(() => {});
     });
 
-    const copyBtn = document.createElement("button");
-    copyBtn.type = "button";
-    copyBtn.className = "btn btn-small btn-ghost";
-    copyBtn.textContent = strings.docCopyStudentLinkBtn;
+    // Secondary actions live in a compact overflow menu (keeps cards tidy on phones)
+    const moreMenu = document.createElement("details");
+    moreMenu.className = "ws-doc-more";
+    const moreSummary = document.createElement("summary");
+    moreSummary.className = "btn btn-small btn-ghost ws-doc-more-btn";
+    moreSummary.setAttribute("aria-label", strings.docMoreActionsLabel);
+    moreSummary.title = strings.docMoreActionsLabel;
+    moreSummary.textContent = "⋯";
+    const moreList = document.createElement("div");
+    moreList.className = "ws-doc-more-menu";
+    moreMenu.appendChild(moreSummary);
+    moreMenu.appendChild(moreList);
+
+    const makeMenuItem = (label, tagName = "button") => {
+      const el = document.createElement(tagName);
+      if (tagName === "button") el.type = "button";
+      el.className = "ws-menu-item";
+      el.textContent = label;
+      moreList.appendChild(el);
+      return el;
+    };
+
+    const copyBtn = makeMenuItem(strings.docCopyStudentLinkBtn);
     copyBtn.addEventListener("click", async () => {
+      moreMenu.open = false;
       const link = item.studentQrUrl || computeStudentUrlForWorkspace(item.docUrl);
       try {
         await navigator.clipboard.writeText(link);
@@ -1853,30 +2711,34 @@ function renderPersonalDocsGrid() {
       }
     });
 
-    const editBtn = document.createElement("button");
-    editBtn.type = "button";
-    editBtn.className = "btn btn-small btn-ghost";
-    editBtn.textContent = strings.docEditDetailsBtn;
+    const editBtn = makeMenuItem(strings.docEditDetailsBtn);
     editBtn.addEventListener("click", () => {
       editingDocKey = editingDocKey === item.docKey ? "" : item.docKey;
       renderPersonalDocsGrid();
     });
 
-    const gdocLink = document.createElement("a");
-    gdocLink.className = "btn btn-small btn-ghost";
-    gdocLink.href = item.docUrl;
-    gdocLink.target = "_blank";
-    gdocLink.rel = "noopener noreferrer";
-    gdocLink.textContent = strings.docOpenGoogleBtn;
+    if (item.docUrl && item.docUrl.startsWith("https://")) {
+      const gdocLink = makeMenuItem(strings.docOpenGoogleBtn, "a");
+      gdocLink.href = item.docUrl;
+      gdocLink.target = "_blank";
+      gdocLink.rel = "noopener noreferrer";
+      gdocLink.addEventListener("click", () => {
+        moreMenu.open = false;
+      });
+    }
 
-    const delBtn = document.createElement("button");
-    delBtn.type = "button";
-    delBtn.className = "btn btn-small btn-danger-ghost";
-    delBtn.textContent = strings.docDeleteBtn;
+    const delBtn = makeMenuItem(strings.docDeleteBtn);
+    delBtn.classList.add("is-danger");
     delBtn.addEventListener("click", async () => {
+      // Two-step confirmation: first click arms the button, second click deletes
+      if (delBtn.dataset.armed !== "true") {
+        delBtn.dataset.armed = "true";
+        delBtn.textContent = strings.docDeleteConfirmBtn;
+        return;
+      }
       delBtn.disabled = true;
       try {
-        await deleteDoc(doc(db, "teachers", authState.email, "docs", item.docKey));
+        await deleteDoc(doc(db, "teachers", authState.username, "docs", item.docKey));
         showHistoryToast(strings.deletedDocToast, false);
       } catch (err) {
         delBtn.disabled = false;
@@ -1886,17 +2748,134 @@ function renderPersonalDocsGrid() {
         );
       }
     });
+    moreMenu.addEventListener("toggle", () => {
+      if (!moreMenu.open && delBtn.dataset.armed === "true") {
+        delBtn.dataset.armed = "false";
+        delBtn.textContent = strings.docDeleteBtn;
+      }
+    });
 
     actionsRow.appendChild(openBtn);
     actionsRow.appendChild(qrBtn);
-    actionsRow.appendChild(copyBtn);
-    actionsRow.appendChild(editBtn);
-    actionsRow.appendChild(gdocLink);
-    actionsRow.appendChild(delBtn);
+    actionsRow.appendChild(moreMenu);
 
     card.appendChild(actionsRow);
     grid.appendChild(card);
   });
+}
+
+function renderAdminCredentialsCard(scrollIntoViewNow = false) {
+  const card = document.getElementById("admin-credentials-card");
+  if (!card) return;
+
+  if (!authState.isSuperAdmin || !latestGeneratedCredentials) {
+    card.hidden = true;
+    card.innerHTML = "";
+    return;
+  }
+
+  const strings = t();
+  const { mode, username, oneTimePassword } = latestGeneratedCredentials;
+  card.hidden = false;
+  card.innerHTML = "";
+
+  const hdr = document.createElement("div");
+  hdr.className = "admin-cred-header";
+
+  const title = document.createElement("h3");
+  title.className = "admin-cred-title";
+  title.textContent =
+    mode === "reset" ? strings.credResetTitleFmt(username) : strings.credCreatedTitleFmt(username);
+
+  const dismissBtn = document.createElement("button");
+  dismissBtn.type = "button";
+  dismissBtn.className = "btn btn-small btn-ghost";
+  dismissBtn.textContent = strings.dismissCredsBtn;
+  dismissBtn.addEventListener("click", () => {
+    latestGeneratedCredentials = null;
+    renderAdminCredentialsCard(false);
+  });
+
+  hdr.appendChild(title);
+  hdr.appendChild(dismissBtn);
+  card.appendChild(hdr);
+
+  const warn = document.createElement("p");
+  warn.className = "admin-cred-warning";
+  warn.textContent = strings.credWarningText;
+  card.appendChild(warn);
+
+  const grid = document.createElement("div");
+  grid.className = "admin-cred-grid";
+
+  const makeCredField = (labelText, codeVal) => {
+    const field = document.createElement("div");
+    field.className = "admin-cred-field";
+
+    const info = document.createElement("div");
+    info.className = "admin-cred-field-info";
+    const lbl = document.createElement("span");
+    lbl.className = "admin-cred-label";
+    lbl.textContent = labelText;
+    const code = document.createElement("code");
+    code.className = "admin-cred-code";
+    code.textContent = codeVal;
+    info.appendChild(lbl);
+    info.appendChild(code);
+
+    const copyBtn = document.createElement("button");
+    copyBtn.type = "button";
+    copyBtn.className = "btn btn-small btn-secondary";
+    copyBtn.textContent = strings.copyBtnShort;
+    copyBtn.addEventListener("click", async () => {
+      try {
+        await navigator.clipboard.writeText(codeVal);
+        copyBtn.textContent = t().copiedBtnShort;
+        setTimeout(() => {
+          copyBtn.textContent = t().copyBtnShort;
+        }, 2000);
+      } catch (_e) {}
+    });
+
+    field.appendChild(info);
+    field.appendChild(copyBtn);
+    return field;
+  };
+
+  grid.appendChild(makeCredField(strings.credUsernameLabel, username));
+  grid.appendChild(makeCredField(strings.credPasswordLabel, oneTimePassword));
+  card.appendChild(grid);
+
+  const actions = document.createElement("div");
+  actions.className = "admin-cred-actions";
+
+  const copyBothBtn = document.createElement("button");
+  copyBothBtn.type = "button";
+  copyBothBtn.className = "btn btn-small btn-primary";
+  copyBothBtn.textContent = strings.copyBothCredsBtn;
+  copyBothBtn.addEventListener("click", async () => {
+    const textBlock =
+      `SnowDay Class (answer.ge)\n` +
+      `Username: ${username}\n` +
+      `One-Time Password: ${oneTimePassword}`;
+    try {
+      await navigator.clipboard.writeText(textBlock);
+      copyBothBtn.textContent = t().copiedBtnShort;
+      setTimeout(() => {
+        copyBothBtn.textContent = t().copyBothCredsBtn;
+      }, 2200);
+    } catch (_e) {}
+  });
+
+  actions.appendChild(copyBothBtn);
+  card.appendChild(actions);
+
+  if (scrollIntoViewNow) {
+    try {
+      card.scrollIntoView({ behavior: "smooth", block: "nearest" });
+      copyBothBtn.focus({ preventScroll: true });
+    } catch (_e) {}
+  }
 }
 
 function renderAdminFeedback() {
@@ -1917,10 +2896,9 @@ function renderAdminPanelDirectory() {
   if (!authState.isSuperAdmin) return;
   const strings = t();
 
-  // KPIs
   const totalCount = cachedTeachersList.length;
-  const activeCount = cachedTeachersList.filter((m) => m.lastLoginAtMs > 0).length;
-  const pendingCount = Math.max(0, totalCount - activeCount);
+  const pendingCount = cachedTeachersList.filter((m) => m.mustChangePassword).length;
+  const activeCount = Math.max(0, totalCount - pendingCount);
 
   const totalVal = document.getElementById("admin-kpi-total-val");
   const activeVal = document.getElementById("admin-kpi-active-val");
@@ -1936,7 +2914,7 @@ function renderAdminPanelDirectory() {
   const q = adminSearchQuery.trim().toLowerCase();
   const filtered = cachedTeachersList.filter((item) => {
     if (!q) return true;
-    return [item.email, item.note, item.googleName].join(" ").toLowerCase().includes(q);
+    return [item.username, item.note, item.displayName].join(" ").toLowerCase().includes(q);
   });
 
   if (filtered.length === 0) {
@@ -1952,32 +2930,25 @@ function renderAdminPanelDirectory() {
 
   filtered.forEach((item) => {
     const tr = document.createElement("tr");
-    const isAdminItem = item.email === superAdminEmail || item.role === "super_admin";
+    const isAdminItem = item.role === "super_admin";
 
-    // Column 1: Sticky Row Header (<th>) — Teacher Email + Google Name
+    // Column 1: Sticky Row Header (<th>) — Username
     const th = document.createElement("th");
     th.scope = "row";
 
     const identityCell = document.createElement("div");
     identityCell.className = "admin-table-identity";
 
-    const emailStrong = document.createElement("strong");
-    emailStrong.textContent = item.email;
-    identityCell.appendChild(emailStrong);
-
-    if (item.googleName) {
-      const subName = document.createElement("span");
-      subName.className = "admin-table-gname";
-      subName.textContent = item.googleName;
-      identityCell.appendChild(subName);
-    }
+    const unameStrong = document.createElement("strong");
+    unameStrong.textContent = item.username;
+    identityCell.appendChild(unameStrong);
 
     th.appendChild(identityCell);
     tr.appendChild(th);
 
-    // Column 2: Note / Subject (with inline edit support)
+    // Column 2: Note / Subject (with inline edit)
     const tdNote = document.createElement("td");
-    if (editingAdminTeacherEmail === item.email) {
+    if (editingAdminTeacherUsername === item.username) {
       const inlineForm = document.createElement("form");
       inlineForm.className = "admin-inline-note-form";
       const inp = document.createElement("input");
@@ -1996,7 +2967,7 @@ function renderAdminPanelDirectory() {
       cancelBtn.className = "btn btn-small btn-ghost";
       cancelBtn.textContent = strings.cancelEditBtn;
       cancelBtn.addEventListener("click", () => {
-        editingAdminTeacherEmail = "";
+        editingAdminTeacherUsername = "";
         renderAdminPanelDirectory();
       });
 
@@ -2005,7 +2976,7 @@ function renderAdminPanelDirectory() {
       inlineForm.appendChild(cancelBtn);
       inlineForm.addEventListener("submit", (ev) => {
         ev.preventDefault();
-        saveAdminTeacherNote(item.email, inp.value);
+        saveAdminTeacherNote(item.username, inp.value);
       });
       tdNote.appendChild(inlineForm);
     } else {
@@ -2021,19 +2992,23 @@ function renderAdminPanelDirectory() {
     tdRole.appendChild(roleTag);
     tr.appendChild(tdRole);
 
-    // Column 4: Status & Last Login
+    // Column 4: Password & Login Status
     const tdStatus = document.createElement("td");
     const statusPill = document.createElement("span");
-    statusPill.className =
-      "admin-status-pill" + (item.lastLoginAtMs > 0 ? " is-active" : " is-pending");
-    statusPill.textContent =
-      item.lastLoginAtMs > 0
-        ? `${strings.statusLoggedBefore} · ${formatDateTime(item.lastLoginAtMs)}`
-        : strings.statusInvitedPending;
+    if (item.mustChangePassword) {
+      statusPill.className = "admin-status-pill is-pending";
+      statusPill.textContent = strings.statusOneTimePending;
+    } else {
+      statusPill.className = "admin-status-pill is-active";
+      statusPill.textContent =
+        item.lastLoginAtMs > 0
+          ? `✓ ${strings.statusActiveReady} · ${formatDateTime(item.lastLoginAtMs)}`
+          : `✓ ${strings.statusActiveReady}`;
+    }
     tdStatus.appendChild(statusPill);
     tr.appendChild(tdStatus);
 
-    // Column 5: Actions
+    // Column 5: Actions (Edit Note, Reset Password, Remove)
     const tdActions = document.createElement("td");
     const actionsWrap = document.createElement("div");
     actionsWrap.className = "admin-row-actions";
@@ -2043,23 +3018,96 @@ function renderAdminPanelDirectory() {
     editNoteBtn.className = "btn btn-small btn-ghost";
     editNoteBtn.textContent = strings.editTeacherNoteBtn;
     editNoteBtn.addEventListener("click", () => {
-      editingAdminTeacherEmail =
-        editingAdminTeacherEmail === item.email ? "" : item.email;
+      editingAdminTeacherUsername =
+        editingAdminTeacherUsername === item.username ? "" : item.username;
       renderAdminPanelDirectory();
     });
     actionsWrap.appendChild(editNoteBtn);
 
     if (!isAdminItem) {
-      const delBtn = document.createElement("button");
-      delBtn.type = "button";
-      delBtn.className = "btn btn-small btn-danger-ghost";
-      delBtn.textContent = strings.removeTeacherBtn;
-      const srLabel = document.createElement("span");
-      srLabel.className = "visually-hidden";
-      srLabel.textContent = ` (${item.email})`;
-      delBtn.appendChild(srLabel);
-      delBtn.addEventListener("click", () => removeTeacherByEmail(item.email, delBtn));
-      actionsWrap.appendChild(delBtn);
+      // Reset Password Button / Inline Confirmation
+      if (confirmingResetUsername === item.username) {
+        const confirmBox = document.createElement("div");
+        confirmBox.className = "admin-inline-confirm is-reset";
+        const lbl = document.createElement("span");
+        lbl.className = "admin-inline-confirm-label";
+        lbl.textContent = strings.resetConfirmPrompt;
+
+        const yesBtn = document.createElement("button");
+        yesBtn.type = "button";
+        yesBtn.className = "btn btn-small btn-primary";
+        yesBtn.textContent = strings.confirmYesBtn;
+        yesBtn.addEventListener("click", () => resetTeacherPasswordByAdmin(item.username, yesBtn));
+
+        const noBtn = document.createElement("button");
+        noBtn.type = "button";
+        noBtn.className = "btn btn-small btn-ghost";
+        noBtn.textContent = strings.cancelEditBtn;
+        noBtn.addEventListener("click", () => {
+          confirmingResetUsername = "";
+          renderAdminPanelDirectory();
+        });
+
+        confirmBox.appendChild(lbl);
+        confirmBox.appendChild(yesBtn);
+        confirmBox.appendChild(noBtn);
+        actionsWrap.appendChild(confirmBox);
+      } else {
+        const resetBtn = document.createElement("button");
+        resetBtn.type = "button";
+        resetBtn.className = "btn btn-small btn-warning-ghost";
+        resetBtn.textContent = strings.resetPasswordBtn;
+        resetBtn.addEventListener("click", () => {
+          confirmingDeleteUsername = "";
+          confirmingResetUsername = item.username;
+          renderAdminPanelDirectory();
+        });
+        actionsWrap.appendChild(resetBtn);
+      }
+
+      // Delete Teacher Button / Inline Confirmation
+      if (confirmingDeleteUsername === item.username) {
+        const delConfirm = document.createElement("div");
+        delConfirm.className = "admin-inline-confirm";
+        const lbl = document.createElement("span");
+        lbl.className = "admin-inline-confirm-label";
+        lbl.textContent = strings.deleteConfirmPrompt;
+
+        const yesDelBtn = document.createElement("button");
+        yesDelBtn.type = "button";
+        yesDelBtn.className = "btn btn-small btn-danger-ghost";
+        yesDelBtn.textContent = strings.confirmYesBtn;
+        yesDelBtn.addEventListener("click", () => removeTeacherByUsername(item.username, yesDelBtn));
+
+        const noDelBtn = document.createElement("button");
+        noDelBtn.type = "button";
+        noDelBtn.className = "btn btn-small btn-ghost";
+        noDelBtn.textContent = strings.cancelEditBtn;
+        noDelBtn.addEventListener("click", () => {
+          confirmingDeleteUsername = "";
+          renderAdminPanelDirectory();
+        });
+
+        delConfirm.appendChild(lbl);
+        delConfirm.appendChild(yesDelBtn);
+        delConfirm.appendChild(noDelBtn);
+        actionsWrap.appendChild(delConfirm);
+      } else {
+        const delBtn = document.createElement("button");
+        delBtn.type = "button";
+        delBtn.className = "btn btn-small btn-danger-ghost";
+        delBtn.textContent = strings.removeTeacherBtn;
+        const srLabel = document.createElement("span");
+        srLabel.className = "visually-hidden";
+        srLabel.textContent = ` (${item.username})`;
+        delBtn.appendChild(srLabel);
+        delBtn.addEventListener("click", () => {
+          confirmingResetUsername = "";
+          confirmingDeleteUsername = item.username;
+          renderAdminPanelDirectory();
+        });
+        actionsWrap.appendChild(delBtn);
+      }
     } else {
       const lockSpan = document.createElement("span");
       lockSpan.className = "admin-protected-note";
@@ -2098,12 +3146,12 @@ function renderLandingTeacherCardGate() {
         ? strings.verifiedAdminBadge
         : strings.verifiedTeacherBadge;
 
-      const emailSpan = document.createElement("span");
-      emailSpan.className = "teacher-bar-email";
-      emailSpan.textContent = authState.email;
+      const unameSpan = document.createElement("span");
+      unameSpan.className = "teacher-bar-email";
+      unameSpan.textContent = `@${authState.username}`;
 
       identityWrap.appendChild(badge);
-      identityWrap.appendChild(emailSpan);
+      identityWrap.appendChild(unameSpan);
 
       const actionsWrap = document.createElement("div");
       actionsWrap.className = "teacher-bar-actions";
@@ -2134,6 +3182,11 @@ function renderLandingTeacherCardGate() {
     return;
   }
 
+  if (authState.status === "must_change_password") {
+    gateBox.appendChild(buildPasswordChangeFormElement("gate", true));
+    return;
+  }
+
   if (authState.status === "unauthorized") {
     const alertDiv = document.createElement("div");
     alertDiv.className = "auth-gate-box is-unauthorized";
@@ -2149,51 +3202,26 @@ function renderLandingTeacherCardGate() {
     const desc = document.createElement("p");
     desc.className = "auth-gate-desc";
     desc.appendChild(document.createTextNode(strings.gateUnauthBodyPrefix));
-    const emailCode = document.createElement("strong");
-    emailCode.textContent = authState.email;
-    desc.appendChild(emailCode);
-    desc.appendChild(document.createTextNode(strings.gateUnauthBodySuffix + " "));
-    const adminCode = document.createElement("code");
-    adminCode.textContent = superAdminEmail;
-    desc.appendChild(adminCode);
-
-    const btnRow = document.createElement("div");
-    btnRow.className = "studio-btn-row auth-gate-actions";
-
-    const switchBtn = document.createElement("button");
-    switchBtn.type = "button";
-    switchBtn.className = "btn btn-google";
-    switchBtn.disabled = isSigningIn;
-    switchBtn.appendChild(createGoogleLogoSvg());
-    const switchText = document.createElement("span");
-    switchText.textContent = strings.switchAccountBtn;
-    switchBtn.appendChild(switchText);
-    switchBtn.addEventListener("click", signInWithGoogle);
+    const unameStrong = document.createElement("strong");
+    unameStrong.textContent = authState.username;
+    desc.appendChild(unameStrong);
+    desc.appendChild(document.createTextNode(strings.gateUnauthBodySuffix));
 
     const signOutBtn = document.createElement("button");
     signOutBtn.type = "button";
-    signOutBtn.className = "btn btn-ghost";
+    signOutBtn.className = "btn btn-secondary";
     signOutBtn.textContent = strings.signOutBtn;
     signOutBtn.addEventListener("click", signOutTeacher);
-
-    btnRow.appendChild(switchBtn);
-    btnRow.appendChild(signOutBtn);
 
     alertDiv.appendChild(badge);
     alertDiv.appendChild(title);
     alertDiv.appendChild(desc);
-    if (authState.authError) {
-      const errP = document.createElement("p");
-      errP.className = "field-error";
-      errP.textContent = authState.authError;
-      alertDiv.appendChild(errP);
-    }
-    alertDiv.appendChild(btnRow);
+    alertDiv.appendChild(signOutBtn);
     gateBox.appendChild(alertDiv);
     return;
   }
 
-  // Guest state
+  // Guest Username + Password Login Box
   const box = document.createElement("div");
   box.className = "auth-gate-box";
 
@@ -2205,29 +3233,13 @@ function renderLandingTeacherCardGate() {
   desc.className = "auth-gate-desc";
   desc.textContent = strings.gateGuestDesc;
 
-  const googleBtn = document.createElement("button");
-  googleBtn.type = "button";
-  googleBtn.className = "btn btn-google btn-full";
-  googleBtn.disabled = isSigningIn;
-  googleBtn.appendChild(createGoogleLogoSvg());
-  const btnSpan = document.createElement("span");
-  btnSpan.textContent = strings.googleSignInBtn;
-  googleBtn.appendChild(btnSpan);
-  googleBtn.addEventListener("click", signInWithGoogle);
-
   const studentHint = document.createElement("p");
   studentHint.className = "field-hint auth-student-note";
   studentHint.textContent = strings.gateStudentNote;
 
   box.appendChild(title);
   box.appendChild(desc);
-  if (authState.authError) {
-    const errP = document.createElement("p");
-    errP.className = "field-error";
-    errP.textContent = authState.authError;
-    box.appendChild(errP);
-  }
-  box.appendChild(googleBtn);
+  box.appendChild(buildSignInFormElement("landing"));
   box.appendChild(studentHint);
   gateBox.appendChild(box);
 }
@@ -2266,11 +3278,29 @@ function renderAuthDialogContent() {
   const kickerEl = document.getElementById("auth-dialog-kicker");
   const titleEl = document.getElementById("auth-dialog-title");
   const bodyEl = document.getElementById("auth-dialog-body");
+  const closeForm = document.getElementById("auth-dialog-close-form");
   if (!titleEl || !bodyEl) return;
 
   const strings = t();
   if (kickerEl) kickerEl.textContent = strings.authModalKicker;
   bodyEl.innerHTML = "";
+
+  // Mandatory 1-time password change state
+  if (authState.status === "must_change_password") {
+    titleEl.textContent = strings.authModalTitleMustChange;
+    if (closeForm) closeForm.hidden = true;
+    bodyEl.appendChild(buildPasswordChangeFormElement("dialog-mandatory", true));
+    return;
+  }
+
+  if (closeForm) closeForm.hidden = false;
+
+  // Voluntary password change requested by an active teacher / Super Admin
+  if (voluntaryPasswordModalOpen && authState.isAuthorizedTeacher) {
+    titleEl.textContent = strings.authModalTitleVoluntaryChange;
+    bodyEl.appendChild(buildPasswordChangeFormElement("dialog-voluntary", false));
+    return;
+  }
 
   if (authState.status === "unauthorized") {
     titleEl.textContent = strings.authModalTitleUnauth;
@@ -2281,77 +3311,36 @@ function renderAuthDialogContent() {
     const desc = document.createElement("p");
     desc.className = "auth-gate-desc";
     desc.appendChild(document.createTextNode(strings.gateUnauthBodyPrefix));
-    const strongEmail = document.createElement("strong");
-    strongEmail.textContent = authState.email;
-    desc.appendChild(strongEmail);
-    desc.appendChild(document.createTextNode(strings.gateUnauthBodySuffix + " "));
-    const adminCode = document.createElement("code");
-    adminCode.textContent = superAdminEmail;
-    desc.appendChild(adminCode);
-
-    const actions = document.createElement("div");
-    actions.className = "studio-btn-row auth-modal-actions";
-
-    const switchBtn = document.createElement("button");
-    switchBtn.type = "button";
-    switchBtn.className = "btn btn-google";
-    switchBtn.disabled = isSigningIn;
-    switchBtn.appendChild(createGoogleLogoSvg());
-    const switchSpan = document.createElement("span");
-    switchSpan.textContent = strings.switchAccountBtn;
-    switchBtn.appendChild(switchSpan);
-    switchBtn.addEventListener("click", signInWithGoogle);
+    const strongName = document.createElement("strong");
+    strongName.textContent = authState.username;
+    desc.appendChild(strongName);
+    desc.appendChild(document.createTextNode(strings.gateUnauthBodySuffix));
 
     const outBtn = document.createElement("button");
     outBtn.type = "button";
-    outBtn.className = "btn btn-ghost";
+    outBtn.className = "btn btn-secondary";
     outBtn.textContent = strings.signOutBtn;
     outBtn.addEventListener("click", signOutTeacher);
 
-    actions.appendChild(switchBtn);
-    actions.appendChild(outBtn);
-
     wrap.appendChild(desc);
-    if (authState.authError) {
-      const errP = document.createElement("p");
-      errP.className = "field-error";
-      errP.textContent = authState.authError;
-      wrap.appendChild(errP);
-    }
-    wrap.appendChild(actions);
+    wrap.appendChild(outBtn);
     bodyEl.appendChild(wrap);
     return;
   }
 
-  // Guest prompt
+  // Guest Username + Password Login Modal
   titleEl.textContent = strings.authModalTitleGuest;
 
   const desc = document.createElement("p");
   desc.className = "auth-gate-desc";
   desc.textContent = strings.gateGuestDesc;
 
-  const googleBtn = document.createElement("button");
-  googleBtn.type = "button";
-  googleBtn.className = "btn btn-google btn-full";
-  googleBtn.disabled = isSigningIn;
-  googleBtn.appendChild(createGoogleLogoSvg());
-  const btnSpan = document.createElement("span");
-  btnSpan.textContent = strings.googleSignInBtn;
-  googleBtn.appendChild(btnSpan);
-  googleBtn.addEventListener("click", signInWithGoogle);
-
   const note = document.createElement("p");
   note.className = "field-hint auth-student-note";
   note.textContent = strings.gateStudentNote;
 
   bodyEl.appendChild(desc);
-  if (authState.authError) {
-    const errP = document.createElement("p");
-    errP.className = "field-error";
-    errP.textContent = authState.authError;
-    bodyEl.appendChild(errP);
-  }
-  bodyEl.appendChild(googleBtn);
+  bodyEl.appendChild(buildSignInFormElement("dialog"));
   bodyEl.appendChild(note);
 }
 
@@ -2389,7 +3378,21 @@ function bindWorkspaceAndAuthEvents() {
     });
   }
 
-  // Workspace Banner buttons
+  // Prevent Esc closing the dialog while mandatory 1-time password change is active
+  const authDlg = document.getElementById("teacher-auth-dialog");
+  if (authDlg) {
+    authDlg.addEventListener("cancel", (ev) => {
+      if (authState.status === "must_change_password") {
+        ev.preventDefault();
+      } else {
+        voluntaryPasswordModalOpen = false;
+      }
+    });
+    authDlg.addEventListener("close", () => {
+      voluntaryPasswordModalOpen = false;
+    });
+  }
+
   const returnLessonBtn = document.getElementById("ws-return-lesson-btn");
   if (returnLessonBtn) {
     returnLessonBtn.addEventListener("click", () => {
@@ -2406,6 +3409,11 @@ function bindWorkspaceAndAuthEvents() {
         window.SnowDayPortal.showLandingHub(true, true);
       }
     });
+  }
+
+  const wsChangePwdBtn = document.getElementById("ws-change-password-btn");
+  if (wsChangePwdBtn) {
+    wsChangePwdBtn.addEventListener("click", openChangePasswordDialog);
   }
 
   const wsSignoutBtn = document.getElementById("ws-signout-btn");
@@ -2526,21 +3534,15 @@ function bindWorkspaceAndAuthEvents() {
       const file = wsFileInput.files && wsFileInput.files[0];
       if (!file) return;
       try {
+        wsFileInput.value = "";
         wsFileBtn.disabled = true;
-        wsFileBtn.textContent = getLang() === "ka" ? "მუშავდება..." : "Processing...";
-        let res = null;
-        if (window.SnowDayPortal && typeof window.SnowDayPortal.extractFileText === "function") {
-          res = await window.SnowDayPortal.extractFileText(file);
+        wsFileBtn.textContent = getLang() === "ka" ? "იტვირთება..." : "Uploading...";
+        if (!window.SnowDayPortal || typeof window.SnowDayPortal.uploadLessonFile !== "function") {
+          throw new Error("Portal is still loading. Please try again.");
         }
-        const localUrl = "local:" + encodeURIComponent(file.name);
-        if (res && window.SnowDayPortal && typeof window.SnowDayPortal.setUploadedDoc === "function") {
-          window.SnowDayPortal.setUploadedDoc(localUrl, res);
-          try {
-            sessionStorage.setItem("snowday_uploaded_doc_" + (window.SnowDayPortal.extractDocCacheKey ? window.SnowDayPortal.extractDocCacheKey(localUrl) : localUrl), JSON.stringify(res));
-          } catch (_e) {}
-        }
+        const up = await window.SnowDayPortal.uploadLessonFile(file);
         if (wsUrlInput) {
-          wsUrlInput.value = localUrl;
+          wsUrlInput.value = up.url;
           if (wsUrlError) wsUrlError.hidden = true;
         }
         if (wsTitleInput && !wsTitleInput.value.trim()) {
@@ -2548,15 +3550,19 @@ function bindWorkspaceAndAuthEvents() {
           wsTitleInput.value = cleanName;
         }
         if (wsFileName) {
-          wsFileName.textContent = `${(res ? res.format : "FILE").toUpperCase()} · ${file.name}`;
+          wsFileName.textContent = window.SnowDayPortal.describeUploadResult(up);
           wsFileName.hidden = false;
         }
         refreshWorkspaceQrPreview();
       } catch (err) {
-        showHistoryToast((getLang() === "ka" ? "ფაილის წაკითხვა ვერ მოხერხდა: " : "Could not read file: ") + err.message, true);
+        showHistoryToast(
+          (getLang() === "ka" ? "ფაილის წაკითხვა ვერ მოხერხდა: " : "Could not read file: ") +
+            err.message,
+          true
+        );
       } finally {
         wsFileBtn.disabled = false;
-        wsFileBtn.innerHTML = `📁 <span>${t().uploadFileBtn || "ფაილის ატვირთვა (PDF, DOCX, TXT)"}</span>`;
+        wsFileBtn.innerHTML = `📁 <span>${t().uploadFileBtn}</span>`;
       }
     });
   }
@@ -2677,7 +3683,6 @@ function bindWorkspaceAndAuthEvents() {
     });
   }
 
-  // Also auto-save when teacher generates QR from the Student Hub preview card
   const landingTeacherForm = document.getElementById("landing-teacher-form");
   if (landingTeacherForm) {
     landingTeacherForm.addEventListener("submit", () => {
@@ -2693,7 +3698,6 @@ function bindWorkspaceAndAuthEvents() {
     });
   }
 
-  // Auto-enrich saved doc title & subject when AI lesson finishes loading
   window.addEventListener("snowday:lessonloaded", (ev) => {
     renderRibbonTeacherButtons();
     if (!authState.isAuthorizedTeacher || !ev.detail || !ev.detail.docUrl) return;
@@ -2719,7 +3723,9 @@ function bindWorkspaceAndAuthEvents() {
     const hasGenericTitle =
       !existingItem ||
       !existingItem.title ||
-      existingItem.title.startsWith("Google Doc ");
+      existingItem.title.startsWith("Google Doc ") ||
+      existingItem.title.startsWith("Lesson Document ") ||
+      existingItem.title.startsWith("გაკვეთილის დოკუმენტი ");
 
     upsertPersonalDocRecord({
       rawDocUrl: docUrl,
@@ -2730,7 +3736,6 @@ function bindWorkspaceAndAuthEvents() {
     }).catch(() => {});
   });
 
-  // Admin Panel Search & Email Validation
   const adminSearchInput = document.getElementById("admin-teacher-search");
   if (adminSearchInput) {
     adminSearchInput.addEventListener("input", () => {
@@ -2738,9 +3743,8 @@ function bindWorkspaceAndAuthEvents() {
       renderAdminPanelDirectory();
     });
   }
-  setupAdminEmailValidation();
+  setupAdminUsernameValidation();
 
-  // Settings Tab API Save & Cache Clear
   const wsSaveApiBtn = document.getElementById("ws-save-api-btn");
   if (wsSaveApiBtn) {
     wsSaveApiBtn.addEventListener("click", () => {
@@ -2771,7 +3775,6 @@ function bindWorkspaceAndAuthEvents() {
 }
 
 function bootTeacherAuth() {
-  // Default QR host radio to current origin when running on localhost
   const isLocalHost =
     window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1";
   const wsTargetCurrent = document.getElementById("ws-target-current");
@@ -2783,13 +3786,6 @@ function bootTeacherAuth() {
   bindWorkspaceAndAuthEvents();
   renderAllAuthSurfaces();
 
-  getRedirectResult(auth).catch((err) => {
-    if (err) {
-      authState.authError = formatAuthError(err);
-      renderAllAuthSurfaces();
-    }
-  });
-
   onAuthStateChanged(auth, (user) => {
     handleAuthUserChange(user);
   });
@@ -2797,12 +3793,14 @@ function bootTeacherAuth() {
 
 window.SnowDayTeacherAuth = {
   getState: () => ({ ...authState }),
+  getIdToken: async () => (auth.currentUser ? auth.currentUser.getIdToken() : ""),
   isAuthorizedTeacher: () => Boolean(authState.isAuthorizedTeacher),
   isSuperAdmin: () => Boolean(authState.isSuperAdmin),
-  signInWithGoogle,
+  signInWithUsernamePassword,
   signOutTeacher,
   requireTeacherAccess,
   openAuthDialog,
+  openChangePasswordDialog,
   openWorkspaceView,
   openAdminDialog: () => openWorkspaceView("admin")
 };

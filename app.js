@@ -26,6 +26,14 @@
       navCards: "სასწავლო ბარათები",
       navGlossary: "რთული სიტყვები",
       navQuiz: "კითხვარი",
+      navTutorShort: "რეპეტიტორი",
+      navCardsShort: "ბარათები",
+      navGlossaryShort: "სიტყვები",
+      navQuizShort: "კითხვარი",
+      lessonNavLabel: "გაკვეთილის განყოფილებები",
+      accountMenuBtn: "ანგარიში",
+      selfTestToggle: "თვითშემოწმება",
+      selfTestHint: "განმარტებები დამალულია — შეეხე სიტყვას, რომ ნახო.",
       menuBtn: "მენიუ",
       teacherStudioBtn: "მასწავლებლის QR სტუდია",
       qrActiveLabel: "გენერირებულია მასწავლებლის დოკუმენტიდან",
@@ -147,6 +155,14 @@
       navCards: "Learning Cards",
       navGlossary: "Hard Words",
       navQuiz: "Questionnaire",
+      navTutorShort: "Tutor",
+      navCardsShort: "Cards",
+      navGlossaryShort: "Words",
+      navQuizShort: "Quiz",
+      lessonNavLabel: "Lesson sections",
+      accountMenuBtn: "Account",
+      selfTestToggle: "Self-test",
+      selfTestHint: "Definitions are hidden — tap a word to reveal it.",
       menuBtn: "Menu",
       teacherStudioBtn: "Teacher QR Studio",
       qrActiveLabel: "Generated from Teacher's Document",
@@ -357,6 +373,12 @@
       return "https://docs.google.com/document/d/e/" + pubMatch[1] + "/pub";
     }
 
+    // Teacher file uploaded to this site's server (/api/docs/uploads/<id>)
+    const uploadMatch = trimmed.match(/^(https?:\/\/[^/\s]+)\/api\/docs\/uploads\/([A-Za-z0-9_-]{16,64})(?:[?#].*)?$/i);
+    if (uploadMatch) {
+      return uploadMatch[1] + "/api/docs/uploads/" + uploadMatch[2];
+    }
+
     // Standard Google Doc ID in URL
     const docMatch = trimmed.match(/\/document\/d\/([a-zA-Z0-9_-]{15,})/);
     if (docMatch) {
@@ -411,6 +433,10 @@
   function detectDocFormat(docUrl, rawText) {
     const u = String(docUrl || "").toLowerCase();
     const t = String(rawText || "");
+    if (u.includes("/api/docs/uploads/")) {
+      const up = uploadedDocsMemory.get(String(docUrl || ""));
+      return (up && up.format) || "upload";
+    }
     if (u.endsWith(".pdf") || t.startsWith("%PDF-")) return "pdf";
     if (u.endsWith(".docx")) return "docx";
     if (u.endsWith(".txt")) return "txt";
@@ -429,6 +455,8 @@
 
   function extractDocCacheKey(docUrl) {
     const raw = String(docUrl || "");
+    const up = raw.match(/\/api\/docs\/uploads\/([A-Za-z0-9_-]{16,64})/);
+    if (up) return "upload_" + up[1].slice(0, 40);
     if (raw.startsWith("local:")) {
       return "local_" + raw.slice(6).replace(/[^a-zA-Z0-9_-]/g, "_").slice(0, 48);
     }
@@ -700,6 +728,154 @@
     return { name, format: detectedFormat, text };
   }
 
+  const SERVER_EXTRACT_REASONS = {
+    PRIVATE: "private",
+    NOT_FOUND: "not_found",
+    EMPTY_TEXT: "empty",
+    EMPTY_FILE: "empty"
+  };
+
+  const SERVER_EXTRACT_MESSAGES_KA = {
+    PDF_NO_TEXT:
+      "ეს PDF ფაილი არ შეიცავს მოსანიშნ ტექსტს (როგორც ჩანს, დასკანერებული სურათია). გთხოვთ, გააზიაროთ ტექსტური PDF, Google Doc ან DOCX ვერსია.",
+    PDF_ENCRYPTED: "ეს PDF პაროლით არის დაცული. გთხოვთ, ატვირთოთ დაუცველი ვერსია.",
+    PDF_INVALID: "PDF ფაილის გახსნა ვერ მოხერხდა (შესაძლოა დაზიანებულია).",
+    DOCX_INVALID: "Word (.docx) ფაილის წაკითხვა ვერ მოხერხდა (შესაძლოა დაზიანებულია).",
+    UNSUPPORTED_FORMAT:
+      "ფაილის ეს ფორმატი არ არის მხარდაჭერილი. გამოიყენეთ PDF, DOCX, TXT ან Google Doc (ძველი .doc ფაილი შეინახეთ .docx-ად).",
+    FILE_TOO_LARGE: "ფაილი 20 MB-ზე დიდია.",
+    DOWNLOAD_FAILED:
+      "Drive ფაილის ჩამოტვირთვა ვერ მოხერხდა. დარწმუნდით, რომ ის გაზიარებულია როგორც 'Anyone with the link' და არის PDF, DOCX, TXT ან Google Doc.",
+    TOO_MANY_REQUESTS: "ძალიან ბევრი მოთხოვნა. გთხოვთ, რამდენიმე წუთში სცადოთ.",
+    UNAUTHENTICATED: "ფაილის ასატვირთად გთხოვთ, შეხვიდეთ მასწავლებლის ანგარიშით."
+  };
+
+  function localizeServerDocError(code, fallbackMessage) {
+    if (currentLang === "ka" && SERVER_EXTRACT_MESSAGES_KA[code]) return SERVER_EXTRACT_MESSAGES_KA[code];
+    return fallbackMessage || code || "Unknown error";
+  }
+
+  /**
+   * Asks this site's Node server to download & extract text from a shared link.
+   * The server has no CORS restrictions, so it can read Drive PDFs / DOCX / TXT.
+   * Returns null if the server API is unreachable (e.g. static-only hosting).
+   */
+  async function fetchDocTextViaServer(docUrl) {
+    let res;
+    try {
+      res = await fetch("/api/docs/extract", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ url: docUrl })
+      });
+    } catch (_e) {
+      return null;
+    }
+    let data = null;
+    try {
+      data = await res.json();
+    } catch (_e) {
+      return null;
+    }
+    if (!data || typeof data.ok !== "boolean") return null;
+    if (data.ok && data.text) {
+      return { ok: true, text: data.text, format: data.format || "doc", viaServer: true };
+    }
+    const code = String(data.error || "");
+    return {
+      ok: false,
+      reason: SERVER_EXTRACT_REASONS[code] || "extract_error",
+      code,
+      message: localizeServerDocError(code, data.message)
+    };
+  }
+
+  async function fetchUploadedDocFromServer(uploadId) {
+    try {
+      const res = await fetch("/api/docs/uploads/" + encodeURIComponent(uploadId));
+      if (res.status === 404) return { ok: false, reason: "not_found" };
+      const data = await res.json();
+      if (res.ok && data && data.ok && data.text) {
+        return { ok: true, text: data.text, format: data.format || "txt", name: data.name || "" };
+      }
+      return { ok: false, reason: "http_" + res.status };
+    } catch (_e) {
+      return { ok: false, reason: "cors_or_network" };
+    }
+  }
+
+  /**
+   * Uploads a teacher's lesson file (PDF / DOCX / TXT) to the server so it gets a
+   * permanent shareable link that works on every student's device.
+   * Falls back to in-browser extraction (this device only) if the server is unreachable.
+   * @returns {Promise<{url: string, name: string, format: string, text: string, persistent: boolean}>}
+   */
+  async function uploadLessonFile(file) {
+    if (!file) throw new Error("No file selected.");
+    if (file.size > 20 * 1024 * 1024) {
+      throw new Error(localizeServerDocError("FILE_TOO_LARGE", "File is larger than 20 MB."));
+    }
+
+    let token = "";
+    try {
+      if (window.SnowDayTeacherAuth && typeof window.SnowDayTeacherAuth.getIdToken === "function") {
+        token = await window.SnowDayTeacherAuth.getIdToken();
+      }
+    } catch (_e) {}
+
+    if (token) {
+      let res = null;
+      try {
+        res = await fetch("/api/docs/upload", {
+          method: "POST",
+          headers: {
+            Authorization: "Bearer " + token,
+            "Content-Type": file.type || "application/octet-stream",
+            "X-File-Name": encodeURIComponent(file.name || "lesson")
+          },
+          body: file
+        });
+      } catch (_netErr) {
+        res = null;
+      }
+      if (res) {
+        let data = null;
+        try {
+          data = await res.json();
+        } catch (_e) {}
+        if (res.ok && data && data.ok && data.path) {
+          const url = window.location.origin + data.path;
+          const entry = { name: data.name, format: data.format, text: data.text };
+          uploadedDocsMemory.set(url, entry);
+          return { url, name: data.name, format: data.format, text: data.text, persistent: true };
+        }
+        if (data && data.error && data.error !== "ADMIN_CREDENTIALS_UNAVAILABLE" && data.error !== "NOT_FOUND") {
+          throw new Error(localizeServerDocError(data.error, data.message));
+        }
+      }
+    }
+
+    // Fallback: extract in this browser only (link works on this device/session only)
+    const local = await extractFileText(file);
+    const localUrl = "local:" + encodeURIComponent(file.name);
+    uploadedDocsMemory.set(localUrl, local);
+    try {
+      sessionStorage.setItem("snowday_uploaded_doc_" + extractDocCacheKey(localUrl), JSON.stringify(local));
+    } catch (_e) {}
+    return { url: localUrl, name: file.name, format: local.format, text: local.text, persistent: false };
+  }
+
+  function describeUploadResult(up) {
+    const base = `${String(up.format || "file").toUpperCase()} · ${up.name}`;
+    if (up.persistent) return base;
+    return (
+      base +
+      (currentLang === "ka"
+        ? " — ⚠️ შენახულია მხოლოდ ამ მოწყობილობაზე (სერვერი მიუწვდომელია)"
+        : " — ⚠️ saved on this device only (server unavailable)")
+    );
+  }
+
   /**
    * Fetches UTF-8 plain text from a teacher's shared Google Doc, Google Drive file,
    * uploaded local file, or direct document link.
@@ -724,6 +900,14 @@
       }
     } catch (_e) {}
 
+    // 1b. Teacher file uploaded to this site's server
+    const uploadIdMatch = String(docUrl).match(/\/api\/docs\/uploads\/([A-Za-z0-9_-]{16,64})/);
+    if (uploadIdMatch) {
+      const up = await fetchUploadedDocFromServer(uploadIdMatch[1]);
+      if (up.ok) uploadedDocsMemory.set(docUrl, { name: up.name, format: up.format, text: up.text });
+      return up;
+    }
+
     // 2. Published-to-web Google Doc
     const pubMatch = String(docUrl).match(/docs\.google\.com\/document\/d\/e\/([a-zA-Z0-9_-]+)/i);
     if (pubMatch) {
@@ -739,67 +923,36 @@
       } catch (_e) {}
     }
 
-    // 3. Google Doc /export?format=txt
+    // 3. Native Google Doc /export?format=txt (works directly from the browser)
     const idMatch = String(docUrl).match(/\/document\/d\/(?!e\/)([a-zA-Z0-9_-]{15,})/);
     if (idMatch) {
       const docId = idMatch[1];
       const exportUrl = `https://docs.google.com/document/d/${docId}/export?format=txt`;
       try {
         const res = await fetch(exportUrl, { method: "GET", credentials: "omit" });
-        if (res.status === 401 || res.status === 403) return { ok: false, reason: "private" };
-        if (res.status === 404) return { ok: false, reason: "not_found" };
-
         const contentType = (res.headers.get("content-type") || "").toLowerCase();
-        const rawText = await res.text();
-        if (
-          contentType.includes("text/html") ||
-          /^\s*<!doctype\s+html/i.test(rawText) ||
-          /^\s*<html/i.test(rawText)
-        ) {
-          return { ok: false, reason: "private" };
+        if (res.ok && !contentType.includes("text/html")) {
+          const cleaned = (await res.text())
+            .replace(/^\uFEFF/, "")
+            .replace(/\r\n/g, "\n")
+            .replace(/\n{3,}/g, "\n\n")
+            .trim()
+            .slice(0, 42000);
+          if (cleaned) return { ok: true, text: cleaned, format: "gdoc" };
         }
-        if (!res.ok) return { ok: false, reason: "http_" + res.status };
-
-        const cleaned = rawText
-          .replace(/^\uFEFF/, "")
-          .replace(/\r\n/g, "\n")
-          .replace(/\n{3,}/g, "\n\n")
-          .trim()
-          .slice(0, 42000);
-
-        if (!cleaned) return { ok: false, reason: "empty" };
-        return { ok: true, text: cleaned, format: "gdoc" };
       } catch (_err) {
-        return { ok: false, reason: "cors_or_network" };
+        // CORS / private / Word file opened in Docs \u2192 let the server try below
       }
     }
 
-    // 4. Google Drive file (/file/d/<id>)
-    const driveMatch = String(docUrl).match(/\/file\/d\/([a-zA-Z0-9_-]{15,})/);
-    if (driveMatch) {
-      const fileId = driveMatch[1];
-      // Try doc export first in case it is a Google Doc opened through Drive
-      try {
-        const exportUrl = `https://docs.google.com/document/d/${fileId}/export?format=txt`;
-        const res = await fetch(exportUrl, { method: "GET", credentials: "omit" });
-        const cType = (res.headers.get("content-type") || "").toLowerCase();
-        if (res.ok && !cType.includes("text/html")) {
-          const rawText = await res.text();
-          const clean = rawText.replace(/^\uFEFF/, "").replace(/\r\n/g, "\n").replace(/\n{3,}/g, "\n\n").trim().slice(0, 42000);
-          if (clean) return { ok: true, text: clean, format: "gdoc" };
-        }
-      } catch (_e) {}
-
-      // If browser CORS prevents direct fetch of Drive PDF/DOCX/TXT, return cors_or_network
-      // so AI Agent server custom tool (which has no CORS restrictions) downloads and analyzes it!
-      return { ok: false, reason: "cors_or_network", fileId };
-    }
-
-    // 5. Direct URL to .pdf, .docx, or .txt
+    // 4. Direct URL to .pdf, .docx, or .txt (only works if the host allows CORS)
     try {
       const parsed = new URL(docUrl);
       const path = parsed.pathname.toLowerCase();
-      if (path.endsWith(".pdf") || path.endsWith(".docx") || path.endsWith(".txt")) {
+      if (
+        !parsed.hostname.endsWith("google.com") &&
+        (path.endsWith(".pdf") || path.endsWith(".docx") || path.endsWith(".txt"))
+      ) {
         const res = await fetch(docUrl, { credentials: "omit" });
         if (res.ok) {
           const buf = await res.arrayBuffer();
@@ -811,7 +964,15 @@
       }
     } catch (_e) {}
 
-    return { ok: false, reason: "unsupported_direct_export" };
+    // 5. Server-side download & extraction: Google Drive PDF / DOCX / TXT, Word files opened
+    //    in Google Docs, and any link the browser can't read because of CORS.
+    if (/^https:\/\//i.test(String(docUrl))) {
+      const viaServer = await fetchDocTextViaServer(docUrl);
+      if (viaServer) return viaServer;
+    }
+
+    // Server unavailable \u2192 let the AI Agent's own reader tool try
+    return { ok: false, reason: "cors_or_network" };
   }
 
   function bi(obj, fallbackKa, fallbackEn) {
@@ -1557,6 +1718,14 @@
     });
   }
 
+  // Visual quiz progress bar (CSS custom property read by .quiz-progress-bar)
+  function setQuizProgressBar(doneCount, total) {
+    const panel = document.getElementById("quiz-section");
+    if (!panel || !total) return;
+    const pct = Math.max(0, Math.min(100, Math.round((doneCount / total) * 100)));
+    panel.style.setProperty("--quiz-progress", pct + "%");
+  }
+
   // Standalone 3-Option Questionnaire
   function renderPageQuiz() {
     if (!activeLesson || !activeLesson.quiz || activeLesson.quiz.length === 0) return;
@@ -1579,6 +1748,7 @@
     scoreEl.textContent =
       lang === "ka" ? `ქულა: ${pageQuizScore} / ${total}` : `Score: ${pageQuizScore} / ${total}`;
 
+    setQuizProgressBar(pageQuizIndex, total);
     qTextEl.textContent = qItem.question[lang];
     optsEl.innerHTML = "";
     feedbackEl.hidden = true;
@@ -1622,9 +1792,10 @@
       }
       clickedBtn.classList.add("is-correct");
       allBtns.forEach((b) => (b.disabled = true));
+      setQuizProgressBar(pageQuizIndex + 1, activeLesson.quiz.length);
 
       const praise = lang === "ka" ? "სწორია! ყოჩაღ! " : "Correct! Great job! ";
-      feedbackEl.className = "quiz-feedback";
+      feedbackEl.className = "quiz-feedback is-success";
       feedbackEl.textContent = praise + (qItem.funFact[lang] || "");
       feedbackEl.hidden = false;
 
@@ -1644,12 +1815,13 @@
       } else {
         pageQuizResolved = true;
         pageQuizScoredSet.add(qItem.id);
+        setQuizProgressBar(pageQuizIndex + 1, activeLesson.quiz.length);
         allBtns.forEach((b, i) => {
           b.disabled = true;
           if (i === qItem.correctIndex) b.classList.add("is-correct");
         });
         const rightOpt = qItem.options[lang][qItem.correctIndex];
-        feedbackEl.className = "quiz-feedback";
+        feedbackEl.className = "quiz-feedback is-reveal";
         feedbackEl.textContent =
           lang === "ka"
             ? `სწორი პასუხია: „${rightOpt}“. ${qItem.funFact.ka || ""}`
@@ -1898,6 +2070,7 @@
       role: "model",
       text: UI_STRINGS[currentLang].thinkingText
     });
+    if (loadingBubble) loadingBubble.classList.add("is-thinking");
 
     const outboundMessage = !sessionId ? buildFirstTurnContextPrefix() + trimmed : trimmed;
 
@@ -2220,6 +2393,17 @@
             currentLang === "ka"
               ? "მასწავლებლის დოკუმენტი ცარიელია. დაამატეთ გაკვეთილის მასალა და სცადეთ ხელახლა."
               : "The teacher's document appears to be empty. Please add lesson content and try again."
+          );
+        }
+        if (fetchedDoc.reason === "extract_error" && fetchedDoc.message) {
+          throw new Error(fetchedDoc.message);
+        }
+        if (/\/api\/docs\/uploads\//.test(normalizedDoc)) {
+          // Uploaded file couldn't be loaded: the AI Agent can't reach it either
+          throw new Error(
+            currentLang === "ka"
+              ? "ატვირთული გაკვეთილის ფაილის ჩატვირთვა ვერ მოხერხდა. სცადეთ ხელახლა ან სთხოვეთ მასწავლებელს ფაილის თავიდან ატვირთვა."
+              : "The uploaded lesson file could not be loaded. Please retry, or ask your teacher to upload it again."
           );
         }
       }
@@ -2585,29 +2769,31 @@
     const landingFileName = document.getElementById("landing-teacher-file-name");
 
     if (landingFileBtn && landingFileInput) {
-      landingFileBtn.addEventListener("click", () => landingFileInput.click());
+      landingFileBtn.addEventListener("click", () => {
+        requireTeacherOrPrompt(() => landingFileInput.click());
+      });
       landingFileInput.addEventListener("change", async () => {
         const file = landingFileInput.files && landingFileInput.files[0];
+        landingFileInput.value = "";
         if (!file) return;
         try {
           landingFileBtn.disabled = true;
-          landingFileBtn.textContent = currentLang === "ka" ? "მუშავდება..." : "Processing...";
-          const res = await extractFileText(file);
-          const localUrl = "local:" + encodeURIComponent(file.name);
-          uploadedDocsMemory.set(localUrl, res);
-          try {
-            sessionStorage.setItem("snowday_uploaded_doc_" + extractDocCacheKey(localUrl), JSON.stringify(res));
-          } catch (_e) {}
+          landingFileBtn.textContent = currentLang === "ka" ? "იტვირთება..." : "Uploading...";
+          const up = await uploadLessonFile(file);
+          const localUrl = up.url;
           if (teacherInput) {
             teacherInput.value = localUrl;
             teacherInput.setCustomValidity("");
             teacherErr.hidden = true;
           }
           if (landingFileName) {
-            landingFileName.textContent = `${res.format.toUpperCase()} · ${file.name}`;
+            landingFileName.textContent = describeUploadResult(up);
             landingFileName.hidden = false;
           }
-          lastLandingQrStudentUrl = buildStudentQrUrlForDoc(localUrl, window.location.hostname === "localhost");
+          lastLandingQrStudentUrl = buildStudentQrUrlForDoc(
+            localUrl,
+            window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1"
+          );
           if (landingQrSvg && window.SnowDayQR) {
             landingQrSvg.innerHTML = window.SnowDayQR.toSvgString(lastLandingQrStudentUrl, { pixelSize: 210, eccLevel: "M" });
             if (landingQrUrl) landingQrUrl.textContent = lastLandingQrStudentUrl;
@@ -2827,23 +3013,19 @@
       qrFileBtn.addEventListener("click", () => qrFileInput.click());
       qrFileInput.addEventListener("change", async () => {
         const file = qrFileInput.files && qrFileInput.files[0];
+        qrFileInput.value = "";
         if (!file) return;
         try {
           qrFileBtn.disabled = true;
-          qrFileBtn.textContent = currentLang === "ka" ? "მუშავდება..." : "Processing...";
-          const res = await extractFileText(file);
-          const localUrl = "local:" + encodeURIComponent(file.name);
-          uploadedDocsMemory.set(localUrl, res);
-          try {
-            sessionStorage.setItem("snowday_uploaded_doc_" + extractDocCacheKey(localUrl), JSON.stringify(res));
-          } catch (_e) {}
+          qrFileBtn.textContent = currentLang === "ka" ? "იტვირთება..." : "Uploading...";
+          const up = await uploadLessonFile(file);
           if (docUrlInput) {
-            docUrlInput.value = localUrl;
+            docUrlInput.value = up.url;
             docUrlInput.setCustomValidity("");
             docErrorEl.hidden = true;
           }
           if (qrFileName) {
-            qrFileName.textContent = `${res.format.toUpperCase()} · ${file.name}`;
+            qrFileName.textContent = describeUploadResult(up);
             qrFileName.hidden = false;
           }
           refreshStudioQrPreview();
@@ -3015,6 +3197,8 @@
     detectDocFormat,
     extractDocCacheKey,
     extractFileText,
+    uploadLessonFile,
+    describeUploadResult,
     setUploadedDoc: (url, data) => uploadedDocsMemory.set(url, data),
     getUploadedDoc: (url) => uploadedDocsMemory.get(url),
     buildStudentQrUrlForDoc,

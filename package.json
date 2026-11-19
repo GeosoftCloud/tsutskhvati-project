@@ -1,15 +1,16 @@
 {
   "name": "tsutskhvati-project",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "SnowDay Class (answer.ge) - Resilient School Continuity AI Lesson Portal",
   "main": "server.js",
   "type": "module",
   "scripts": {
     "start": "node server.js",
-    "test": "node -e 'console.log(\"OK\")'"
+    "create-super-admin": "node scripts/create-super-admin.mjs",
+    "test": "node scripts/test-auth-utils.mjs"
   },
   "engines": {
-    "node": ">=18.0.0"
+    "node": ">=24.0.0"
   },
   "keywords": [
     "education",
@@ -19,5 +20,10 @@
     "geosoft"
   ],
   "author": "Luka Shengelia <luka@geosoft.dev>",
-  "license": "ISC"
+  "license": "ISC",
+  "dependencies": {
+    "firebase-admin": "^13.7.0",
+    "mammoth": "^1.13.0",
+    "unpdf": "^2.2.1"
+  }
 }

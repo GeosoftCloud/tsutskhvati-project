@@ -11,8 +11,10 @@ window.SNOWDAY_AGENT_CONFIG = {
   // Chat endpoint: https://cdn-service-wqieturt5q-ew.a.run.app/api/v1/agents/5d77S75uDn9xuccR9Vle/chat
   agentBaseUrl: "https://cdn-service-wqieturt5q-ew.a.run.app/api/v1/agents/5d77S75uDn9xuccR9Vle",
 
-  // Production domain encoded inside generated Teacher QR codes:
-  publicSiteBaseUrl: "https://answer.ge",
+  // Domain encoded inside generated Teacher QR codes.
+  // Currently the Cloud Run URL; switch to "https://answer.ge" once the domain points to Cloud Run.
+  // (QR codes made with the Cloud Run URL keep working after the switch.)
+  publicSiteBaseUrl: "https://tsutskhvati-web-617054738609.europe-west1.run.app",
 
   // Cache AI-generated lesson websites in browser localStorage for 0ms instant refreshes:
   cacheGeneratedLessons: true,

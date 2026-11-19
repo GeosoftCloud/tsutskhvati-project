@@ -40,6 +40,82 @@ const maxChars = Math.min(
   120000
 );
 
+// ============================================================================
+// Case 0: Use the SnowDay site server's extractor first (real PDF/DOCX parsing,
+// Drive virus-scan page handling, and teacher-uploaded files).
+// Servers are tried in order until one answers. The Cloud Run URL keeps working
+// even after answer.ge is mapped to the same service, so it stays first.
+// Optional override: config.extractApiBase (tried before the defaults).
+// ============================================================================
+const SITE_API_BASES = [
+  config && config.extractApiBase,
+  "https://tsutskhvati-web-617054738609.europe-west1.run.app",
+  "https://answer.ge"
+]
+  .filter(Boolean)
+  .map((b) => String(b).trim().replace(/\/+$/, ""))
+  .filter((b, i, arr) => /^https:\/\//i.test(b) && arr.indexOf(b) === i);
+
+const DEFINITIVE_SITE_ERRORS = ["PRIVATE", "NOT_FOUND", "PDF_NO_TEXT", "PDF_ENCRYPTED", "UNSUPPORTED_FORMAT", "FILE_TOO_LARGE"];
+
+async function fetchJsonWithTimeout(url, options, timeoutMs) {
+  const ctrl = new AbortController();
+  const timer = setTimeout(() => ctrl.abort(), timeoutMs);
+  try {
+    const res = await fetch(url, { ...(options || {}), signal: ctrl.signal });
+    return await res.json().catch(() => null);
+  } catch (_e) {
+    return null; // network error / timeout → try next server
+  } finally {
+    clearTimeout(timer);
+  }
+}
+
+{
+  const uploadMatch = rawInput.match(/^(https:\/\/[^/\s]+)\/api\/docs\/uploads\/([A-Za-z0-9_-]{16,64})/i);
+  // Uploaded files: try the host in the link first, then the known servers (same Firestore data)
+  const candidates = uploadMatch
+    ? [uploadMatch[1], ...SITE_API_BASES].filter((b, i, arr) => arr.indexOf(b) === i)
+    : SITE_API_BASES;
+
+  for (const base of candidates) {
+    const siteData = uploadMatch
+      ? await fetchJsonWithTimeout(base + "/api/docs/uploads/" + uploadMatch[2], { method: "GET" }, 15000)
+      : await fetchJsonWithTimeout(
+          base + "/api/docs/extract",
+          {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ url: rawInput })
+          },
+          40000
+        );
+
+    if (!siteData || typeof siteData.ok !== "boolean") continue; // not reachable / not our server
+
+    if (siteData.ok && siteData.text) {
+      const text = String(siteData.text).slice(0, maxChars);
+      return {
+        ok: true,
+        fileType: siteData.format || "doc",
+        sourceUrl: rawInput,
+        charCount: text.length,
+        truncated: Boolean(siteData.truncated) || siteData.text.length > maxChars,
+        content: text
+      };
+    }
+    if (siteData.ok === false && DEFINITIVE_SITE_ERRORS.includes(siteData.error)) {
+      throw new Error(siteData.message || siteData.error);
+    }
+    // Other errors (rate limit, temporary failure) → try the next server
+  }
+
+  if (uploadMatch) {
+    throw new Error("Uploaded lesson file could not be loaded from the SnowDay server. Please try again later.");
+  }
+  // No site server reachable → fall back to the built-in readers below
+}
+
 function decodeHtmlEntities(html) {
   return String(html || "")
     .replace(/<script[\s\S]*?<\/script>/gi, " ")
@@ -109,6 +185,14 @@ async function decompressRaw(compressedBytes) {
     return out;
   }
   throw new Error("DecompressionStream is not supported in this runtime environment.");
+}
+
+async function decompressZlib(compressedBytes) {
+  if (typeof DecompressionStream !== "function") {
+    throw new Error("DecompressionStream is not supported in this runtime environment.");
+  }
+  const stream = new Blob([compressedBytes]).stream().pipeThrough(new DecompressionStream("deflate"));
+  return new Uint8Array(await new Response(stream).arrayBuffer());
 }
 
 /**
@@ -212,7 +296,13 @@ async function extractPdfText(buffer) {
     const endIdx = startIdx + sm[1].length;
     const streamBytes = bytes.slice(startIdx, endIdx);
     try {
-      const decompressed = await decompressRaw(streamBytes);
+      // PDF FlateDecode streams are zlib-wrapped ("deflate"), not raw deflate
+      let decompressed;
+      try {
+        decompressed = await decompressZlib(streamBytes);
+      } catch (_zErr) {
+        decompressed = await decompressRaw(streamBytes);
+      }
       const decStr = new TextDecoder("utf-8", { fatal: false }).decode(decompressed);
       let tm;
       const decTj = /\(([\s\S]*?)\)\s*Tj/g;

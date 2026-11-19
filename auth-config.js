@@ -1,10 +1,11 @@
 /**
- * SnowDay Class (answer.ge) — Teacher Google OAuth & Super Admin Configuration
+ * SnowDay Class (answer.ge) — Teacher Username/Password Auth Configuration
  * Consolidated Google Cloud / Firebase Project: Tsutskhvati (geosoft-agents-customer-whc5sa)
  */
 window.SNOWDAY_AUTH_CONFIG = {
-  // Bootstrapped Main Super Admin email (also enforced server-side in firestore.rules):
-  superAdminEmail: "luka@geosoft.dev",
+  // Synthetic domain used internally to map teacher usernames (<username>@teachers.answer.ge)
+  // to Firebase Email/Password Authentication (Google OAuth is disabled).
+  authEmailDomain: "teachers.answer.ge",
 
   // Firebase Web SDK Configuration (geosoft-agents-customer-whc5sa):
   firebaseConfig: {
