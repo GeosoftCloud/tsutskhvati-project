@@ -41,7 +41,9 @@ This folder contains the complete Geosoft AI Agent configuration powering **Snow
    - `answer.ge` renders the entire website dynamically and caches the generated lesson in `localStorage` keyed by the Google Doc ID.
 2. **Interactive Student Chat (`opt-tutor`)**:
    - Every student question in chat routes to **`Student Lesson Tutor`** (`agent-tutor-chat01`).
-   - On the first turn of a session, `answer.ge` attaches `[LESSON_CONTEXT docUrl="..."]`, and `Student Lesson Tutor` calls **`Google Doc Lesson Reader`**.
+   - Every chat turn starts with `[[MODE:STUDENT_CHAT]]` so the Mode Router (an LLM condition) routes it to the tutor deterministically. On the first turn of a session, `answer.ge` also attaches `[LESSON_CONTEXT docUrl="..."]` (plus inline `[TEACHER_DOC_START]…[TEACHER_DOC_END]` text when available) and the student's text after `[STUDENT_MESSAGE]`. Without the marker, the router can mistake a first turn carrying a whole teacher document for a lesson-generation request and reply with lesson JSON.
+   - If no inline doc text is present, `Student Lesson Tutor` calls **`Google Doc Lesson Reader`**.
+   - Safety net: if a chat reply still comes back as lesson JSON, `app.js` retries once as a plain chat turn and never renders the JSON (also filtered when chat history is re-synced).
    - Geosoft's runtime automatically caches `custom_tool_...` results in memory per `(sessionId, args)` for **2 hours**, so subsequent student turns have **zero Google Docs fetch latency**!
    - If the student asks to talk directly to their absent human teacher, `allowHumanHandoff: true` triggers Geosoft **JumpIn**, allowing the teacher to answer live from home via the Geosoft Customer Panel while `answer.ge` polls every 3 seconds.
 

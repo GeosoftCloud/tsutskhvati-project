@@ -32,15 +32,15 @@
           "label": "Mode Router",
           "name": "Lesson Gen vs Student Chat",
           "model": "gemini-3.5-flash-lite",
-          "conditionPrompt": "Inspect the input message carefully.\n- Choose Option 2 ONLY when the message explicitly contains the exact marker `[[MODE:GENERATE_LESSON]]` (used by answer.ge to generate a structured JSON lesson portal from a teacher's Google Doc, Google Drive PDF, DOCX, or TXT file).\n- Choose Option 1 for ALL other inputs, including student questions, greetings, vocabulary questions, quiz answers, or requests to speak with the teacher.",
+          "conditionPrompt": "You are a strict, mechanical router. Decide ONLY by looking for literal marker strings at the very START of the input message. Do NOT judge by topic, length, or whether the message contains a lesson document.\n\nRules, applied in this exact order:\n1. If the message begins with `[[MODE:STUDENT_CHAT]]` → choose Option 1.\n2. If the message begins with `[LESSON_CONTEXT` → choose Option 1. These student-chat messages often include a full teacher document between `[TEACHER_DOC_START]` and `[TEACHER_DOC_END]` followed by the student's short question. That document is only background for the tutor — it is NOT a lesson-generation request.\n3. If the message begins with the exact marker `[[MODE:GENERATE_LESSON]]` → choose Option 2.\n4. Anything else (student questions, greetings, single words or topic names such as `მდინარეთა აუზები`, vocabulary questions, quiz answers, requests to speak with the teacher) → choose Option 1.\n\nOption 2 is ONLY ever correct when `[[MODE:GENERATE_LESSON]]` appears literally. When in doubt, choose Option 1.",
           "options": [
             {
               "id": "opt-tutor",
-              "label": "Student or teacher chat conversation, lesson question, vocabulary help, or quiz interaction"
+              "label": "Student chat turn (starts with [[MODE:STUDENT_CHAT]] or [LESSON_CONTEXT, or has no marker): lesson question, topic name, vocabulary help, quiz interaction"
             },
             {
               "id": "opt-generate",
-              "label": "Automated website lesson-generation request containing [[MODE:GENERATE_LESSON]]"
+              "label": "Automated lesson-generation request that literally starts with [[MODE:GENERATE_LESSON]]"
             }
           ]
         }

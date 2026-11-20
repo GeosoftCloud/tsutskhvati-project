@@ -1162,12 +1162,27 @@
       .join("");
   }
 
+  // Marker that tells the agent's Mode Router this is a student chat turn
+  // (never a lesson-generation request). Must match condition-mode-01 in ai/snowday-school-agent.json.
+  const STUDENT_CHAT_MARKER = "[[MODE:STUDENT_CHAT]]";
+
   function stripInternalLessonHeader(text) {
     let s = String(text || "");
     if (s.includes("[TEACHER_DOC_END]")) {
       s = s.replace(/^[\s\S]*?\[TEACHER_DOC_END\]\s*/, "");
     }
-    return s.replace(/^\[LESSON_CONTEXT[\s\S]*?\]\s*/i, "").trim();
+    s = s.replace(/^\s*\[\[MODE:STUDENT_CHAT\]\]\s*/i, "");
+    s = s.replace(/^\[LESSON_CONTEXT[\s\S]*?\]\s*/i, "");
+    return s.replace(/^\s*\[STUDENT_MESSAGE\]\s*/i, "").trim();
+  }
+
+  // Detects a lesson-portal JSON object (the Lesson Page Generator's output) that was
+  // mistakenly returned as a chat reply, so it is never shown to students.
+  function looksLikeLessonJson(text) {
+    let s = String(text || "").trim();
+    s = s.replace(/^```(?:json)?\s*/i, "").replace(/\s*```$/, "");
+    if (!s.startsWith("{")) return false;
+    return /"meta"\s*:/.test(s) && (/"cards"\s*:/.test(s) || /"quiz"\s*:/.test(s) || /"glossary"\s*:/.test(s));
   }
 
   // =========================================================================
@@ -1987,6 +2002,7 @@
       });
 
       data.messages.forEach((m) => {
+        if (m.role === "model" && looksLikeLessonJson(m.text)) return;
         appendChatBubble({
           role: m.role,
           text: m.text,
@@ -2072,32 +2088,41 @@
     });
     if (loadingBubble) loadingBubble.classList.add("is-thinking");
 
-    const outboundMessage = !sessionId ? buildFirstTurnContextPrefix() + trimmed : trimmed;
+    const outboundMessage = !sessionId
+      ? STUDENT_CHAT_MARKER + "\n" + buildFirstTurnContextPrefix() + "[STUDENT_MESSAGE]\n" + trimmed
+      : STUDENT_CHAT_MARKER + "\n" + trimmed;
 
-    try {
-      const payload = {
-        message: outboundMessage,
-        visitorId,
-        pageUrl: window.location.href
-      };
-      if (sessionId) payload.sessionId = sessionId;
-
+    const postChat = async (message, sid) => {
+      const payload = { message, visitorId, pageUrl: window.location.href };
+      if (sid) payload.sessionId = sid;
       const res = await fetch(`${baseUrl}/chat`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload)
       });
-
       const data = await res.json();
-      if (loadingBubble) loadingBubble.remove();
-
       if (!res.ok) {
         throw new Error((data && data.error) || "HTTP " + res.status);
       }
-
       if (data.sessionId) {
         saveStoredSessionId(data.sessionId);
       }
+      return data;
+    };
+
+    try {
+      let data = await postChat(outboundMessage, sessionId);
+
+      // Safety net: if the agent misrouted this turn to the Lesson Page Generator,
+      // retry once as a plain chat turn (the teacher doc is already in session history).
+      if (looksLikeLessonJson(data.reply)) {
+        data = await postChat(STUDENT_CHAT_MARKER + "\n" + trimmed, data.sessionId || sessionId);
+        if (looksLikeLessonJson(data.reply)) {
+          throw new Error("Agent returned lesson JSON instead of a chat reply");
+        }
+      }
+
+      if (loadingBubble) loadingBubble.remove();
 
       chatStatus = data.status || "ai";
       chatAssigned = Boolean(data.assigned);
