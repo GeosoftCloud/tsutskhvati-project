@@ -1,5 +1,5 @@
 /**
- * SnowDay Class (თოვლის დღის კლასი) — answer.ge
+ * SnowDay Class (თოვლის დღის კლასი)
  * Teacher Username + Password Authentication, Mandatory One-Time Password Change,
  * Personal Lesson History Workspace & Full-Page Super Admin Panel
  * Powered by Firebase Auth + Cloud Run Firebase Admin API + Cloud Firestore Security Rules
@@ -9,7 +9,7 @@ import {
   getAuth,
   signInWithEmailAndPassword,
   onAuthStateChanged,
-  signOut
+  signOut,
 } from "https://www.gstatic.com/firebasejs/11.4.0/firebase-auth.js";
 import {
   getFirestore,
@@ -20,7 +20,7 @@ import {
   updateDoc,
   deleteDoc,
   onSnapshot,
-  serverTimestamp
+  serverTimestamp,
 } from "https://www.gstatic.com/firebasejs/11.4.0/firebase-firestore.js";
 
 const AUTH_I18N = {
@@ -68,7 +68,7 @@ const AUTH_I18N = {
     gateUnauthBodySuffix:
       " ვერ მოიძებნა სკოლის მასწავლებლების სიაში. მიმართეთ მთავარ ადმინისტრატორს.",
 
-    authModalKicker: "მასწავლებლის ავტორიზაცია · answer.ge",
+    authModalKicker: "მასწავლებლის ავტორიზაცია",
     authModalTitleGuest: "შესვლა მასწავლებლის ანგარიშით",
     authModalTitleMustChange: "შეცვალეთ ერთჯერადი პაროლი",
     authModalTitleVoluntaryChange: "პაროლის განახლება",
@@ -91,9 +91,11 @@ const AUTH_I18N = {
     pwdRuleLower: "მინიმუმ 1 პატარა ლათინური ასო (a–z)",
     pwdRuleDigit: "მინიმუმ 1 ციფრი (0–9)",
     pwdRuleSpecial: "მინიმუმ 1 სპეციალური სიმბოლო (!@#$%...)",
-    pwdComplexityError: "პაროლი არ აკმაყოფილებს ზემოთ ჩამოთვლილ ყველა მოთხოვნას.",
+    pwdComplexityError:
+      "პაროლი არ აკმაყოფილებს ზემოთ ჩამოთვლილ ყველა მოთხოვნას.",
     pwdMismatchError: "ახალი პაროლები ერთმანეთს არ ემთხვევა.",
-    pwdSameAsOldError: "ახალი პაროლი უნდა განსხვავდებოდეს ერთჯერადი / ძველი პაროლისგან.",
+    pwdSameAsOldError:
+      "ახალი პაროლი უნდა განსხვავდებოდეს ერთჯერადი / ძველი პაროლისგან.",
     pwdCurrentMissingError: "გთხოვთ, შეიყვანოთ მიმდინარე (ერთჯერადი) პაროლი.",
     pwdCurrentWrongError: "მიმდინარე პაროლი არასწორია.",
     saveNewPasswordBtn: "ახალი პაროლის შენახვა და გაგრძელება",
@@ -132,7 +134,8 @@ const AUTH_I18N = {
       "აქ ინახება ყველა დოკუმენტი (Google Doc, Drive PDF, DOCX, TXT), რომელიც დაამატეთ ან გაუზიარეთ მოსწავლეებს — კლასის მითითებით, პირადი შენიშვნებითა და მყისიერი QR კოდით.",
     importLocalBtnFmt: (n) => `⚡ ამ ბრაუზერიდან იმპორტი (${n})`,
     jumpCreateBtn: "+ ახალი დოკუმენტის დამატება",
-    historySearchPlaceholder: "მოძებნე სათაურით, საგნით, კლასით ან ჩანაწერით...",
+    historySearchPlaceholder:
+      "მოძებნე სათაურით, საგნით, კლასით ან ჩანაწერით...",
     filterAll: "ყველა",
     filterAi: "AI გენერირებული",
     filterQr: "QR გაზიარებული",
@@ -163,7 +166,8 @@ const AUTH_I18N = {
     savedDocToast: "✓ დოკუმენტი შეინახა თქვენს პირად ისტორიაში!",
     updatedDocToast: "✓ ჩანაწერი განახლდა!",
     deletedDocToast: "✓ დოკუმენტი წაიშალა ისტორიიდან.",
-    importedDocsToastFmt: (n) => `✓ იმპორტირებულია ${n} გაკვეთილი თქვენს პირად სივრცეში!`,
+    importedDocsToastFmt: (n) =>
+      `✓ იმპორტირებულია ${n} გაკვეთილი თქვენს პირად სივრცეში!`,
     copiedLinkToast: "✓ მოსწავლის ბმული დაკოპირდა!",
     untitledDocFmt: (shortId) => `გაკვეთილის დოკუმენტი (${shortId})`,
 
@@ -172,10 +176,13 @@ const AUTH_I18N = {
     createDesc:
       "ჩასვით საჯარო Google Docs, Drive (PDF, DOCX, TXT) ბმული ან ატვირთეთ ფაილი — გაკვეთილი ავტომატურად შეინახება თქვენს პირად ისტორიაში.",
     docUrlLabel: "Google Docs / Drive (PDF, DOCX, TXT) ბმული",
-    docUrlHint: "Share → Anyone with the link (Viewer) — მხარდაჭერილია Google Docs, Drive PDF, DOCX, TXT.",
-    docUrlInvalid: "გთხოვთ, შეიყვანოთ სწორი Google Docs, Drive (PDF, DOCX, TXT) ბმული ან ატვირთოთ ფაილი.",
-    docTitleLabel: "გაკვეთილის სათაური (არასავალდებულო)",
-    docTitlePlaceholder: "მაგ.: დავით აღმაშენებლის რეფორმები (ან AI შეავსებს ავტომატურად)",
+    docUrlHint:
+      "Share → Anyone with the link (Viewer) — მხარდაჭერილია Google Docs, Drive PDF, DOCX, TXT.",
+    docUrlInvalid:
+      "გთხოვთ, შეიყვანოთ სწორი Google Docs, Drive (PDF, DOCX, TXT) ბმული ან ატვირთოთ ფაილი.",
+    docTitleLabel: "სათაური (არასავალდებულო)",
+    docTitlePlaceholder:
+      "მაგ.: დავით აღმაშენებლის რეფორმები (ან AI შეავსებს ავტომატურად)",
     docClassLabel: "კლასი / ჯგუფი (არასავალდებულო)",
     docClassPlaceholder: "მაგ.: IX კლასი · ისტორია",
     docNoteLabel: "პირადი ჩანაწერი — რა დაამატეთ ან რა დაავალეთ კლასს",
@@ -185,7 +192,8 @@ const AUTH_I18N = {
     saveQrBtn: "QR შექმნა და ისტორიაში შენახვა",
     savingQrBtn: "ინახება...",
     generateOpenBtn: "AI გაკვეთილის გენერაცია და გახსნა",
-    qrEmptyPrompt: "ჩასვით დოკუმენტის ბმული ან ატვირთეთ ფაილი QR კოდის შესაქმნელად",
+    qrEmptyPrompt:
+      "ჩასვით დოკუმენტის ბმული ან ატვირთეთ ფაილი QR კოდის შესაქმნელად",
     qrPngDownloaded: "PNG ფაილი ჩამოიტვირთა!",
     uploadFileBtn: "ფაილის ატვირთვა (PDF, DOCX, TXT)",
 
@@ -196,7 +204,8 @@ const AUTH_I18N = {
     kpiTotalLabel: "სულ ანგარიში",
     kpiActiveLabel: "აქტიური (პაროლი დაყენებულია)",
     kpiPendingLabel: "ერთჯერადი პაროლით (შესაცვლელი)",
-    inviteHeading: "ახალი მასწავლებლის შექმნა (ავტომატური ძლიერი ერთჯერადი პაროლით)",
+    inviteHeading:
+      "ახალი მასწავლებლის შექმნა (ავტომატური ძლიერი ერთჯერადი პაროლით)",
     addUsernameLabel: "მასწავლებლის მომხმარებლის სახელი (Username)",
     addUsernameHint:
       "3–32 სიმბოლო: ლათინური პატარა ასოები, ციფრები, წერტილი (.), ტირე (-) ან ქვედა ტირე (_)",
@@ -229,16 +238,21 @@ const AUTH_I18N = {
     deleteConfirmPrompt: "წაიშალოს?",
     removingBtn: "იშლება...",
     protectedAdminLabel: "ძირითადი ადმინი",
-    addedSuccessFmt: (u) => `✓ შეიქმნა მასწავლებელი „${u}“ ერთჯერადი ძლიერი პაროლით.`,
-    resetSuccessFmt: (u) => `✓ მასწავლებლის „${u}“ პაროლი განულდა ახალი ერთჯერადი პაროლით.`,
+    addedSuccessFmt: (u) =>
+      `✓ შეიქმნა მასწავლებელი „${u}“ ერთჯერადი ძლიერი პაროლით.`,
+    resetSuccessFmt: (u) =>
+      `✓ მასწავლებლის „${u}“ პაროლი განულდა ახალი ერთჯერადი პაროლით.`,
     updatedTeacherFmt: (u) => `✓ განახლდა მასწავლებლის ჩანაწერი: ${u}`,
     removedSuccessFmt: (u) => `✓ წაიშალა ანგარიში: ${u}`,
-    usernameExistsFmt: (u) => `მომხმარებლის სახელი „${u}“ უკვე არსებობს. პაროლის შესაცვლელად გამოიყენეთ „პაროლის აღდგენა“.`,
+    usernameExistsFmt: (u) =>
+      `მომხმარებლის სახელი „${u}“ უკვე არსებობს. პაროლის შესაცვლელად გამოიყენეთ „პაროლის აღდგენა“.`,
     emptyTeachersList: "ამ საძიებო სიტყვით მასწავლებელი ვერ მოიძებნა.",
 
     // Generated Credentials Banner
-    credCreatedTitleFmt: (u) => `✓ მასწავლებლის ანგარიში „${u}“ მზადაა — ერთჯერადი პაროლი`,
-    credResetTitleFmt: (u) => `✓ პაროლი აღდგენილია ანგარიშისთვის „${u}“ — ახალი ერთჯერადი პაროლი`,
+    credCreatedTitleFmt: (u) =>
+      `✓ მასწავლებლის ანგარიში „${u}“ მზადაა — ერთჯერადი პაროლი`,
+    credResetTitleFmt: (u) =>
+      `✓ პაროლი აღდგენილია ანგარიშისთვის „${u}“ — ახალი ერთჯერადი პაროლი`,
     credWarningText:
       "გადაეცით ეს მონაცემები მასწავლებელს. უსაფრთხოების მიზნით ერთჯერადი პაროლი მხოლოდ ახლა ჩანს — შესვლისთანავე მასწავლებელს მოეთხოვება საკუთარი ძლიერი პაროლის დაყენება.",
     credUsernameLabel: "მომხმარებელი (Username)",
@@ -255,9 +269,10 @@ const AUTH_I18N = {
 
     // Errors
     invalidLoginMsg: "არასწორი მომხმარებლის სახელი (Username) ან პაროლი.",
-    tooManyRequestsMsg: "ძალიან ბევრი მცდელობა. გთხოვთ, სცადოთ რამდენიმე წუთში.",
+    tooManyRequestsMsg:
+      "ძალიან ბევრი მცდელობა. გთხოვთ, სცადოთ რამდენიმე წუთში.",
     genericAuthErrorPrefix: "ავტორიზაციის შეცდომა: ",
-    genericSaveErrorPrefix: "შეცდომა: "
+    genericSaveErrorPrefix: "შეცდომა: ",
   },
   en: {
     headerSignInFull: "Teacher Sign In",
@@ -303,7 +318,7 @@ const AUTH_I18N = {
     gateUnauthBodySuffix:
       " was not found in the authorized school teachers directory. Please contact your Super Admin.",
 
-    authModalKicker: "Teacher Authentication · answer.ge",
+    authModalKicker: "Teacher Authentication",
     authModalTitleGuest: "Sign In to Teacher Account",
     authModalTitleMustChange: "Change Your One-Time Password",
     authModalTitleVoluntaryChange: "Change Account Password",
@@ -326,9 +341,11 @@ const AUTH_I18N = {
     pwdRuleLower: "One lowercase letter (a–z)",
     pwdRuleDigit: "One number (0–9)",
     pwdRuleSpecial: "One special character (!@#$%...)",
-    pwdComplexityError: "Password doesn't meet all the strength requirements listed above.",
+    pwdComplexityError:
+      "Password doesn't meet all the strength requirements listed above.",
     pwdMismatchError: "New password and confirmation do not match.",
-    pwdSameAsOldError: "Your new password must be different from the one-time / current password.",
+    pwdSameAsOldError:
+      "Your new password must be different from the one-time / current password.",
     pwdCurrentMissingError: "Please enter your current (one-time) password.",
     pwdCurrentWrongError: "Current password is incorrect.",
     saveNewPasswordBtn: "Save New Password & Continue",
@@ -367,7 +384,8 @@ const AUTH_I18N = {
       "Every document (Google Doc, Drive PDF, DOCX, TXT) you add or share is saved to your personal cloud history with class tags, notes, and instant QR codes.",
     importLocalBtnFmt: (n) => `⚡ Import from This Browser (${n})`,
     jumpCreateBtn: "+ Add New Document",
-    historySearchPlaceholder: "Search by title, subject, class, or personal note...",
+    historySearchPlaceholder:
+      "Search by title, subject, class, or personal note...",
     filterAll: "All",
     filterAi: "AI Generated",
     filterQr: "QR Shared",
@@ -398,7 +416,8 @@ const AUTH_I18N = {
     savedDocToast: "✓ Saved to your personal history!",
     updatedDocToast: "✓ Personal note & details updated!",
     deletedDocToast: "✓ Removed document from history.",
-    importedDocsToastFmt: (n) => `✓ Imported ${n} lessons into your personal space!`,
+    importedDocsToastFmt: (n) =>
+      `✓ Imported ${n} lessons into your personal space!`,
     copiedLinkToast: "✓ Student link copied to clipboard!",
     untitledDocFmt: (shortId) => `Lesson Document (${shortId})`,
 
@@ -412,7 +431,8 @@ const AUTH_I18N = {
     docUrlInvalid:
       "Please enter a valid Google Docs or Drive (PDF, DOCX, TXT) share URL, or upload a file.",
     docTitleLabel: "Lesson Title (Optional)",
-    docTitlePlaceholder: "e.g., Reforms of David the Builder (or auto-filled by AI)",
+    docTitlePlaceholder:
+      "e.g., Reforms of David the Builder (or auto-filled by AI)",
     docClassLabel: "Class / Group (Optional)",
     docClassPlaceholder: "e.g., Grade 9 · History",
     docNoteLabel: "Personal Note — what you added or assigned",
@@ -422,7 +442,8 @@ const AUTH_I18N = {
     saveQrBtn: "Create QR & Save to History",
     savingQrBtn: "Saving...",
     generateOpenBtn: "Generate & Open AI Lesson",
-    qrEmptyPrompt: "Paste a document link or upload a file to preview its QR code",
+    qrEmptyPrompt:
+      "Paste a document link or upload a file to preview its QR code",
     qrPngDownloaded: "QR PNG downloaded!",
     uploadFileBtn: "Upload File (PDF, DOCX, TXT)",
 
@@ -433,7 +454,8 @@ const AUTH_I18N = {
     kpiTotalLabel: "Total Accounts",
     kpiActiveLabel: "Active (Password Set)",
     kpiPendingLabel: "One-Time Password (Pending Change)",
-    inviteHeading: "Create New Teacher (Auto-Generated Strong One-Time Password)",
+    inviteHeading:
+      "Create New Teacher (Auto-Generated Strong One-Time Password)",
     addUsernameLabel: "Teacher Username",
     addUsernameHint:
       "3–32 characters: lowercase letters, numbers, dots (.), hyphens (-), or underscores (_)",
@@ -466,8 +488,10 @@ const AUTH_I18N = {
     deleteConfirmPrompt: "Delete?",
     removingBtn: "Removing...",
     protectedAdminLabel: "Super Admin",
-    addedSuccessFmt: (u) => `✓ Created teacher "${u}" with a strong one-time password.`,
-    resetSuccessFmt: (u) => `✓ Reset password for "${u}" with a new one-time password.`,
+    addedSuccessFmt: (u) =>
+      `✓ Created teacher "${u}" with a strong one-time password.`,
+    resetSuccessFmt: (u) =>
+      `✓ Reset password for "${u}" with a new one-time password.`,
     updatedTeacherFmt: (u) => `✓ Updated teacher record: ${u}`,
     removedSuccessFmt: (u) => `✓ Removed teacher account: ${u}`,
     usernameExistsFmt: (u) =>
@@ -475,8 +499,10 @@ const AUTH_I18N = {
     emptyTeachersList: "No teachers matched your search.",
 
     // Generated Credentials Banner
-    credCreatedTitleFmt: (u) => `✓ Teacher Account "${u}" Created — One-Time Credentials`,
-    credResetTitleFmt: (u) => `✓ Password Reset for "${u}" — New One-Time Credentials`,
+    credCreatedTitleFmt: (u) =>
+      `✓ Teacher Account "${u}" Created — One-Time Credentials`,
+    credResetTitleFmt: (u) =>
+      `✓ Password Reset for "${u}" — New One-Time Credentials`,
     credWarningText:
       "Share these credentials with the teacher now. For security, this one-time password is shown only once — the teacher will be required to change it to their own strong password immediately upon signing in.",
     credUsernameLabel: "Username",
@@ -493,17 +519,19 @@ const AUTH_I18N = {
 
     // Errors
     invalidLoginMsg: "Incorrect username or password.",
-    tooManyRequestsMsg: "Too many attempts. Please wait a few minutes and try again.",
+    tooManyRequestsMsg:
+      "Too many attempts. Please wait a few minutes and try again.",
     genericAuthErrorPrefix: "Authentication error: ",
-    genericSaveErrorPrefix: "Error: "
-  }
+    genericSaveErrorPrefix: "Error: ",
+  },
 };
 
 const USERNAME_REGEX = /^[a-z0-9][a-z0-9._-]{2,31}$/;
-const STRONG_PASSWORD_HTML_PATTERN = "(?=.*\\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[^A-Za-z0-9]).{8,128}";
+const STRONG_PASSWORD_HTML_PATTERN =
+  "(?=.*\\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[^A-Za-z0-9]).{8,128}";
 
 const cfg = window.SNOWDAY_AUTH_CONFIG || {};
-const AUTH_EMAIL_DOMAIN = String(cfg.authEmailDomain || "teachers.answer.ge")
+const AUTH_EMAIL_DOMAIN = String(cfg.authEmailDomain || "teachers.tsutskhvati.app")
   .trim()
   .toLowerCase();
 
@@ -521,7 +549,7 @@ const authState = {
   mustChangePassword: false,
   isAuthorizedTeacher: false,
   isSuperAdmin: false,
-  authError: ""
+  authError: "",
 };
 
 // Held strictly in closure memory between 1-time password login and immediate password change
@@ -553,7 +581,10 @@ let isSigningIn = false;
 let isChangingPassword = false;
 
 function getLang() {
-  if (window.SnowDayPortal && typeof window.SnowDayPortal.getLang === "function") {
+  if (
+    window.SnowDayPortal &&
+    typeof window.SnowDayPortal.getLang === "function"
+  ) {
     const l = window.SnowDayPortal.getLang();
     if (l === "en" || l === "ka") return l;
   }
@@ -565,7 +596,9 @@ function t() {
 }
 
 function normalizeUsername(raw) {
-  let s = String(raw || "").trim().toLowerCase();
+  let s = String(raw || "")
+    .trim()
+    .toLowerCase();
   const suffix = `@${AUTH_EMAIL_DOMAIN}`;
   if (s.endsWith(suffix)) {
     s = s.slice(0, -suffix.length);
@@ -584,7 +617,9 @@ function usernameToAuthEmail(username) {
 }
 
 function authEmailToUsername(email) {
-  const s = String(email || "").trim().toLowerCase();
+  const s = String(email || "")
+    .trim()
+    .toLowerCase();
   const suffix = `@${AUTH_EMAIL_DOMAIN}`;
   if (!s.endsWith(suffix)) return "";
   const uname = s.slice(0, -suffix.length);
@@ -599,7 +634,7 @@ function evaluatePasswordStrength(password) {
     hasUpper: /[A-Z]/.test(pwd),
     hasLower: /[a-z]/.test(pwd),
     hasDigit: /[0-9]/.test(pwd),
-    hasSpecial: /[^A-Za-z0-9]/.test(pwd)
+    hasSpecial: /[^A-Za-z0-9]/.test(pwd),
   };
   const valid =
     checks.minLength &&
@@ -619,7 +654,10 @@ function sanitizeHttpUrl(raw, maxLen = 1024) {
 
 function normalizeHttpsDocUrl(rawInput) {
   let normalized = "";
-  if (window.SnowDayPortal && typeof window.SnowDayPortal.normalizeGoogleDocUrl === "function") {
+  if (
+    window.SnowDayPortal &&
+    typeof window.SnowDayPortal.normalizeGoogleDocUrl === "function"
+  ) {
     normalized = window.SnowDayPortal.normalizeGoogleDocUrl(rawInput);
   } else {
     normalized = String(rawInput || "").trim();
@@ -639,7 +677,10 @@ function normalizeHttpsDocUrl(rawInput) {
 
 function getSafeDocKey(normalizedDocUrl) {
   let rawKey = "";
-  if (window.SnowDayPortal && typeof window.SnowDayPortal.extractDocCacheKey === "function") {
+  if (
+    window.SnowDayPortal &&
+    typeof window.SnowDayPortal.extractDocCacheKey === "function"
+  ) {
     rawKey = window.SnowDayPortal.extractDocCacheKey(normalizedDocUrl);
   }
   const clean = String(rawKey || "")
@@ -656,14 +697,17 @@ function formatDateTime(ms) {
       month: "short",
       day: "numeric",
       hour: "2-digit",
-      minute: "2-digit"
+      minute: "2-digit",
     }).format(new Date(ms));
   } catch (_e) {
     return new Date(ms).toLocaleDateString();
   }
 }
 
-async function callBackendApi(path, { method = "POST", body = null, withAuth = true } = {}) {
+async function callBackendApi(
+  path,
+  { method = "POST", body = null, withAuth = true } = {},
+) {
   const headers = { "Content-Type": "application/json" };
   if (withAuth && auth.currentUser) {
     const idToken = await auth.currentUser.getIdToken();
@@ -672,7 +716,7 @@ async function callBackendApi(path, { method = "POST", body = null, withAuth = t
   const resp = await fetch(path, {
     method,
     headers,
-    body: body !== null ? JSON.stringify(body) : undefined
+    body: body !== null ? JSON.stringify(body) : undefined,
   });
   let data = {};
   try {
@@ -689,7 +733,8 @@ async function ensureFocusgroupSupport() {
   if (typeof HTMLElement === "undefined") return;
   if (!Object.hasOwn(HTMLElement.prototype, "focusGroup")) {
     try {
-      const mod = await import("https://cdn.jsdelivr.net/npm/@microsoft/focusgroup-polyfill/+esm");
+      const mod =
+        await import("https://cdn.jsdelivr.net/npm/@microsoft/focusgroup-polyfill/+esm");
       if (mod && typeof mod.polyfill === "function") {
         mod.polyfill();
       }
@@ -737,7 +782,9 @@ function startPersonalDocsSubscription(username) {
       snapshot.forEach((docSnap) => {
         const d = docSnap.data() || {};
         const createdAtMs =
-          d.createdAt && typeof d.createdAt.toMillis === "function" ? d.createdAt.toMillis() : 0;
+          d.createdAt && typeof d.createdAt.toMillis === "function"
+            ? d.createdAt.toMillis()
+            : 0;
         const updatedAtMs =
           d.updatedAt && typeof d.updatedAt.toMillis === "function"
             ? d.updatedAt.toMillis()
@@ -753,11 +800,14 @@ function startPersonalDocsSubscription(username) {
           status: d.status === "ai_generated" ? "ai_generated" : "qr_shared",
           shareCount: typeof d.shareCount === "number" ? d.shareCount : 1,
           createdAtMs,
-          updatedAtMs
+          updatedAtMs,
         });
       });
 
-      list.sort((a, b) => b.updatedAtMs - a.updatedAtMs || b.createdAtMs - a.createdAtMs);
+      list.sort(
+        (a, b) =>
+          b.updatedAtMs - a.updatedAtMs || b.createdAtMs - a.createdAtMs,
+      );
       cachedPersonalDocs = list;
 
       renderWorkspaceBanner();
@@ -765,7 +815,7 @@ function startPersonalDocsSubscription(username) {
       renderImportFromBrowserButton();
       renderRibbonTeacherButtons();
     },
-    (_err) => {}
+    (_err) => {},
   );
 }
 
@@ -787,22 +837,28 @@ function startTeachersSubscription() {
           note: d.note || "",
           displayName: d.displayName || "",
           addedBy: d.addedBy || "",
-          addedAtMs: d.addedAt && typeof d.addedAt.toMillis === "function" ? d.addedAt.toMillis() : 0,
+          addedAtMs:
+            d.addedAt && typeof d.addedAt.toMillis === "function"
+              ? d.addedAt.toMillis()
+              : 0,
           lastLoginAtMs:
             d.lastLoginAt && typeof d.lastLoginAt.toMillis === "function"
               ? d.lastLoginAt.toMillis()
               : 0,
           passwordChangedAtMs:
-            d.passwordChangedAt && typeof d.passwordChangedAt.toMillis === "function"
+            d.passwordChangedAt &&
+            typeof d.passwordChangedAt.toMillis === "function"
               ? d.passwordChangedAt.toMillis()
-              : 0
+              : 0,
         });
       });
 
       items.sort((a, b) => {
         if (a.role === "super_admin" && b.role !== "super_admin") return -1;
         if (b.role === "super_admin" && a.role !== "super_admin") return 1;
-        return b.addedAtMs - a.addedAtMs || a.username.localeCompare(b.username);
+        return (
+          b.addedAtMs - a.addedAtMs || a.username.localeCompare(b.username)
+        );
       });
 
       cachedTeachersList = items;
@@ -812,21 +868,26 @@ function startTeachersSubscription() {
     (err) => {
       adminFeedbackIsError = true;
       adminFeedbackMessage =
-        t().genericSaveErrorPrefix + (err && err.message ? err.message : String(err));
+        t().genericSaveErrorPrefix +
+        (err && err.message ? err.message : String(err));
       renderAdminFeedback();
-    }
+    },
   );
 }
 
 async function performServerCheckin() {
   try {
-    await callBackendApi("/api/auth/checkin", { method: "POST", body: {}, withAuth: true });
+    await callBackendApi("/api/auth/checkin", {
+      method: "POST",
+      body: {},
+      withAuth: true,
+    });
   } catch (_e) {
     // Fallback client self-checkin timestamp if allowed
     if (authState.isAuthorizedTeacher && authState.username) {
       try {
         await updateDoc(doc(db, "teachers", authState.username), {
-          lastLoginAt: serverTimestamp()
+          lastLoginAt: serverTimestamp(),
         });
       } catch (_e2) {}
     }
@@ -959,7 +1020,7 @@ function handleAuthUserChange(user) {
       authState.authError = err && err.message ? err.message : String(err);
       closeWorkspaceIfLocked();
       renderAllAuthSurfaces();
-    }
+    },
   );
 }
 
@@ -967,11 +1028,14 @@ function autoEnterWorkspaceIfAtLanding() {
   if (!authState.isAuthorizedTeacher) return;
   let hasDocParam = false;
   try {
-    hasDocParam = Boolean(new URLSearchParams(window.location.search).get("doc"));
+    hasDocParam = Boolean(
+      new URLSearchParams(window.location.search).get("doc"),
+    );
   } catch (_e) {}
 
   const lessonCtx =
-    window.SnowDayPortal && typeof window.SnowDayPortal.getActiveLessonContext === "function"
+    window.SnowDayPortal &&
+    typeof window.SnowDayPortal.getActiveLessonContext === "function"
       ? window.SnowDayPortal.getActiveLessonContext()
       : { hasLesson: false };
 
@@ -985,7 +1049,8 @@ function closeWorkspaceIfLocked() {
   if (!wsSec || wsSec.hidden) return;
   wsSec.hidden = true;
   const lessonCtx =
-    window.SnowDayPortal && typeof window.SnowDayPortal.getActiveLessonContext === "function"
+    window.SnowDayPortal &&
+    typeof window.SnowDayPortal.getActiveLessonContext === "function"
       ? window.SnowDayPortal.getActiveLessonContext()
       : { hasLesson: false };
   if (lessonCtx.hasLesson && window.SnowDayPortal.returnToActiveLesson) {
@@ -996,7 +1061,11 @@ function closeWorkspaceIfLocked() {
 }
 
 function runPendingTeacherActionIfAuthorized() {
-  if (!authState.isAuthorizedTeacher || typeof pendingTeacherAction !== "function") return;
+  if (
+    !authState.isAuthorizedTeacher ||
+    typeof pendingTeacherAction !== "function"
+  )
+    return;
   const fn = pendingTeacherAction;
   pendingTeacherAction = null;
 
@@ -1063,7 +1132,7 @@ async function signInWithUsernamePassword(rawUsername, rawPassword) {
         const boot = await callBackendApi("/api/auth/bootstrap-login", {
           method: "POST",
           body: { username, password },
-          withAuth: false
+          withAuth: false,
         });
         if (boot.ok && boot.data && boot.data.bootstrapped) {
           await signInWithEmailAndPassword(auth, authEmail, password);
@@ -1081,12 +1150,18 @@ async function signInWithUsernamePassword(rawUsername, rawPassword) {
   }
 }
 
-async function submitPasswordChange({ currentPassword, newPassword, confirmPassword }) {
+async function submitPasswordChange({
+  currentPassword,
+  newPassword,
+  confirmPassword,
+}) {
   if (isChangingPassword) return false;
   const strings = t();
   authState.authError = "";
 
-  const effectiveCurrent = String(currentPassword || ephemeralLoginPassword || "");
+  const effectiveCurrent = String(
+    currentPassword || ephemeralLoginPassword || "",
+  );
   if (!effectiveCurrent) {
     authState.authError = strings.pwdCurrentMissingError;
     renderAllAuthSurfaces();
@@ -1120,9 +1195,9 @@ async function submitPasswordChange({ currentPassword, newPassword, confirmPassw
       method: "POST",
       body: {
         currentPassword: effectiveCurrent,
-        newPassword
+        newPassword,
       },
-      withAuth: true
+      withAuth: true,
     });
 
     if (!res.ok) {
@@ -1138,7 +1213,8 @@ async function submitPasswordChange({ currentPassword, newPassword, confirmPassw
         authState.authError = strings.tooManyRequestsMsg;
       } else {
         authState.authError =
-          strings.genericSaveErrorPrefix + ((res.data && res.data.message) || res.status);
+          strings.genericSaveErrorPrefix +
+          ((res.data && res.data.message) || res.status);
       }
       return false;
     }
@@ -1245,7 +1321,10 @@ function openWorkspaceView(tabName, prefillDocUrl) {
 
   syncWorkspaceSettingsInput();
   renderWorkspaceBanner();
-  if (window.SnowDayPortal && typeof window.SnowDayPortal.syncHeader === "function") {
+  if (
+    window.SnowDayPortal &&
+    typeof window.SnowDayPortal.syncHeader === "function"
+  ) {
     const ribbon = document.getElementById("active-doc-ribbon");
     const mainNav = document.getElementById("main-nav");
     if (ribbon) ribbon.hidden = true;
@@ -1259,7 +1338,8 @@ function requireTeacherAccess(onAuthorized) {
     if (typeof onAuthorized === "function") onAuthorized();
     return true;
   }
-  pendingTeacherAction = typeof onAuthorized === "function" ? onAuthorized : null;
+  pendingTeacherAction =
+    typeof onAuthorized === "function" ? onAuthorized : null;
   openAuthDialog();
   return false;
 }
@@ -1271,12 +1351,19 @@ function requireTeacherAccess(onAuthorized) {
 function computeStudentUrlForWorkspace(normalizedDoc) {
   const useCurrentEl = document.getElementById("ws-target-current");
   const isLocalHost =
-    window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1";
+    window.location.hostname === "localhost" ||
+    window.location.hostname === "127.0.0.1";
   const useCurrent = useCurrentEl ? useCurrentEl.checked : isLocalHost;
-  if (window.SnowDayPortal && typeof window.SnowDayPortal.buildStudentQrUrlForDoc === "function") {
-    return window.SnowDayPortal.buildStudentQrUrlForDoc(normalizedDoc, useCurrent);
+  if (
+    window.SnowDayPortal &&
+    typeof window.SnowDayPortal.buildStudentQrUrlForDoc === "function"
+  ) {
+    return window.SnowDayPortal.buildStudentQrUrlForDoc(
+      normalizedDoc,
+      useCurrent,
+    );
   }
-  return `https://answer.ge/?doc=${encodeURIComponent(normalizedDoc)}`;
+  return `https://tsutskhvati-web-617054738609.europe-west1.run.app/?doc=${encodeURIComponent(normalizedDoc)}`;
 }
 
 async function upsertPersonalDocRecord({
@@ -1287,7 +1374,7 @@ async function upsertPersonalDocRecord({
   personalNote = "",
   status = "qr_shared",
   incrementShare = false,
-  preserveExistingNotes = true
+  preserveExistingNotes = true,
 }) {
   if (!authState.isAuthorizedTeacher || !authState.username) return null;
 
@@ -1295,27 +1382,48 @@ async function upsertPersonalDocRecord({
   if (!normalizedUrl) return null;
 
   const docKey = getSafeDocKey(normalizedUrl);
-  const studentQrUrl = sanitizeHttpUrl(computeStudentUrlForWorkspace(normalizedUrl), 1200);
+  const studentQrUrl = sanitizeHttpUrl(
+    computeStudentUrlForWorkspace(normalizedUrl),
+    1200,
+  );
   if (!studentQrUrl) return null;
 
   const docRef = doc(db, "teachers", authState.username, "docs", docKey);
   const existingSnap = await getDoc(docRef);
 
-  const cleanTitle = String(title || "").trim().slice(0, 200);
-  const cleanSubject = String(subject || "").trim().slice(0, 120);
-  const cleanClass = String(classLabel || "").trim().slice(0, 80);
-  const cleanNote = String(personalNote || "").trim().slice(0, 300);
+  const cleanTitle = String(title || "")
+    .trim()
+    .slice(0, 200);
+  const cleanSubject = String(subject || "")
+    .trim()
+    .slice(0, 120);
+  const cleanClass = String(classLabel || "")
+    .trim()
+    .slice(0, 80);
+  const cleanNote = String(personalNote || "")
+    .trim()
+    .slice(0, 300);
 
   if (existingSnap.exists()) {
     const prev = existingSnap.data() || {};
-    const nextTitle = cleanTitle || prev.title || t().untitledDocFmt(docKey.slice(0, 8));
+    const nextTitle =
+      cleanTitle || prev.title || t().untitledDocFmt(docKey.slice(0, 8));
     const nextSubject = cleanSubject || prev.subject || "";
-    const nextClass = preserveExistingNotes ? cleanClass || prev.classLabel || "" : cleanClass;
-    const nextNote = preserveExistingNotes ? cleanNote || prev.personalNote || "" : cleanNote;
+    const nextClass = preserveExistingNotes
+      ? cleanClass || prev.classLabel || ""
+      : cleanClass;
+    const nextNote = preserveExistingNotes
+      ? cleanNote || prev.personalNote || ""
+      : cleanNote;
     const nextStatus =
-      status === "ai_generated" || prev.status === "ai_generated" ? "ai_generated" : "qr_shared";
-    const prevShares = typeof prev.shareCount === "number" ? prev.shareCount : 1;
-    const nextShares = incrementShare ? Math.min(100000, prevShares + 1) : prevShares;
+      status === "ai_generated" || prev.status === "ai_generated"
+        ? "ai_generated"
+        : "qr_shared";
+    const prevShares =
+      typeof prev.shareCount === "number" ? prev.shareCount : 1;
+    const nextShares = incrementShare
+      ? Math.min(100000, prevShares + 1)
+      : prevShares;
 
     await updateDoc(docRef, {
       studentQrUrl,
@@ -1325,7 +1433,7 @@ async function upsertPersonalDocRecord({
       personalNote: nextNote.slice(0, 300),
       status: nextStatus,
       shareCount: nextShares,
-      updatedAt: serverTimestamp()
+      updatedAt: serverTimestamp(),
     });
   } else {
     const initialTitle = cleanTitle || t().untitledDocFmt(docKey.slice(0, 8));
@@ -1340,7 +1448,7 @@ async function upsertPersonalDocRecord({
       status: status === "ai_generated" ? "ai_generated" : "qr_shared",
       shareCount: 1,
       createdAt: serverTimestamp(),
-      updatedAt: serverTimestamp()
+      updatedAt: serverTimestamp(),
     });
   }
 
@@ -1388,10 +1496,15 @@ async function importRecentBrowserLessonsToSpace() {
     if (existingKeys.has(key)) continue;
 
     const lessonTitle =
-      (item.meta && item.meta.lessonTitle && (item.meta.lessonTitle[lang] || item.meta.lessonTitle.ka)) ||
+      (item.meta &&
+        item.meta.lessonTitle &&
+        (item.meta.lessonTitle[lang] || item.meta.lessonTitle.ka)) ||
       "";
     const subject =
-      (item.meta && item.meta.subject && (item.meta.subject[lang] || item.meta.subject.ka)) || "";
+      (item.meta &&
+        item.meta.subject &&
+        (item.meta.subject[lang] || item.meta.subject.ka)) ||
+      "";
 
     try {
       await upsertPersonalDocRecord({
@@ -1399,7 +1512,7 @@ async function importRecentBrowserLessonsToSpace() {
         title: lessonTitle,
         subject,
         status: "ai_generated",
-        preserveExistingNotes: true
+        preserveExistingNotes: true,
       });
       importedCount++;
     } catch (_e) {}
@@ -1426,7 +1539,9 @@ async function handleAddTeacherSubmit(event) {
   if (!usernameInput || !submitBtn) return;
 
   const targetUsername = normalizeUsername(usernameInput.value);
-  const noteClean = String((noteInput && noteInput.value) || "").trim().slice(0, 160);
+  const noteClean = String((noteInput && noteInput.value) || "")
+    .trim()
+    .slice(0, 160);
 
   if (!isValidUsername(targetUsername)) {
     usernameInput.classList.add("user-invalid-fallback");
@@ -1450,7 +1565,7 @@ async function handleAddTeacherSubmit(event) {
     const res = await callBackendApi("/api/admin/teachers", {
       method: "POST",
       body: { username: targetUsername, note: noteClean },
-      withAuth: true
+      withAuth: true,
     });
 
     if (!res.ok) {
@@ -1459,7 +1574,8 @@ async function handleAddTeacherSubmit(event) {
         adminFeedbackMessage = strings.usernameExistsFmt(targetUsername);
       } else {
         adminFeedbackMessage =
-          strings.genericSaveErrorPrefix + ((res.data && res.data.message) || res.status);
+          strings.genericSaveErrorPrefix +
+          ((res.data && res.data.message) || res.status);
       }
       return;
     }
@@ -1467,7 +1583,7 @@ async function handleAddTeacherSubmit(event) {
     latestGeneratedCredentials = {
       mode: "created",
       username: res.data.username || targetUsername,
-      oneTimePassword: res.data.oneTimePassword
+      oneTimePassword: res.data.oneTimePassword,
     };
     renderAdminCredentialsCard(true);
 
@@ -1478,7 +1594,8 @@ async function handleAddTeacherSubmit(event) {
     if (noteInput) noteInput.value = "";
   } catch (err) {
     adminFeedbackIsError = true;
-    adminFeedbackMessage = strings.genericSaveErrorPrefix + ((err && err.message) || String(err));
+    adminFeedbackMessage =
+      strings.genericSaveErrorPrefix + ((err && err.message) || String(err));
   } finally {
     submitBtn.disabled = false;
     submitBtn.textContent = t().addTeacherSubmitBtn;
@@ -1500,14 +1617,15 @@ async function resetTeacherPasswordByAdmin(targetUsername, btnEl) {
       {
         method: "POST",
         body: {},
-        withAuth: true
-      }
+        withAuth: true,
+      },
     );
 
     if (!res.ok) {
       adminFeedbackIsError = true;
       adminFeedbackMessage =
-        strings.genericSaveErrorPrefix + ((res.data && res.data.message) || res.status);
+        strings.genericSaveErrorPrefix +
+        ((res.data && res.data.message) || res.status);
       renderAdminFeedback();
       confirmingResetUsername = "";
       renderAdminPanelDirectory();
@@ -1518,7 +1636,7 @@ async function resetTeacherPasswordByAdmin(targetUsername, btnEl) {
     latestGeneratedCredentials = {
       mode: "reset",
       username: res.data.username || targetUsername,
-      oneTimePassword: res.data.oneTimePassword
+      oneTimePassword: res.data.oneTimePassword,
     };
     renderAdminCredentialsCard(true);
 
@@ -1529,7 +1647,8 @@ async function resetTeacherPasswordByAdmin(targetUsername, btnEl) {
   } catch (err) {
     confirmingResetUsername = "";
     adminFeedbackIsError = true;
-    adminFeedbackMessage = strings.genericSaveErrorPrefix + ((err && err.message) || String(err));
+    adminFeedbackMessage =
+      strings.genericSaveErrorPrefix + ((err && err.message) || String(err));
     renderAdminFeedback();
     renderAdminPanelDirectory();
   }
@@ -1537,11 +1656,13 @@ async function resetTeacherPasswordByAdmin(targetUsername, btnEl) {
 
 async function saveAdminTeacherNote(targetUsername, nextNote) {
   if (!authState.isSuperAdmin || !targetUsername) return;
-  const clean = String(nextNote || "").trim().slice(0, 160);
+  const clean = String(nextNote || "")
+    .trim()
+    .slice(0, 160);
   try {
     await updateDoc(doc(db, "teachers", targetUsername), {
       note: clean,
-      displayName: clean.slice(0, 120)
+      displayName: clean.slice(0, 120),
     });
     editingAdminTeacherUsername = "";
     adminFeedbackIsError = false;
@@ -1550,13 +1671,19 @@ async function saveAdminTeacherNote(targetUsername, nextNote) {
     renderAdminPanelDirectory();
   } catch (err) {
     adminFeedbackIsError = true;
-    adminFeedbackMessage = t().genericSaveErrorPrefix + ((err && err.message) || String(err));
+    adminFeedbackMessage =
+      t().genericSaveErrorPrefix + ((err && err.message) || String(err));
     renderAdminFeedback();
   }
 }
 
 async function removeTeacherByUsername(targetUsername, btnEl) {
-  if (!authState.isSuperAdmin || !targetUsername || targetUsername === authState.username) return;
+  if (
+    !authState.isSuperAdmin ||
+    !targetUsername ||
+    targetUsername === authState.username
+  )
+    return;
   const strings = t();
   if (btnEl) {
     btnEl.disabled = true;
@@ -1567,14 +1694,17 @@ async function removeTeacherByUsername(targetUsername, btnEl) {
       `/api/admin/teachers/${encodeURIComponent(targetUsername)}`,
       {
         method: "DELETE",
-        withAuth: true
-      }
+        withAuth: true,
+      },
     );
     if (!res.ok) {
       throw new Error((res.data && res.data.message) || `HTTP ${res.status}`);
     }
     confirmingDeleteUsername = "";
-    if (latestGeneratedCredentials && latestGeneratedCredentials.username === targetUsername) {
+    if (
+      latestGeneratedCredentials &&
+      latestGeneratedCredentials.username === targetUsername
+    ) {
       latestGeneratedCredentials = null;
       renderAdminCredentialsCard(false);
     }
@@ -1584,7 +1714,8 @@ async function removeTeacherByUsername(targetUsername, btnEl) {
   } catch (err) {
     confirmingDeleteUsername = "";
     adminFeedbackIsError = true;
-    adminFeedbackMessage = strings.genericSaveErrorPrefix + ((err && err.message) || String(err));
+    adminFeedbackMessage =
+      strings.genericSaveErrorPrefix + ((err && err.message) || String(err));
     renderAdminFeedback();
     renderAdminPanelDirectory();
   }
@@ -1620,7 +1751,11 @@ function selectWorkspaceTab(tabId, moveFocus = false) {
 
     if (isSelected) {
       try {
-        tab.scrollIntoView({ block: "nearest", inline: "nearest", container: "nearest" });
+        tab.scrollIntoView({
+          block: "nearest",
+          inline: "nearest",
+          container: "nearest",
+        });
       } catch (_e) {
         tab.scrollIntoView({ block: "nearest", inline: "nearest" });
       }
@@ -1656,7 +1791,9 @@ function setupWorkspaceTabsEvents() {
   if (!tablist) return;
 
   const getVisibleTabs = () =>
-    Array.from(tablist.querySelectorAll("[data-ws-tab]")).filter((el) => !el.hidden);
+    Array.from(tablist.querySelectorAll("[data-ws-tab]")).filter(
+      (el) => !el.hidden,
+    );
 
   tablist.addEventListener("click", (e) => {
     const btn = e.target.closest("[data-ws-tab]");
@@ -1675,7 +1812,17 @@ function setupWorkspaceTabsEvents() {
 
   tablist.addEventListener("keydown", (e) => {
     if (Object.hasOwn(HTMLElement.prototype, "focusGroup")) return;
-    if (!["ArrowRight", "ArrowLeft", "ArrowDown", "ArrowUp", "Home", "End"].includes(e.key)) return;
+    if (
+      ![
+        "ArrowRight",
+        "ArrowLeft",
+        "ArrowDown",
+        "ArrowUp",
+        "Home",
+        "End",
+      ].includes(e.key)
+    )
+      return;
     const tabs = getVisibleTabs();
     if (!tabs.length) return;
     const idx = tabs.indexOf(document.activeElement);
@@ -1683,8 +1830,10 @@ function setupWorkspaceTabsEvents() {
 
     e.preventDefault();
     let nextIdx = idx;
-    if (e.key === "ArrowRight" || e.key === "ArrowDown") nextIdx = (idx + 1) % tabs.length;
-    else if (e.key === "ArrowLeft" || e.key === "ArrowUp") nextIdx = (idx - 1 + tabs.length) % tabs.length;
+    if (e.key === "ArrowRight" || e.key === "ArrowDown")
+      nextIdx = (idx + 1) % tabs.length;
+    else if (e.key === "ArrowLeft" || e.key === "ArrowUp")
+      nextIdx = (idx - 1 + tabs.length) % tabs.length;
     else if (e.key === "Home") nextIdx = 0;
     else if (e.key === "End") nextIdx = tabs.length - 1;
     selectWorkspaceTab(tabs[nextIdx].getAttribute("data-ws-tab"), true);
@@ -1729,7 +1878,9 @@ function refreshWorkspaceQrPreview(customTitle) {
   }
 
   const studentUrl = computeStudentUrlForWorkspace(normalized);
-  const labelTitle = String(customTitle || (titleInput && titleInput.value) || "").trim();
+  const labelTitle = String(
+    customTitle || (titleInput && titleInput.value) || "",
+  ).trim();
   if (cardTitleEl) {
     if (labelTitle) {
       cardTitleEl.textContent = labelTitle;
@@ -1744,7 +1895,7 @@ function refreshWorkspaceQrPreview(customTitle) {
   try {
     svgBox.innerHTML = window.SnowDayQR.toSvgString(studentUrl, {
       pixelSize: 236,
-      eccLevel: "M"
+      eccLevel: "M",
     });
   } catch (err) {
     svgBox.textContent = err && err.message ? err.message : String(err);
@@ -1799,7 +1950,10 @@ function setupAdminUsernameValidation() {
       CSS.supports("selector(:user-invalid)") &&
       usernameInput.matches(":user-invalid");
 
-    if (matchesNativeInvalid || (!valid && usernameInput.dataset.touched === "true")) {
+    if (
+      matchesNativeInvalid ||
+      (!valid && usernameInput.dataset.touched === "true")
+    ) {
       usernameInput.classList.add("user-invalid-fallback");
       usernameInput.setAttribute("aria-invalid", "true");
       syncFieldErrorDescribe(usernameInput, true);
@@ -1845,7 +1999,7 @@ function createPasswordInputWithToggle({
   maxLength = 128,
   pattern = "",
   ariaDescribedBy = "",
-  dataError = ""
+  dataError = "",
 }) {
   const strings = t();
   const wrap = document.createElement("div");
@@ -1922,7 +2076,7 @@ function buildSignInFormElement(prefixId) {
     name: "password",
     autocomplete: "current-password",
     placeholder: strings.loginPasswordPlaceholder,
-    enterkeyhint: "done"
+    enterkeyhint: "done",
   });
   passGroup.appendChild(passLabel);
   passGroup.appendChild(passCtrl.wrap);
@@ -1942,7 +2096,9 @@ function buildSignInFormElement(prefixId) {
   submitBtn.type = "submit";
   submitBtn.className = "btn btn-primary btn-full";
   submitBtn.disabled = isSigningIn;
-  submitBtn.textContent = isSigningIn ? strings.signingInBtn : strings.signInBtn;
+  submitBtn.textContent = isSigningIn
+    ? strings.signingInBtn
+    : strings.signInBtn;
   form.appendChild(submitBtn);
 
   const forgotNote = document.createElement("p");
@@ -2012,7 +2168,7 @@ function buildPasswordChangeFormElement(prefixId, isMandatory) {
       name: "current-password",
       autocomplete: "current-password",
       placeholder: strings.currentPasswordPlaceholder,
-      enterkeyhint: "next"
+      enterkeyhint: "next",
     });
     curGroup.appendChild(curLabel);
     curGroup.appendChild(currentPassCtrl.wrap);
@@ -2037,7 +2193,7 @@ function buildPasswordChangeFormElement(prefixId, isMandatory) {
     { key: "hasUpper", text: strings.pwdRuleUpper },
     { key: "hasLower", text: strings.pwdRuleLower },
     { key: "hasDigit", text: strings.pwdRuleDigit },
-    { key: "hasSpecial", text: strings.pwdRuleSpecial }
+    { key: "hasSpecial", text: strings.pwdRuleSpecial },
   ];
   const ruleDomMap = {};
   ruleDefs.forEach((r) => {
@@ -2065,7 +2221,7 @@ function buildPasswordChangeFormElement(prefixId, isMandatory) {
     maxLength: 128,
     pattern: STRONG_PASSWORD_HTML_PATTERN,
     ariaDescribedBy: rulesId,
-    dataError: newErrorId
+    dataError: newErrorId,
   });
 
   const newErrorDiv = document.createElement("div");
@@ -2092,7 +2248,7 @@ function buildPasswordChangeFormElement(prefixId, isMandatory) {
     autocomplete: "new-password",
     placeholder: strings.confirmPasswordPlaceholder,
     enterkeyhint: "done",
-    dataError: confirmErrorId
+    dataError: confirmErrorId,
   });
   const confirmErrorDiv = document.createElement("div");
   confirmErrorDiv.id = confirmErrorId;
@@ -2122,11 +2278,20 @@ function buildPasswordChangeFormElement(prefixId, isMandatory) {
       syncFieldErrorDescribe(newPassCtrl.inp, !valid);
     }
 
-    if (confirmPassCtrl.inp.dataset.touched === "true" && confirmPassCtrl.inp.value) {
+    if (
+      confirmPassCtrl.inp.dataset.touched === "true" &&
+      confirmPassCtrl.inp.value
+    ) {
       const match = confirmPassCtrl.inp.value === val;
       confirmPassCtrl.inp.classList.toggle("user-invalid-fallback", !match);
-      confirmPassCtrl.inp.classList.toggle("user-valid-fallback", match && valid);
-      confirmPassCtrl.inp.setAttribute("aria-invalid", match ? "false" : "true");
+      confirmPassCtrl.inp.classList.toggle(
+        "user-valid-fallback",
+        match && valid,
+      );
+      confirmPassCtrl.inp.setAttribute(
+        "aria-invalid",
+        match ? "false" : "true",
+      );
       confirmErrorDiv.classList.toggle("is-visible", !match);
       syncFieldErrorDescribe(confirmPassCtrl.inp, !match);
     }
@@ -2141,7 +2306,8 @@ function buildPasswordChangeFormElement(prefixId, isMandatory) {
   });
 
   confirmPassCtrl.inp.addEventListener("input", () => {
-    if (confirmPassCtrl.inp.dataset.touched === "true") syncLiveChecklist(false);
+    if (confirmPassCtrl.inp.dataset.touched === "true")
+      syncLiveChecklist(false);
   });
   confirmPassCtrl.inp.addEventListener("blur", () => {
     if (confirmPassCtrl.inp.value) {
@@ -2213,7 +2379,7 @@ function buildPasswordChangeFormElement(prefixId, isMandatory) {
     await submitPasswordChange({
       currentPassword: currentPassCtrl ? currentPassCtrl.inp.value : "",
       newPassword: newPassCtrl.inp.value,
-      confirmPassword: confirmPassCtrl.inp.value
+      confirmPassword: confirmPassCtrl.inp.value,
     });
   });
 
@@ -2266,7 +2432,10 @@ function renderHeaderAuthButton() {
     if (dot) dot.hidden = true;
   }
 
-  if (window.SnowDayPortal && typeof window.SnowDayPortal.syncHeader === "function") {
+  if (
+    window.SnowDayPortal &&
+    typeof window.SnowDayPortal.syncHeader === "function"
+  ) {
     window.SnowDayPortal.syncHeader();
   }
 }
@@ -2278,13 +2447,16 @@ function renderWorkspaceBanner() {
   const avatarEl = document.getElementById("ws-user-avatar");
   if (avatarEl) {
     avatarEl.innerHTML = "";
-    const initial = (authState.displayName || authState.username || "T").charAt(0).toUpperCase();
+    const initial = (authState.displayName || authState.username || "T")
+      .charAt(0)
+      .toUpperCase();
     avatarEl.textContent = initial;
   }
 
   const rolePill = document.getElementById("ws-role-pill");
   if (rolePill) {
-    rolePill.className = "teacher-verified-pill" + (authState.isSuperAdmin ? " is-admin" : "");
+    rolePill.className =
+      "teacher-verified-pill" + (authState.isSuperAdmin ? " is-admin" : "");
     rolePill.textContent = authState.isSuperAdmin
       ? strings.verifiedAdminBadge
       : strings.verifiedTeacherBadge;
@@ -2314,18 +2486,22 @@ function renderWorkspaceBanner() {
 
   if (docsCountEl) docsCountEl.textContent = String(cachedPersonalDocs.length);
   if (aiCountEl) {
-    const aiTotal = cachedPersonalDocs.filter((d) => d.status === "ai_generated").length;
+    const aiTotal = cachedPersonalDocs.filter(
+      (d) => d.status === "ai_generated",
+    ).length;
     aiCountEl.textContent = String(aiTotal);
   }
   if (teachersWrap) {
     teachersWrap.hidden = !authState.isSuperAdmin;
-    if (teachersCountEl) teachersCountEl.textContent = String(cachedTeachersList.length);
+    if (teachersCountEl)
+      teachersCountEl.textContent = String(cachedTeachersList.length);
   }
 
   const returnLessonBtn = document.getElementById("ws-return-lesson-btn");
   if (returnLessonBtn) {
     const ctx =
-      window.SnowDayPortal && typeof window.SnowDayPortal.getActiveLessonContext === "function"
+      window.SnowDayPortal &&
+      typeof window.SnowDayPortal.getActiveLessonContext === "function"
         ? window.SnowDayPortal.getActiveLessonContext()
         : { hasLesson: false };
     returnLessonBtn.hidden = !ctx.hasLesson;
@@ -2435,12 +2611,14 @@ function renderImportFromBrowserButton() {
   if (!btn || !authState.isAuthorizedTeacher) return;
 
   const recents =
-    window.SnowDayPortal && typeof window.SnowDayPortal.listRecentCachedLessons === "function"
+    window.SnowDayPortal &&
+    typeof window.SnowDayPortal.listRecentCachedLessons === "function"
       ? window.SnowDayPortal.listRecentCachedLessons() || []
       : [];
   const existingKeys = new Set(cachedPersonalDocs.map((d) => d.docKey));
   const unsavedCount = recents.filter((r) => {
-    const norm = r && r.sampleDocUrl ? normalizeHttpsDocUrl(r.sampleDocUrl) : "";
+    const norm =
+      r && r.sampleDocUrl ? normalizeHttpsDocUrl(r.sampleDocUrl) : "";
     return norm && !existingKeys.has(getSafeDocKey(norm));
   }).length;
 
@@ -2486,7 +2664,13 @@ function renderPersonalDocsGrid() {
       return false;
     }
     if (!q) return true;
-    const hay = [item.title, item.subject, item.classLabel, item.personalNote, item.docUrl]
+    const hay = [
+      item.title,
+      item.subject,
+      item.classLabel,
+      item.personalNote,
+      item.docUrl,
+    ]
       .join(" ")
       .toLowerCase();
     return hay.includes(q);
@@ -2509,9 +2693,12 @@ function renderPersonalDocsGrid() {
 
     const statusBadge = document.createElement("span");
     statusBadge.className =
-      "ws-doc-status-pill" + (item.status === "ai_generated" ? " is-ai" : " is-qr");
+      "ws-doc-status-pill" +
+      (item.status === "ai_generated" ? " is-ai" : " is-qr");
     statusBadge.textContent =
-      item.status === "ai_generated" ? strings.statusAiBadge : strings.statusQrBadge;
+      item.status === "ai_generated"
+        ? strings.statusAiBadge
+        : strings.statusQrBadge;
     metaTop.appendChild(statusBadge);
 
     if (item.subject) {
@@ -2532,7 +2719,8 @@ function renderPersonalDocsGrid() {
 
     const titleEl = document.createElement("h3");
     titleEl.className = "ws-doc-title";
-    titleEl.textContent = item.title || strings.untitledDocFmt(item.docKey.slice(0, 8));
+    titleEl.textContent =
+      item.title || strings.untitledDocFmt(item.docKey.slice(0, 8));
     card.appendChild(titleEl);
 
     const timeLine = document.createElement("p");
@@ -2627,14 +2815,15 @@ function renderPersonalDocsGrid() {
             classLabel: classField.inp.value,
             personalNote: noteArea.value,
             status: item.status,
-            preserveExistingNotes: false
+            preserveExistingNotes: false,
           });
           editingDocKey = "";
           showHistoryToast(strings.updatedDocToast, false);
         } catch (err) {
           showHistoryToast(
-            strings.genericSaveErrorPrefix + ((err && err.message) || String(err)),
-            true
+            strings.genericSaveErrorPrefix +
+              ((err && err.message) || String(err)),
+            true,
           );
           saveBtn.disabled = false;
         }
@@ -2651,7 +2840,10 @@ function renderPersonalDocsGrid() {
     openBtn.className = "btn btn-small btn-primary";
     openBtn.textContent = strings.docOpenLessonBtn;
     openBtn.addEventListener("click", () => {
-      if (window.SnowDayPortal && typeof window.SnowDayPortal.openDocUrlWithHistory === "function") {
+      if (
+        window.SnowDayPortal &&
+        typeof window.SnowDayPortal.openDocUrlWithHistory === "function"
+      ) {
         window.SnowDayPortal.openDocUrlWithHistory(item.docUrl, false);
       }
     });
@@ -2675,7 +2867,7 @@ function renderPersonalDocsGrid() {
         rawDocUrl: item.docUrl,
         status: item.status,
         incrementShare: true,
-        preserveExistingNotes: true
+        preserveExistingNotes: true,
       }).catch(() => {});
     });
 
@@ -2704,7 +2896,8 @@ function renderPersonalDocsGrid() {
     const copyBtn = makeMenuItem(strings.docCopyStudentLinkBtn);
     copyBtn.addEventListener("click", async () => {
       moreMenu.open = false;
-      const link = item.studentQrUrl || computeStudentUrlForWorkspace(item.docUrl);
+      const link =
+        item.studentQrUrl || computeStudentUrlForWorkspace(item.docUrl);
       try {
         await navigator.clipboard.writeText(link);
         showHistoryToast(strings.copiedLinkToast, false);
@@ -2740,13 +2933,16 @@ function renderPersonalDocsGrid() {
       }
       delBtn.disabled = true;
       try {
-        await deleteDoc(doc(db, "teachers", authState.username, "docs", item.docKey));
+        await deleteDoc(
+          doc(db, "teachers", authState.username, "docs", item.docKey),
+        );
         showHistoryToast(strings.deletedDocToast, false);
       } catch (err) {
         delBtn.disabled = false;
         showHistoryToast(
-          strings.genericSaveErrorPrefix + ((err && err.message) || String(err)),
-          true
+          strings.genericSaveErrorPrefix +
+            ((err && err.message) || String(err)),
+          true,
         );
       }
     });
@@ -2787,7 +2983,9 @@ function renderAdminCredentialsCard(scrollIntoViewNow = false) {
   const title = document.createElement("h3");
   title.className = "admin-cred-title";
   title.textContent =
-    mode === "reset" ? strings.credResetTitleFmt(username) : strings.credCreatedTitleFmt(username);
+    mode === "reset"
+      ? strings.credResetTitleFmt(username)
+      : strings.credCreatedTitleFmt(username);
 
   const dismissBtn = document.createElement("button");
   dismissBtn.type = "button";
@@ -2857,7 +3055,7 @@ function renderAdminCredentialsCard(scrollIntoViewNow = false) {
   copyBothBtn.textContent = strings.copyBothCredsBtn;
   copyBothBtn.addEventListener("click", async () => {
     const textBlock =
-      `SnowDay Class (answer.ge)\n` +
+      `SnowDay Class\n` +
       `Username: ${username}\n` +
       `One-Time Password: ${oneTimePassword}`;
     try {
@@ -2890,7 +3088,8 @@ function renderAdminFeedback() {
   }
   feedbackEl.hidden = false;
   feedbackEl.className =
-    "api-ping-status admin-feedback" + (adminFeedbackIsError ? " is-error" : "");
+    "api-ping-status admin-feedback" +
+    (adminFeedbackIsError ? " is-error" : "");
   feedbackEl.textContent = adminFeedbackMessage;
 }
 
@@ -2899,7 +3098,9 @@ function renderAdminPanelDirectory() {
   const strings = t();
 
   const totalCount = cachedTeachersList.length;
-  const pendingCount = cachedTeachersList.filter((m) => m.mustChangePassword).length;
+  const pendingCount = cachedTeachersList.filter(
+    (m) => m.mustChangePassword,
+  ).length;
   const activeCount = Math.max(0, totalCount - pendingCount);
 
   const totalVal = document.getElementById("admin-kpi-total-val");
@@ -2916,7 +3117,10 @@ function renderAdminPanelDirectory() {
   const q = adminSearchQuery.trim().toLowerCase();
   const filtered = cachedTeachersList.filter((item) => {
     if (!q) return true;
-    return [item.username, item.note, item.displayName].join(" ").toLowerCase().includes(q);
+    return [item.username, item.note, item.displayName]
+      .join(" ")
+      .toLowerCase()
+      .includes(q);
   });
 
   if (filtered.length === 0) {
@@ -2991,7 +3195,9 @@ function renderAdminPanelDirectory() {
     const tdRole = document.createElement("td");
     const roleTag = document.createElement("span");
     roleTag.className = "teacher-role-tag" + (isAdminItem ? " is-admin" : "");
-    roleTag.textContent = isAdminItem ? strings.roleSuperAdminTag : strings.roleTeacherTag;
+    roleTag.textContent = isAdminItem
+      ? strings.roleSuperAdminTag
+      : strings.roleTeacherTag;
     tdRole.appendChild(roleTag);
     tr.appendChild(tdRole);
 
@@ -3027,7 +3233,9 @@ function renderAdminPanelDirectory() {
       yesBtn.type = "button";
       yesBtn.className = "btn btn-small btn-primary";
       yesBtn.textContent = strings.confirmYesBtn;
-      yesBtn.addEventListener("click", () => resetTeacherPasswordByAdmin(item.username, yesBtn));
+      yesBtn.addEventListener("click", () =>
+        resetTeacherPasswordByAdmin(item.username, yesBtn),
+      );
 
       const noBtn = document.createElement("button");
       noBtn.type = "button";
@@ -3053,7 +3261,9 @@ function renderAdminPanelDirectory() {
       yesDelBtn.type = "button";
       yesDelBtn.className = "btn btn-small btn-danger-ghost";
       yesDelBtn.textContent = strings.confirmYesBtn;
-      yesDelBtn.addEventListener("click", () => removeTeacherByUsername(item.username, yesDelBtn));
+      yesDelBtn.addEventListener("click", () =>
+        removeTeacherByUsername(item.username, yesDelBtn),
+      );
 
       const noDelBtn = document.createElement("button");
       noDelBtn.type = "button";
@@ -3087,7 +3297,9 @@ function renderAdminPanelDirectory() {
 
       const closeMenu = () => {
         if (menuEl.hidePopover) {
-          try { menuEl.hidePopover(); } catch (_e) {}
+          try {
+            menuEl.hidePopover();
+          } catch (_e) {}
         }
         menuEl.classList.remove("is-open");
         menuBtn.setAttribute("aria-expanded", "false");
@@ -3170,10 +3382,14 @@ function renderAdminPanelDirectory() {
         document.querySelectorAll(".admin-actions-menu").forEach((other) => {
           if (other !== menuEl) {
             if (other.hidePopover) {
-              try { other.hidePopover(); } catch (_e) {}
+              try {
+                other.hidePopover();
+              } catch (_e) {}
             }
             other.classList.remove("is-open");
-            const otherBtn = other.parentElement?.querySelector(".admin-row-menu-btn");
+            const otherBtn = other.parentElement?.querySelector(
+              ".admin-row-menu-btn",
+            );
             if (otherBtn) otherBtn.setAttribute("aria-expanded", "false");
           }
         });
@@ -3247,7 +3463,8 @@ function renderLandingTeacherCardGate() {
       identityWrap.className = "teacher-bar-identity";
 
       const badge = document.createElement("span");
-      badge.className = "teacher-verified-pill" + (authState.isSuperAdmin ? " is-admin" : "");
+      badge.className =
+        "teacher-verified-pill" + (authState.isSuperAdmin ? " is-admin" : "");
       badge.textContent = authState.isSuperAdmin
         ? strings.verifiedAdminBadge
         : strings.verifiedTeacherBadge;
@@ -3369,13 +3586,16 @@ function renderRibbonTeacherButtons() {
     }
     saveBtn.hidden = false;
     const ctx =
-      window.SnowDayPortal && typeof window.SnowDayPortal.getActiveLessonContext === "function"
+      window.SnowDayPortal &&
+      typeof window.SnowDayPortal.getActiveLessonContext === "function"
         ? window.SnowDayPortal.getActiveLessonContext()
         : { hasLesson: false, docKey: "" };
     const isAlreadySaved = Boolean(
-      ctx.docKey && cachedPersonalDocs.some((d) => d.docKey === ctx.docKey)
+      ctx.docKey && cachedPersonalDocs.some((d) => d.docKey === ctx.docKey),
     );
-    saveBtn.textContent = isAlreadySaved ? strings.ribbonSavedBtn : strings.ribbonSaveBtn;
+    saveBtn.textContent = isAlreadySaved
+      ? strings.ribbonSavedBtn
+      : strings.ribbonSaveBtn;
     saveBtn.classList.toggle("is-saved-doc", isAlreadySaved);
   }
 }
@@ -3395,7 +3615,9 @@ function renderAuthDialogContent() {
   if (authState.status === "must_change_password") {
     titleEl.textContent = strings.authModalTitleMustChange;
     if (closeForm) closeForm.hidden = true;
-    bodyEl.appendChild(buildPasswordChangeFormElement("dialog-mandatory", true));
+    bodyEl.appendChild(
+      buildPasswordChangeFormElement("dialog-mandatory", true),
+    );
     return;
   }
 
@@ -3404,7 +3626,9 @@ function renderAuthDialogContent() {
   // Voluntary password change requested by an active teacher / Super Admin
   if (voluntaryPasswordModalOpen && authState.isAuthorizedTeacher) {
     titleEl.textContent = strings.authModalTitleVoluntaryChange;
-    bodyEl.appendChild(buildPasswordChangeFormElement("dialog-voluntary", false));
+    bodyEl.appendChild(
+      buildPasswordChangeFormElement("dialog-voluntary", false),
+    );
     return;
   }
 
@@ -3477,7 +3701,9 @@ function bindWorkspaceAndAuthEvents() {
   if (headerBtn) {
     headerBtn.addEventListener("click", () => {
       if (authState.isAuthorizedTeacher) {
-        openWorkspaceView(authState.isSuperAdmin ? activeWorkspaceTab : "history");
+        openWorkspaceView(
+          authState.isSuperAdmin ? activeWorkspaceTab : "history",
+        );
       } else {
         openAuthDialog();
       }
@@ -3502,7 +3728,10 @@ function bindWorkspaceAndAuthEvents() {
   const returnLessonBtn = document.getElementById("ws-return-lesson-btn");
   if (returnLessonBtn) {
     returnLessonBtn.addEventListener("click", () => {
-      if (window.SnowDayPortal && typeof window.SnowDayPortal.returnToActiveLesson === "function") {
+      if (
+        window.SnowDayPortal &&
+        typeof window.SnowDayPortal.returnToActiveLesson === "function"
+      ) {
         window.SnowDayPortal.returnToActiveLesson();
       }
     });
@@ -3511,7 +3740,10 @@ function bindWorkspaceAndAuthEvents() {
   const studentHubBtn = document.getElementById("ws-student-hub-btn");
   if (studentHubBtn) {
     studentHubBtn.addEventListener("click", () => {
-      if (window.SnowDayPortal && typeof window.SnowDayPortal.showLandingHub === "function") {
+      if (
+        window.SnowDayPortal &&
+        typeof window.SnowDayPortal.showLandingHub === "function"
+      ) {
         window.SnowDayPortal.showLandingHub(true, true);
       }
     });
@@ -3544,7 +3776,8 @@ function bindWorkspaceAndAuthEvents() {
         (ctx.lesson &&
           ctx.lesson.meta &&
           ctx.lesson.meta.lessonTitle &&
-          (ctx.lesson.meta.lessonTitle[lang] || ctx.lesson.meta.lessonTitle.ka)) ||
+          (ctx.lesson.meta.lessonTitle[lang] ||
+            ctx.lesson.meta.lessonTitle.ka)) ||
         "";
       const subject =
         (ctx.lesson &&
@@ -3558,7 +3791,7 @@ function bindWorkspaceAndAuthEvents() {
           title,
           subject,
           status: "ai_generated",
-          preserveExistingNotes: true
+          preserveExistingNotes: true,
         });
         renderRibbonTeacherButtons();
       } catch (_e) {}
@@ -3568,7 +3801,9 @@ function bindWorkspaceAndAuthEvents() {
   // History Toolbar Controls
   const jumpCreateBtn = document.getElementById("ws-jump-create-btn");
   if (jumpCreateBtn) {
-    jumpCreateBtn.addEventListener("click", () => selectWorkspaceTab("create", true));
+    jumpCreateBtn.addEventListener("click", () =>
+      selectWorkspaceTab("create", true),
+    );
   }
 
   const importLocalBtn = document.getElementById("ws-import-local-btn");
@@ -3642,8 +3877,12 @@ function bindWorkspaceAndAuthEvents() {
       try {
         wsFileInput.value = "";
         wsFileBtn.disabled = true;
-        wsFileBtn.textContent = getLang() === "ka" ? "იტვირთება..." : "Uploading...";
-        if (!window.SnowDayPortal || typeof window.SnowDayPortal.uploadLessonFile !== "function") {
+        wsFileBtn.textContent =
+          getLang() === "ka" ? "იტვირთება..." : "Uploading...";
+        if (
+          !window.SnowDayPortal ||
+          typeof window.SnowDayPortal.uploadLessonFile !== "function"
+        ) {
           throw new Error("Portal is still loading. Please try again.");
         }
         const up = await window.SnowDayPortal.uploadLessonFile(file);
@@ -3652,19 +3891,24 @@ function bindWorkspaceAndAuthEvents() {
           if (wsUrlError) wsUrlError.hidden = true;
         }
         if (wsTitleInput && !wsTitleInput.value.trim()) {
-          const cleanName = file.name.replace(/\.[^/.]+$/, "").replace(/[_-]+/g, " ").trim();
+          const cleanName = file.name
+            .replace(/\.[^/.]+$/, "")
+            .replace(/[_-]+/g, " ")
+            .trim();
           wsTitleInput.value = cleanName;
         }
         if (wsFileName) {
-          wsFileName.textContent = window.SnowDayPortal.describeUploadResult(up);
+          wsFileName.textContent =
+            window.SnowDayPortal.describeUploadResult(up);
           wsFileName.hidden = false;
         }
         refreshWorkspaceQrPreview();
       } catch (err) {
         showHistoryToast(
-          (getLang() === "ka" ? "ფაილის წაკითხვა ვერ მოხერხდა: " : "Could not read file: ") +
-            err.message,
-          true
+          (getLang() === "ka"
+            ? "ფაილის წაკითხვა ვერ მოხერხდა: "
+            : "Could not read file: ") + err.message,
+          true,
         );
       } finally {
         wsFileBtn.disabled = false;
@@ -3702,7 +3946,7 @@ function bindWorkspaceAndAuthEvents() {
           personalNote: wsNoteInput ? wsNoteInput.value : "",
           status: "qr_shared",
           incrementShare: true,
-          preserveExistingNotes: false
+          preserveExistingNotes: false,
         });
         if (wsCreateFeedback) {
           wsCreateFeedback.className = "api-ping-status";
@@ -3745,11 +3989,14 @@ function bindWorkspaceAndAuthEvents() {
           classLabel: wsClassInput ? wsClassInput.value : "",
           personalNote: wsNoteInput ? wsNoteInput.value : "",
           status: "qr_shared",
-          preserveExistingNotes: true
+          preserveExistingNotes: true,
         });
       } catch (_e) {}
 
-      if (window.SnowDayPortal && typeof window.SnowDayPortal.openDocUrlWithHistory === "function") {
+      if (
+        window.SnowDayPortal &&
+        typeof window.SnowDayPortal.openDocUrlWithHistory === "function"
+      ) {
         window.SnowDayPortal.openDocUrlWithHistory(normalized, false);
       }
     });
@@ -3758,7 +4005,9 @@ function bindWorkspaceAndAuthEvents() {
   const wsDownloadQrBtn = document.getElementById("ws-download-qr-btn");
   if (wsDownloadQrBtn) {
     wsDownloadQrBtn.addEventListener("click", () => {
-      const normalized = normalizeHttpsDocUrl(wsUrlInput ? wsUrlInput.value : "");
+      const normalized = normalizeHttpsDocUrl(
+        wsUrlInput ? wsUrlInput.value : "",
+      );
       if (!normalized || !window.SnowDayPortal) return;
       const studentUrl = computeStudentUrlForWorkspace(normalized);
       if (window.SnowDayPortal.downloadQrPngForUrl(studentUrl)) {
@@ -3770,7 +4019,9 @@ function bindWorkspaceAndAuthEvents() {
   const wsCopyQrBtn = document.getElementById("ws-copy-qr-btn");
   if (wsCopyQrBtn) {
     wsCopyQrBtn.addEventListener("click", async () => {
-      const normalized = normalizeHttpsDocUrl(wsUrlInput ? wsUrlInput.value : "");
+      const normalized = normalizeHttpsDocUrl(
+        wsUrlInput ? wsUrlInput.value : "",
+      );
       if (!normalized) return;
       const studentUrl = computeStudentUrlForWorkspace(normalized);
       try {
@@ -3798,7 +4049,7 @@ function bindWorkspaceAndAuthEvents() {
           rawDocUrl: landingInput.value,
           status: "qr_shared",
           incrementShare: true,
-          preserveExistingNotes: true
+          preserveExistingNotes: true,
         }).catch(() => {});
       }
     });
@@ -3806,7 +4057,8 @@ function bindWorkspaceAndAuthEvents() {
 
   window.addEventListener("snowday:lessonloaded", (ev) => {
     renderRibbonTeacherButtons();
-    if (!authState.isAuthorizedTeacher || !ev.detail || !ev.detail.docUrl) return;
+    if (!authState.isAuthorizedTeacher || !ev.detail || !ev.detail.docUrl)
+      return;
     const { docUrl, docKey, lesson } = ev.detail;
     const existsInHistory = cachedPersonalDocs.some((d) => d.docKey === docKey);
     if (!existsInHistory) return;
@@ -3838,7 +4090,7 @@ function bindWorkspaceAndAuthEvents() {
       title: hasGenericTitle ? aiTitle : existingItem.title,
       subject: aiSubject || (existingItem && existingItem.subject) || "",
       status: "ai_generated",
-      preserveExistingNotes: true
+      preserveExistingNotes: true,
     }).catch(() => {});
   });
 
@@ -3856,8 +4108,14 @@ function bindWorkspaceAndAuthEvents() {
     wsSaveApiBtn.addEventListener("click", () => {
       const inp = document.getElementById("ws-agent-url-input");
       const statusEl = document.getElementById("ws-api-ping-status");
-      if (window.SnowDayPortal && window.SnowDayPortal.saveAndTestAgentBaseUrl) {
-        window.SnowDayPortal.saveAndTestAgentBaseUrl(inp ? inp.value : "", statusEl);
+      if (
+        window.SnowDayPortal &&
+        window.SnowDayPortal.saveAndTestAgentBaseUrl
+      ) {
+        window.SnowDayPortal.saveAndTestAgentBaseUrl(
+          inp ? inp.value : "",
+          statusEl,
+        );
       }
     });
   }
@@ -3877,7 +4135,10 @@ function bindWorkspaceAndAuthEvents() {
 
   // Dismiss any open admin row popovers when clicking outside, pressing Escape, or scrolling
   document.addEventListener("click", (ev) => {
-    if (!ev.target.closest(".admin-actions-menu") && !ev.target.closest(".admin-row-menu-btn")) {
+    if (
+      !ev.target.closest(".admin-actions-menu") &&
+      !ev.target.closest(".admin-row-menu-btn")
+    ) {
       document.querySelectorAll(".admin-actions-menu.is-open").forEach((el) => {
         el.classList.remove("is-open");
         const btn = el.parentElement?.querySelector(".admin-row-menu-btn");
@@ -3894,18 +4155,24 @@ function bindWorkspaceAndAuthEvents() {
       });
     }
   });
-  window.addEventListener("scroll", () => {
-    document.querySelectorAll(".admin-actions-menu").forEach((el) => {
-      if (el.matches?.(":popover-open")) {
-        try { el.hidePopover(); } catch (_e) {}
-      }
-      if (el.classList.contains("is-open")) {
-        el.classList.remove("is-open");
-        const btn = el.parentElement?.querySelector(".admin-row-menu-btn");
-        if (btn) btn.setAttribute("aria-expanded", "false");
-      }
-    });
-  }, { passive: true, capture: true });
+  window.addEventListener(
+    "scroll",
+    () => {
+      document.querySelectorAll(".admin-actions-menu").forEach((el) => {
+        if (el.matches?.(":popover-open")) {
+          try {
+            el.hidePopover();
+          } catch (_e) {}
+        }
+        if (el.classList.contains("is-open")) {
+          el.classList.remove("is-open");
+          const btn = el.parentElement?.querySelector(".admin-row-menu-btn");
+          if (btn) btn.setAttribute("aria-expanded", "false");
+        }
+      });
+    },
+    { passive: true, capture: true },
+  );
 
   window.addEventListener("snowday:langchange", () => {
     renderAllAuthSurfaces();
@@ -3914,7 +4181,8 @@ function bindWorkspaceAndAuthEvents() {
 
 function bootTeacherAuth() {
   const isLocalHost =
-    window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1";
+    window.location.hostname === "localhost" ||
+    window.location.hostname === "127.0.0.1";
   const wsTargetCurrent = document.getElementById("ws-target-current");
   if (isLocalHost && wsTargetCurrent) {
     wsTargetCurrent.checked = true;
@@ -3931,7 +4199,8 @@ function bootTeacherAuth() {
 
 window.SnowDayTeacherAuth = {
   getState: () => ({ ...authState }),
-  getIdToken: async () => (auth.currentUser ? auth.currentUser.getIdToken() : ""),
+  getIdToken: async () =>
+    auth.currentUser ? auth.currentUser.getIdToken() : "",
   isAuthorizedTeacher: () => Boolean(authState.isAuthorizedTeacher),
   isSuperAdmin: () => Boolean(authState.isSuperAdmin),
   signInWithUsernamePassword,
@@ -3947,7 +4216,7 @@ window.SnowDayTeacherAuth = {
     authState.username = "admin";
     cachedTeachersList = teachers;
     renderAdminPanelDirectory();
-  }
+  },
 };
 
 if (document.readyState === "loading") {

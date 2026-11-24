@@ -1,6 +1,6 @@
-# თოვლის დღის კლასი (SnowDay Class) · `answer.ge`
+# თოვლის დღის კლასი (SnowDay Class)
 
-Resilient bilingual (Georgian / English) AI school lesson portal and QR studio built for mountainous and regional schools. When heavy snow prevents a teacher from reaching school, the teacher shares today's lesson outline via **Google Docs, Google Drive (PDF, DOCX, TXT), or uploaded files**, generates a **QR code** on `answer.ge`, and the **Geosoft AI Agent** automatically generates:
+Resilient bilingual (Georgian / English) AI school lesson portal and QR studio built for mountainous and regional schools. When heavy snow prevents a teacher from reaching school, the teacher shares today's lesson outline via **Google Docs, Google Drive (PDF, DOCX, TXT), or uploaded files**, generates a **QR code** on the SnowDay Class website, and the **Geosoft AI Agent** automatically generates:
 1. **Learning Cards (`სასწავლო ბარათები`)** grounded in the teacher's Doc + curriculum context from that academic subject,
 2. **Hard Words Glossary (`რთული სიტყვების ლექსიკონი`)** with simple 1-line student definitions,
 3. **3-Option Questionnaire (`შემაჯამებელი კითხვარი`)** with 1st-try hints and score tracking,
@@ -24,7 +24,7 @@ Google OAuth sign-in has been removed. Teacher and Super Admin authentication us
      Set `SUPER_ADMIN_USERNAME` and `SUPER_ADMIN_PASSWORD` (must meet strong password rules) on `server.js` / Cloud Run; the server idempotently provisions the Super Admin on boot.
    - **Option C — Manual Entry in Firebase Console**:
      - **Via Firebase Auth + Firestore UI**:
-       1. In **Firebase Console → Authentication → Users → Add user**, add email `<username>@teachers.answer.ge` (e.g. `admin@teachers.answer.ge`) and a strong password.
+       1. In **Firebase Console → Authentication → Users → Add user**, add email `<username>@teachers.tsutskhvati.app` (e.g. `admin@teachers.tsutskhvati.app`) and a strong password.
        2. In **Firestore Database → `teachers` collection**, add document ID `<username>` (e.g. `admin`) with fields `username: "admin"`, `role: "super_admin"`, `mustChangePassword: false`.
      - **Or Firestore UI Only (`initialPassword` bootstrap)**:
        Create `/teachers/<username>` in Firestore with `{ role: "super_admin", initialPassword: "<StrongPassword>" }`. On first login through the portal, `server.js` automatically creates the Firebase Auth account and permanently deletes `initialPassword` from Firestore.
@@ -49,7 +49,7 @@ Google OAuth sign-in has been removed. Teacher and Super Admin authentication us
 | [`doc-extract.mjs`](./doc-extract.mjs) | Server-side lesson reader: downloads shared Google Docs / Drive files and extracts text from PDF (`unpdf`), DOCX (`mammoth`) and TXT |
 | [`scripts/create-super-admin.mjs`](./scripts/create-super-admin.mjs) | CLI utility to manually create or update a Super Admin from the system |
 | [`Dockerfile`](./Dockerfile) | Production Docker container configuration (`node:24-alpine`) |
-| [`index.html`](./index.html) | Main web app (`answer.ge`), Landing Hub, Teacher Workspace, Super Admin Panel, AI Tutor, Cards, Glossary, and Quiz |
+| [`index.html`](./index.html) | Main web app, Landing Hub, Teacher Workspace, Super Admin Panel, AI Tutor, Cards, Glossary, and Quiz |
 | [`styles.css`](./styles.css) | Responsive design system, password strength checklist, and classroom QR print stylesheet |
 | [`app.js`](./app.js) | `?doc=` QR reader, direct Google Docs/Drive CORS reader, Two-Tier Cache, and JumpIn polling |
 | [`qrcode.js`](./qrcode.js) | Zero-dependency ISO/IEC 18004 QR Code encoder (crisp SVG + downloadable PNG) |

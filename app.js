@@ -1,5 +1,5 @@
 /**
- * SnowDay Class (თოვლის დღის კლასი) — answer.ge
+ * SnowDay Class (თოვლის დღის კლასი)
  * Dynamic School Lesson Portal, QR Studio, Two-Tier Lesson Cache & Geosoft Headless AI Agent Client
  */
 (function () {
@@ -7,8 +7,18 @@
 
   const VISITOR_STORAGE_KEY = "snowday_visitor_id";
   const API_URL_STORAGE_KEY = "snowday_agent_base_url_override";
-  const LESSON_CACHE_PREFIX = "snowday_lesson_v3_";
+  const LESSON_CACHE_PREFIX = "snowday_lesson_v4_";
+  const SHARED_CACHE_SESSION_PREFIX = "lessoncache2_";
   const SHARED_CACHE_VISITOR_ID = "lesson_cache_bot";
+
+  // Drop lessons cached by older versions (testing data before production launch)
+  try {
+    Object.keys(localStorage).forEach((k) => {
+      if (k.startsWith("snowday_lesson_") && !k.startsWith(LESSON_CACHE_PREFIX)) {
+        localStorage.removeItem(k);
+      }
+    });
+  } catch (_e) {}
   const POLL_INTERVAL_MS = 3000;
 
   const ALLOWED_ACCENTS = new Set(["royal", "amber", "forest", "teal", "terracotta", "slate"]);
@@ -21,7 +31,7 @@
     ka: {
       skipToMain: "მთავარ შინაარსზე გადასვლა",
       brandTitle: "თოვლის დღის კლასი",
-      brandSubtitle: "answer.ge · სკოლის AI გაკვეთილი QR კოდით",
+      brandSubtitle: "სკოლის AI გაკვეთილი QR კოდით",
       navTutor: "AI რეპეტიტორი",
       navCards: "სასწავლო ბარათები",
       navGlossary: "რთული სიტყვები",
@@ -47,7 +57,7 @@
       genErrorTitle: "დოკუმენტის ავტომატური გენერაცია ვერ შესრულდა",
       configureApiBtn: "QR და API პარამეტრები",
       retryGenBtn: "ხელახლა ცდა",
-      landingEyebrow: "answer.ge · უწყვეტი სასკოლო განათლება",
+      landingEyebrow: "უწყვეტი სასკოლო განათლება",
       landingHeading: "გადააქციე მასწავლებლის დოკუმენტი ან Drive ფაილი AI გაკვეთილად",
       landingLead:
         "როდესაც დიდთოვლობის ან რთული მეტეოროლოგიური პირობების გამო მასწავლებელი სკოლაში ვერ მიდის, საკმარისია გაკვეთილის Google Docs, Drive (PDF, DOCX, TXT) ბმული ან ატვირთული ფაილი: AI აგენტი ერთხელ აანალიზებს მასალას, ქმნის სრულ სასწავლო ვებგვერდს და ინახავს მას მყისიერი გამოყენებისთვის.",
@@ -73,7 +83,7 @@
       ctaBrowseCards: "სასწავლო ბარათები",
       ctaTakeQuiz: "შემაჯამებელი კითხვარი",
       shareQrHeading: "QR კოდი მოსწავლეებისთვის",
-      shareQrSub: "გააზიარე ამ გაკვეთილის QR კოდი answer.ge-ზე",
+      shareQrSub: "გააზიარე ამ გაკვეთილის QR კოდი",
       showQrBtn: "QR ჩვენება",
       tutorKicker: "ინტერაქტიული დახმარება · დოკუმენტსა და საგანზე დაყრდნობით",
       demoModeBadge: "ლოკალური რეჟიმი",
@@ -106,10 +116,10 @@
       quizHeading: "გაკვეთილის შემაჯამებელი კითხვარი",
       nextQuestionBtn: "შემდეგი კითხვა",
       restartQuizBtn: "თავიდან დაწყება",
-      footerTitle: "თოვლის დღის კლასი (SnowDay Class) · answer.ge",
+      footerTitle: "თოვლის დღის კლასი (SnowDay Class)",
       footerNote:
         "შექმნილია მთიანი რეგიონების სკოლების უწყვეტი განათლებისთვის: მასწავლებლის დოკუმენტი + QR კოდი → ავტომატური AI სასწავლო გვერდი და რეპეტიტორი.",
-      studioKicker: "მასწავლებლის პანელი · answer.ge",
+      studioKicker: "მასწავლებლის პანელი",
       studioTitle: "გაკვეთილის დოკუმენტი / ფაილი და QR კოდის გენერატორი",
       closeBtn: "დახურვა",
       howTeacherWorksTitle: "3 მარტივი ნაბიჯი მასწავლებლისთვის:",
@@ -150,7 +160,7 @@
     en: {
       skipToMain: "Skip to main content",
       brandTitle: "SnowDay Class",
-      brandSubtitle: "answer.ge · AI School Lesson via QR Code",
+      brandSubtitle: "AI School Lesson via QR Code",
       navTutor: "AI Tutor",
       navCards: "Learning Cards",
       navGlossary: "Hard Words",
@@ -176,7 +186,7 @@
       genErrorTitle: "Could not generate lesson from document or Drive file",
       configureApiBtn: "QR & API Settings",
       retryGenBtn: "Try Again",
-      landingEyebrow: "answer.ge · Resilient School Continuity",
+      landingEyebrow: "Resilient School Continuity",
       landingHeading: "Turn Any Teacher's Document or Drive File into an Interactive AI Lesson",
       landingLead:
         "When heavy snow keeps a teacher from reaching school, sharing a lesson file (Google Docs, Drive PDF, DOCX, TXT) is all it takes: the AI Agent analyzes the material once, builds a complete bilingual lesson website, and caches it for instant zero-token reuse.",
@@ -202,7 +212,7 @@
       ctaBrowseCards: "Learning Cards",
       ctaTakeQuiz: "Take Questionnaire",
       shareQrHeading: "Student Lesson QR Code",
-      shareQrSub: "Share this lesson's QR code hosted on answer.ge",
+      shareQrSub: "Share this lesson's QR code",
       showQrBtn: "Show QR",
       tutorKicker: "Interactive Help · Grounded in Doc & Subject",
       demoModeBadge: "Local Mode",
@@ -235,10 +245,10 @@
       quizHeading: "Lesson Questionnaire",
       nextQuestionBtn: "Next Question",
       restartQuizBtn: "Restart Quiz",
-      footerTitle: "SnowDay Class · answer.ge",
+      footerTitle: "SnowDay Class",
       footerNote:
         "Built for resilient education in mountain schools: Teacher's Document + QR Code → Automatic AI Lesson Website & Tutor.",
-      studioKicker: "Teacher Panel · answer.ge",
+      studioKicker: "Teacher Panel",
       studioTitle: "Lesson Document / File & QR Code Generator",
       closeBtn: "Close",
       howTeacherWorksTitle: "3 Simple Steps for Teachers:",
@@ -487,7 +497,9 @@
       .replace(/[^A-Za-z0-9_-]/g, "_")
       .slice(0, 48);
     const hash = docText ? computeTextHash8(docText) : "";
-    const rawId = hash ? `lessoncache_${cleanKey}_${hash}` : `lessoncache_${cleanKey}`;
+    const rawId = hash
+      ? `${SHARED_CACHE_SESSION_PREFIX}${cleanKey}_${hash}`
+      : `${SHARED_CACHE_SESSION_PREFIX}${cleanKey}`;
     return rawId.slice(0, 120);
   }
 
@@ -2541,7 +2553,7 @@
   function buildStudentQrUrlForDoc(normalizedDoc, useCurrentOrigin) {
     const prodHost =
       (window.SNOWDAY_AGENT_CONFIG && window.SNOWDAY_AGENT_CONFIG.publicSiteBaseUrl) ||
-      "https://answer.ge";
+      "https://tsutskhvati-web-617054738609.europe-west1.run.app";
 
     let base = prodHost.replace(/\/+$/, "");
     if (useCurrentOrigin && window.location.protocol.startsWith("http")) {
@@ -2873,7 +2885,7 @@
           const normalized = validateLandingTeacherDoc();
           if (!normalized) return;
 
-          // Default to current host when testing locally on localhost, otherwise https://answer.ge
+          // Default to current host when testing locally on localhost, otherwise https://tsutskhvati-web-617054738609.europe-west1.run.app
           const isLocalHost =
             window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1";
           lastLandingQrStudentUrl = buildStudentQrUrlForDoc(normalized, isLocalHost);

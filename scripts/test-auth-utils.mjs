@@ -19,7 +19,7 @@ const rootDir = path.resolve(__dirname, "..");
 
 // 1. Username normalization & validation tests
 assert.equal(normalizeUsername("  Nino.Beridze  "), "nino.beridze");
-assert.equal(normalizeUsername("admin@teachers.answer.ge"), "admin");
+assert.equal(normalizeUsername("admin@teachers.tsutskhvati.app"), "admin");
 assert.equal(isValidUsername("admin"), true);
 assert.equal(isValidUsername("nino.beridze_01"), true);
 assert.equal(isValidUsername("ab"), false, "Too short (<3)");

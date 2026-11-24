@@ -7,7 +7,7 @@ rules_version = '2';
 // Project: geosoft-agents-customer-whc5sa (Standard edition, (default) database)
 // Auth Model: Firebase Authentication Email/Password ONLY (sign_in_provider == 'password').
 //             Each teacher username (^[a-z0-9][a-z0-9._-]{2,31}$) maps to synthetic email
-//             <username>@teachers.answer.ge. email_verified is NOT required.
+//             <username>@teachers.tsutskhvati.app. email_verified is NOT required.
 //             User creation, password resets, forced 1-time password completion, and user
 //             deletion are performed server-side via Firebase Admin SDK in Cloud Run.
 //
@@ -92,7 +92,7 @@ service cloud.firestore {
     }
 
     // Verify caller signed in with Firebase Email/Password provider using a valid
-    // synthetic teacher email (<username>@teachers.answer.ge). Does NOT require email_verified.
+    // synthetic teacher email (<username>@teachers.tsutskhvati.app). Does NOT require email_verified.
     function isPasswordAuthUser() {
       return request.auth != null &&
              'firebase' in request.auth.token &&
@@ -101,7 +101,7 @@ service cloud.firestore {
              request.auth.token.firebase.sign_in_provider == 'password' &&
              'email' in request.auth.token &&
              request.auth.token.email is string &&
-             request.auth.token.email.lower().matches("^[a-z0-9][a-z0-9._-]{2,31}@teachers\\.answer\\.ge$");
+             request.auth.token.email.lower().matches("^[a-z0-9][a-z0-9._-]{2,31}@teachers\\.tsutskhvati\\.app$");
     }
 
     // Extract canonical lowercase username from synthetic auth email (call when isPasswordAuthUser() is true)

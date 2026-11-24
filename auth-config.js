@@ -1,11 +1,11 @@
 /**
- * SnowDay Class (answer.ge) — Teacher Username/Password Auth Configuration
+ * SnowDay Class — Teacher Username/Password Auth Configuration
  * Consolidated Google Cloud / Firebase Project: Tsutskhvati (geosoft-agents-customer-whc5sa)
  */
 window.SNOWDAY_AUTH_CONFIG = {
-  // Synthetic domain used internally to map teacher usernames (<username>@teachers.answer.ge)
+  // Synthetic domain used internally to map teacher usernames (<username>@teachers.tsutskhvati.app)
   // to Firebase Email/Password Authentication (Google OAuth is disabled).
-  authEmailDomain: "teachers.answer.ge",
+  authEmailDomain: "teachers.tsutskhvati.app",
 
   // Firebase Web SDK Configuration (geosoft-agents-customer-whc5sa):
   firebaseConfig: {

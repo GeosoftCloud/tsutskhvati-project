@@ -44,13 +44,12 @@ const maxChars = Math.min(
 // Case 0: Use the SnowDay site server's extractor first (real PDF/DOCX parsing,
 // Drive virus-scan page handling, and teacher-uploaded files).
 // Servers are tried in order until one answers. The Cloud Run URL keeps working
-// even after answer.ge is mapped to the same service, so it stays first.
+// and is the production host, so it stays first.
 // Optional override: config.extractApiBase (tried before the defaults).
 // ============================================================================
 const SITE_API_BASES = [
   config && config.extractApiBase,
-  "https://tsutskhvati-web-617054738609.europe-west1.run.app",
-  "https://answer.ge"
+  "https://tsutskhvati-web-617054738609.europe-west1.run.app"
 ]
   .filter(Boolean)
   .map((b) => String(b).trim().replace(/\/+$/, ""))

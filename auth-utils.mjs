@@ -1,6 +1,6 @@
 import crypto from "node:crypto";
 
-export const AUTH_EMAIL_DOMAIN = "teachers.answer.ge";
+export const AUTH_EMAIL_DOMAIN = "teachers.tsutskhvati.app";
 export const USERNAME_REGEX = /^[a-z0-9][a-z0-9._-]{2,31}$/;
 
 export const PASSWORD_MIN_LENGTH = 8;
@@ -15,7 +15,7 @@ const OTP_ALL = OTP_UPPER + OTP_LOWER + OTP_DIGITS + OTP_SPECIAL;
 
 /**
  * Normalizes a raw username input into canonical lowercase form.
- * Strips `@teachers.answer.ge` if the user pasted the synthetic auth email.
+ * Strips `@teachers.tsutskhvati.app` if the user pasted the synthetic auth email.
  */
 export function normalizeUsername(raw) {
   let s = String(raw || "").trim().toLowerCase();

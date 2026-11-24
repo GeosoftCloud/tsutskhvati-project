@@ -1,7 +1,7 @@
 {
   "name": "tsutskhvati-project",
   "version": "1.1.0",
-  "description": "SnowDay Class (answer.ge) - Resilient School Continuity AI Lesson Portal",
+  "description": "SnowDay Class - Resilient School Continuity AI Lesson Portal",
   "main": "server.js",
   "type": "module",
   "scripts": {
